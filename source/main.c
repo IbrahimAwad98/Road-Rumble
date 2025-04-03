@@ -60,7 +60,7 @@ int main(int argc, char *pArgv[])
             }
         }
     }
-
+    // stänga ner och rensa
     SDL_FreeSurface(pSurface);
     SDL_DestroyWindow(pWindow);
     SDL_Quit();
