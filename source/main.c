@@ -121,13 +121,13 @@ int main(int argc, char *pArgv[])
         // Här visas bilden
         SDL_RenderClear(pRenderer);
         SDL_RenderCopy(pRenderer, pTexture, NULL, NULL); // Rita bakgrundsbild
-        SDL_RenderCopy(pRenderer, pStartSurf, NULL, &startRect);
-        SDL_RenderCopy(pRenderer, pExitSurf, NULL, &exitRect);
+        SDL_RenderCopy(pRenderer, pStartTex, NULL, &startRect);
+        SDL_RenderCopy(pRenderer, pExitTex, NULL, &exitRect);
         SDL_RenderPresent(pRenderer);
     }
     // stänga ner och rensa
-    SDL_DestroyTexture(pStartSurf);
-    SDL_DestroyTexture(pExitSurf);
+    SDL_DestroyTexture(pStartTex);
+    SDL_DestroyTexture(pExitTex);
     SDL_DestroyTexture(pTexture);
     TTF_CloseFont(pFont);
     SDL_DestroyRenderer(pRenderer);
