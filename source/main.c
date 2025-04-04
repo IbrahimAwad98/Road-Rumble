@@ -14,7 +14,6 @@ int main(int argc, char *pArgv[])
         printf("SDL kunde inte startas! SDL_Error: %s\n", SDL_GetError());
         return 1;
     }
-
     // Skapar fönster
     SDL_Window *pWindow = SDL_CreateWindow("Road Rumble ver 0.1", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
     if (!pWindow)
@@ -23,7 +22,15 @@ int main(int argc, char *pArgv[])
         SDL_Quit();
         return 1;
     }
-
+    // Skapar render
+    SDL_Renderer *pRenderer = SDL_CreateRenderer(pWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    if (!pRenderer)
+    {
+        printf("Error: %s\n", SDL_GetError());
+        SDL_DestroyWindow(pWindow);
+        SDL_Quit();
+        return 1;
+    }
     // Laddar bild
     SDL_Surface *pSurface = IMG_Load("resources/Sim2.png");
     if (!pSurface)
@@ -33,13 +40,17 @@ int main(int argc, char *pArgv[])
         SDL_Quit();
         return 1;
     }
-
-    // Sätt bildytan till fönstret
-    SDL_Surface *windowSurface = SDL_GetWindowSurface(pWindow);
-    // första null är hela bilden och andra null är vart i fönstret ska ritas.
-    SDL_BlitSurface(pSurface, NULL, windowSurface, NULL);
-    SDL_UpdateWindowSurface(pWindow);
-
+    // konvertera en bild (SDL_Surface) till en textur
+    SDL_Texture *pTexture = SDL_CreateTextureFromSurface(pRenderer, pSurface);
+    SDL_FreeSurface(pSurface);
+    if (!pTexture)
+    {
+        printf("Error: %s\n", SDL_GetError());
+        SDL_DestroyRenderer(pRenderer);
+        SDL_DestroyWindow(pWindow);
+        SDL_Quit();
+        return 1;
+    }
     // Event loop (för att hålla fönstret)
     bool isRunning = true;
     SDL_Event event;
@@ -59,9 +70,14 @@ int main(int argc, char *pArgv[])
                 }
             }
         }
+        // Här visas bilden
+        SDL_RenderClear(pRenderer);
+        SDL_RenderCopy(pRenderer, pTexture, NULL, NULL); // Rita bakgrundsbild
+        SDL_RenderPresent(pRenderer);
     }
     // stänga ner och rensa
-    SDL_FreeSurface(pSurface);
+    SDL_DestroyTexture(pTexture);
+    SDL_DestroyRenderer(pRenderer);
     SDL_DestroyWindow(pWindow);
     SDL_Quit();
 
