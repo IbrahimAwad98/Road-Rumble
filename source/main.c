@@ -38,7 +38,7 @@ int main(int argc, char *pArgv[])
     SDL_Surface *pSurface = IMG_Load("resources/Sim2.png");
     if (!pSurface)
     {
-        printf("Fel vid bildladdning: %s\n", IMG_GetError());
+        printf("Error: %s\n", IMG_GetError());
         SDL_DestroyWindow(pWindow);
         SDL_Quit();
         return 1;
@@ -55,26 +55,33 @@ int main(int argc, char *pArgv[])
         return 1;
     }
     // Ladda font
-    TTF_Font *pFont = TTF_OpenFont("resources/PressStart2P.ttf", 28);
+    TTF_Font *pFont = TTF_OpenFont("resources/PressStart2P-Regular.ttf", 35);
     if (!pFont)
     {
         printf("Error: %s\n", TTF_GetError());
+        SDL_DestroyRenderer(pRenderer);
+        SDL_DestroyWindow(pWindow);
+        TTF_Quit();
+        IMG_Quit();
+        SDL_Quit();
         return 1;
     }
 
-    SDL_Color white = {255, 255, 255};
+    // färger
+    SDL_Color green = {0, 255, 0};
+    SDL_Color red = {255, 0, 0};
 
     // Rendera textytor
-    SDL_Surface *startSurf = TTF_RenderText_Solid(pFont, "Starta spelet", white);
-    SDL_Surface *exitSurf = TTF_RenderText_Solid(pFont, "Avsluta spelet", white);
-    SDL_Texture *startTex = SDL_CreateTextureFromSurface(pRenderer, startSurf);
-    SDL_Texture *exitTex = SDL_CreateTextureFromSurface(pRenderer, exitSurf);
+    SDL_Surface *pStartSurf = TTF_RenderText_Solid(pFont, "Start Game", green);
+    SDL_Surface *pExitSurf = TTF_RenderText_Solid(pFont, "End Game", red);
+    SDL_Texture *pStartTex = SDL_CreateTextureFromSurface(pRenderer, pStartSurf);
+    SDL_Texture *pExitTex = SDL_CreateTextureFromSurface(pRenderer, pExitSurf);
 
-    SDL_Rect startRect = {500, 250, startSurf->w, startSurf->h};
-    SDL_Rect exitRect = {500, 350, exitSurf->w, exitSurf->h};
+    SDL_Rect startRect = {120, 450, pStartSurf->w, pStartSurf->h}; // position via paint windows
+    SDL_Rect exitRect = {120, 500, pExitSurf->w, pExitSurf->h};
 
-    SDL_FreeSurface(startSurf);
-    SDL_FreeSurface(exitSurf);
+    SDL_FreeSurface(pStartSurf);
+    SDL_FreeSurface(pExitSurf);
 
     // Event loop (för att hålla fönstret)
     bool isRunning = true;
@@ -114,13 +121,13 @@ int main(int argc, char *pArgv[])
         // Här visas bilden
         SDL_RenderClear(pRenderer);
         SDL_RenderCopy(pRenderer, pTexture, NULL, NULL); // Rita bakgrundsbild
-        SDL_RenderCopy(pRenderer, startTex, NULL, &startRect);
-        SDL_RenderCopy(pRenderer, exitTex, NULL, &exitRect);
+        SDL_RenderCopy(pRenderer, pStartSurf, NULL, &startRect);
+        SDL_RenderCopy(pRenderer, pExitSurf, NULL, &exitRect);
         SDL_RenderPresent(pRenderer);
     }
     // stänga ner och rensa
-    SDL_DestroyTexture(startTex);
-    SDL_DestroyTexture(exitTex);
+    SDL_DestroyTexture(pStartSurf);
+    SDL_DestroyTexture(pExitSurf);
     SDL_DestroyTexture(pTexture);
     TTF_CloseFont(pFont);
     SDL_DestroyRenderer(pRenderer);
