@@ -6,7 +6,7 @@
 
 #define WIDTH 1280
 #define HEIGHT 720
-
+//hamza 
 int main(int argc, char **pArgv)
 {
     // Initierar SDL
