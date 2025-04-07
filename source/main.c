@@ -177,12 +177,13 @@ int main(int argc, char **argv)
     TTF_CloseFont(pFont);
     SDL_DestroyRenderer(pRenderer);
     SDL_DestroyWindow(pWindow);
+    Mix_FreeMusic(pBgMusic);
 
     // Avslutar alla SDL-moduler
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();
     SDLNet_Quit();
-
+    Mix_CloseAudio();
     return 0;
 }
