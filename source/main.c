@@ -3,22 +3,33 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
-#include <SDL2/SDL_net.h> // används senare för nätverksfunktioner
+#include <SDL2/SDL_net.h>   // används senare för nätverksfunktioner
+#include <SDL2/SDL_mixer.h> //för audio
 
 #define WIDTH 1280 // Bredd på fönstret i pixlar
 #define HEIGHT 720 // Höjd på fönstret i pixlar
+#define AUDIO_FREQ 44100
+#define AUDIO_CHANNELS 2
+#define AUDIO_CHUNKSIZE 2048
 
 int main(int argc, char **argv)
 {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) // Initierar SDL för video
+    // Initierar SDL för video
+    if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
         printf("SDL could not start! SDL_Error: %s\n", SDL_GetError());
         return 1;
     }
     IMG_Init(IMG_INIT_PNG); // Initierar stöd för bilder (PNG)
     TTF_Init();             // Initierar stöd för TrueType-fonts
-
-    if (SDLNet_Init() < 0) // Initierar SDL_net för nätverkskommunikation
+    // Initierar stöd för music
+    if (Mix_OpenAudio(AUDIO_FREQ, MIX_DEFAULT_FORMAT, AUDIO_CHANNELS, AUDIO_CHUNKSIZE) < 0)
+    {
+        printf("Mix_OpenAudio failed: %s\n", Mix_GetError());
+        return 1;
+    }
+    // Initierar SDL_net för nätverkskommunikation
+    if (SDLNet_Init() < 0)
     {
         printf("SDLNet_Init failed: %s\n", SDLNet_GetError());
         return 1;
@@ -49,6 +60,18 @@ int main(int argc, char **argv)
         SDL_Quit();
         return 1;
     }
+    // laddar musicbackgrund från fil
+    Mix_Music *pBgMusic = Mix_LoadMUS("resources/intro_Opening.mp3");
+    if (!pBgMusic)
+    {
+        printf("Failed to load music: %s\n", Mix_GetError());
+    }
+    else
+    {
+        // loop
+        Mix_PlayMusic(pBgMusic, -1);
+    }
+
     // Konverterar bilden till en textur som kan användas med renderern
     SDL_Texture *pTexture = SDL_CreateTextureFromSurface(pRenderer, pSurface);
     SDL_FreeSurface(pSurface); // Behöver inte ytan längre
