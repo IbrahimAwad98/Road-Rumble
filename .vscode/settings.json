@@ -2,6 +2,7 @@
     "files.associations": {
         "stdio.h": "c",
         "sdl_ttf.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "sdl_net.h": "c"
     }
 }
