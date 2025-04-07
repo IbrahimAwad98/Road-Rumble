@@ -7,7 +7,7 @@
 #define WIDTH 1280
 #define HEIGHT 720
 
-int main(int argc, char *pArgv[])
+int main(int argc, char **pArgv)
 {
     // Initierar SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
