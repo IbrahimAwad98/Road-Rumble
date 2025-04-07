@@ -6,8 +6,21 @@
 
 #define WIDTH 1280
 #define HEIGHT 720
-//hamza 
-int main(int argc, char **pArgv)
+
+typedef struct
+{
+    SDL_Window *pWindow;
+    SDL_Renderer *pRenderer;
+    SDL_Texture *pBackgroundTexture;
+    SDL_Texture *pStartTexture;
+    SDL_Texture *pExitTexture;
+    TTF_Font *pFont;
+    SDL_Rect startRect;
+    SDL_Rect exitRect;
+
+} GameResources;
+
+int main(int argc, char **argv)
 {
     // Initierar SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
