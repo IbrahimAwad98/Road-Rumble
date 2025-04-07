@@ -35,7 +35,7 @@ int main(int argc, char **argv)
         return 1;
     }
     // Skapar ett fönster med titel, position och storlek
-    SDL_Window *pWindow = SDL_CreateWindow("Road Rumble ver 0.1", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
+    SDL_Window *pWindow = SDL_CreateWindow("Road Rumble v1.0", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
     if (!pWindow)
     {
         printf("The window could not be created! SDL_Error: %s\n", SDL_GetError());
