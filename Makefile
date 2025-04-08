@@ -2,25 +2,40 @@
 SRCDIR = source
 CC = gcc
 
-# Justera till rätt plats om din SDL2 ligger någon annanstans
+# SDL2-headers och bibliotek (justera om nödvändigt)
 INCLUDEDIR = C:/msys64/mingw64/include/SDL2
 LIBDIR = C:/msys64/mingw64/lib
 
+# Egen header-mapp
+MYINCLUDES = -Iinclude
+
 # Flaggar
-CFLAGS = -I$(INCLUDEDIR) -c
+CFLAGS = -I$(INCLUDEDIR) $(MYINCLUDES) -c
 LDFLAGS = -L$(LIBDIR) -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_net -lSDL2_mixer -mwindows
 
 # Mål
 TARGET = Game
-OBJS = main.o
+OBJS = main.o sdl_init.o game.o resources.o cleanup.o
 
 # Byggprogram
 $(TARGET): $(OBJS)
 	$(CC) $(OBJS) -o $(TARGET).exe $(LDFLAGS)
 
-# Objektfil
+# Objektfiler
 main.o: $(SRCDIR)/main.c
 	$(CC) $(CFLAGS) $(SRCDIR)/main.c
+
+sdl_init.o: $(SRCDIR)/sdl_init.c
+	$(CC) $(CFLAGS) $(SRCDIR)/sdl_init.c
+
+game.o: $(SRCDIR)/game.c
+	$(CC) $(CFLAGS) $(SRCDIR)/game.c
+
+resources.o: $(SRCDIR)/resources.c
+	$(CC) $(CFLAGS) $(SRCDIR)/resources.c
+
+cleanup.o: $(SRCDIR)/cleanup.c
+	$(CC) $(CFLAGS) $(SRCDIR)/cleanup.c
 
 # Rensa
 clean:
