@@ -24,9 +24,12 @@ typedef struct
     Mix_Music *pBgMusic;             // Bakgrundsmusik
     SDL_Rect startRect;              // Rektangel för startknappen
     SDL_Rect exitRect;               // Rektangel för avsluta-knappen
+    SDL_Texture *ptilesetTexture;    // Innehåller hela Tileseten
 } GameResources;
 
 // Funktion som kör spelets huvudloop
 void gameLoop(GameResources *pRes);
+
+SDL_Rect getTileSrcByID(int tileID); //Funktion som laddar upp bilder till banan på ett enklare sätt.
 
 #endif
