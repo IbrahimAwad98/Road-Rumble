@@ -58,11 +58,21 @@ bool loadResources(GameResources *pRes)
     SDL_FreeSurface(pStartSurf);
     SDL_FreeSurface(pExitSurf);
 
+    // 💡 Kombinerar båda delar här:
     if (!pRes->pStartTexture || !pRes->pExitTexture)
     {
         printf("Failed to create button textures: %s\n", SDL_GetError());
         return false;
     }
+
+    // 💡 Laddar tileset-bild också:
+    SDL_Surface* surface = IMG_Load("resources/images/tileset.png");
+    if (!surface) {
+        printf("Failed to load tileset image: %s\n", IMG_GetError());
+        return false;
+    }
+    pRes->ptilesetTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, surface);
+    SDL_FreeSurface(surface); // glöm inte släppa ytan!
 
     return true;
 }

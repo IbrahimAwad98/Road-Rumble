@@ -6,6 +6,8 @@
 #include "game.h"
 #include "sdl_init.h"
 #include "resources.h"
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL.h>
 #include "cleanup.h"
 
 int main(int argc, char **argv)
