@@ -1,4 +1,8 @@
 #include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 #include "game.h"
 #include "sdl_init.h"
 #include "resources.h"
@@ -12,14 +16,14 @@ int main(int argc, char **argv)
     // Initiera SDL, fönster, ljud, nätverk
     if (!initSDL(&res))
     {
-        printf("Kunde inte initiera SDL-komponenter.\n");
+        printf("Failed to initialize SDL components.\n");
         return 1;
     }
 
     // Ladda bilder, texturer, musik, fonter
     if (!loadResources(&res))
     {
-        printf("Kunde inte ladda spelets resurser.\n");
+        printf("Failed to load game resources.\n");
         cleanup(&res);
         return 1;
     }
