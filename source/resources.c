@@ -5,7 +5,7 @@
 
 bool loadResources(GameResources *pRes)
 {
-    SDL_Surface *pSurface = IMG_Load("resources/Sim2.png");
+    SDL_Surface *pSurface = IMG_Load("resources/backgrounds/Sim2.png");
     if (!pSurface)
     {
         printf("Failed to load background image: %s\n", IMG_GetError());
@@ -20,7 +20,7 @@ bool loadResources(GameResources *pRes)
         return false;
     }
 
-    pRes->pBgMusic = Mix_LoadMUS("resources/intro_Opening.mp3");
+    pRes->pBgMusic = Mix_LoadMUS("resources/music/intro_Opening.mp3");
     if (!pRes->pBgMusic)
     {
         printf("Failed to load background music: %s\n", Mix_GetError());
@@ -30,7 +30,7 @@ bool loadResources(GameResources *pRes)
         Mix_PlayMusic(pRes->pBgMusic, -1);
     }
 
-    pRes->pFont = TTF_OpenFont("resources/PressStart2P-Regular.ttf", 35);
+    pRes->pFont = TTF_OpenFont("resources/fonts/PressStart2P-Regular.ttf", 35);
     if (!pRes->pFont)
     {
         printf("Failed to load font: %s\n", TTF_GetError());
