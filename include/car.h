@@ -2,13 +2,15 @@
 #define CAR_H
 #include <SDL2/SDL.h>
 #include <stdbool.h>
+#include <math.h>
 
 // definiera bilen
 typedef struct
 {
     SDL_Texture *pCartexture;
     SDL_Rect carRect;
-    int speed;
+    float angle;
+    float speed;
 } Car;
 
 // tre funktioner för att laddar bilen och städa efter

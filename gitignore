@@ -12,3 +12,5 @@ Thumbs.db
 
 # Byggfiler
 *.out
+# Ignorera alla kompilerade objektfiler
+*.o
