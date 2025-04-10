@@ -65,14 +65,42 @@ bool loadResources(GameResources *pRes)
         return false;
     }
 
-    // 💡 Laddar tileset-bild också:
-    SDL_Surface* surface = IMG_Load("resources/images/tileset.png");
-    if (!surface) {
-        printf("Failed to load tileset image: %s\n", IMG_GetError());
-        return false;
+    char path[100];
+    for (int i = 0; i < NUM_ASPHALT_TILES; i++) {
+        snprintf(path, sizeof(path), "resources/bana/asfalt/road_asphalt%02d.png", i + 1);  // laddar 01 → 90
+        SDL_Surface *surface = IMG_Load(path);
+        if (!surface) {
+            printf("Failed to load tile %d: %s\n", i + 1, IMG_GetError());
+            return false;
+        }
+
+        pRes->pTiles[i] = SDL_CreateTextureFromSurface(pRes->pRenderer, surface);
+        SDL_FreeSurface(surface);
+
+        if (!pRes->pTiles[i]) {
+            printf("Failed to create texture for tile %d: %s\n", i + 1, SDL_GetError());
+            return false;
+        }
     }
-    pRes->ptilesetTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, surface);
-    SDL_FreeSurface(surface); // glöm inte släppa ytan!
+
+        // Ladda grass-bilderna: land_grass01.png → land_grass14.png
+    for (int i = 0; i < 14; i++) {
+        snprintf(path, sizeof(path), "resources/bana/grass/land_grass%02d.png", i + 1);  // 01 → 14
+        SDL_Surface *surface = IMG_Load(path);
+        if (!surface) {
+            printf("Failed to load grass tile %d: %s\n", i + 1, IMG_GetError());
+            return false;
+        }
+
+        pRes->pTiles[90 + i] = SDL_CreateTextureFromSurface(pRes->pRenderer, surface);
+        SDL_FreeSurface(surface);
+
+        if (!pRes->pTiles[90 + i]) {
+            printf("Failed to create texture for grass tile %d: %s\n", i + 1, SDL_GetError());
+            return false;
+        }
+    }
+
 
     return true;
 }
