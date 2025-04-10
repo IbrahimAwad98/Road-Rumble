@@ -2,6 +2,7 @@
 #define TILESET_COLUMNS 3
 
 #include "game.h"
+#include "car.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <stdbool.h>
@@ -30,6 +31,15 @@ void gameLoop(GameResources *pRes)
     bool isRunning = true;
     GameMode mode = MENU; // Starta i meny-läge
 
+    // Initiera bilarna EN gång (bra för hantera minnet)
+    // nummerna = pixlar horisontellt, vertikalt och storlek: bredd x höjd
+    if (!initiCar(pRes->pRenderer, &pRes->car1, "resources/Cars/Black_viper.png", 300, 300, 128, 64) ||
+        !initiCar(pRes->pRenderer, &pRes->car2, "resources/Cars/Police.png", 100, 100, 128, 64))
+    {
+        printf("Failed to create car texture: %s\n", SDL_GetError());
+        return;
+    }
+
     while (isRunning)
     {
         // Hantera event
@@ -47,13 +57,13 @@ void gameLoop(GameResources *pRes)
 
                 if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->startRect))
                 {
-                    SDL_Log("Starta spelet!");
-                    mode = PLAYING;
+                    SDL_Log("Start the Game!");
+                    mode = PLAYING; // aktivera playingläge
                 }
 
                 if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->exitRect))
                 {
-                    SDL_Log("Avslutar spelet!");
+                    SDL_Log("End the Game!");
                     isRunning = false;
                 }
             }
@@ -64,12 +74,12 @@ void gameLoop(GameResources *pRes)
                 if (event.key.keysym.sym == SDLK_t)
                 {
                     mode = PLAYING;
-                    SDL_Log("Växlar till PLAYING-läge");
+                    SDL_Log("Change to playing-mode");
                 }
                 else if (event.key.keysym.sym == SDLK_m)
                 {
                     mode = MENU;
-                    SDL_Log("Växlar till MENU-läge");
+                    SDL_Log("Change to meny-mode");
                 }
             }
         }
@@ -86,8 +96,11 @@ void gameLoop(GameResources *pRes)
         }
         else if (mode == PLAYING)
         {
-            SDL_SetRenderDrawColor(pRes->pRenderer, 255, 255, 255, 255);
+            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255); // svart
             SDL_RenderClear(pRes->pRenderer);
+
+            renderCar(pRes->pRenderer, &pRes->car1);
+            renderCar(pRes->pRenderer, &pRes->car2);
 
             // Test: rendera en tile
             SDL_Rect src = getTileSrcByID(2); // tile ID 2 från tileset
