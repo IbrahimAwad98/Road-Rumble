@@ -6,8 +6,8 @@
 #include <SDL2/SDL_mixer.h>
 
 // Konstanter för fönsterstorlek och ljud
-#define WIDTH 1280
-#define HEIGHT 720
+#define WIDTH 1366
+#define HEIGHT 768
 #define AUDIO_FREQ 44100
 #define AUDIO_CHANNELS 2
 #define AUDIO_CHUNKSIZE 2048
@@ -30,6 +30,6 @@ typedef struct
 // Funktion som kör spelets huvudloop
 void gameLoop(GameResources *pRes);
 
-SDL_Rect getTileSrcByID(int tileID); //Funktion som laddar upp bilder till banan på ett enklare sätt.
+SDL_Rect getTileSrcByID(int tileID); // Funktion som laddar upp bilder till banan på ett enklare sätt.
 
 #endif
