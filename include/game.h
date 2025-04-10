@@ -11,6 +11,10 @@
 #define AUDIO_FREQ 44100
 #define AUDIO_CHANNELS 2
 #define AUDIO_CHUNKSIZE 2048
+#define NUM_ASPHALT_TILES 90
+#define NUM_GRASS_TILES 14
+#define NUM_TILES (NUM_ASPHALT_TILES + NUM_GRASS_TILES)
+
 
 // Struktur som innehåller alla resurser som behövs för spelet
 typedef struct
@@ -24,7 +28,7 @@ typedef struct
     Mix_Music *pBgMusic;             // Bakgrundsmusik
     SDL_Rect startRect;              // Rektangel för startknappen
     SDL_Rect exitRect;               // Rektangel för avsluta-knappen
-    SDL_Texture *ptilesetTexture;    // Innehåller hela Tileseten
+    SDL_Texture *pTiles[NUM_TILES];  // Alla separata bilder (90 st)
 } GameResources;
 
 // Funktion som kör spelets huvudloop
