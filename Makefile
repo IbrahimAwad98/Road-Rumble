@@ -1,44 +1,44 @@
-# Makefile.mac — för macOS med clang och SDL2 via Homebrew
-
+# Inställningar
 SRCDIR = source
-CC = clang
+CC = gcc
 
-INCLUDEDIR = /opt/homebrew/include
-LIBDIR = /opt/homebrew/lib
+# SDL2-headers och bibliotek (justera om nödvändigt)
+INCLUDEDIR = C:/msys64/mingw64/include/SDL2
+LIBDIR = C:/msys64/mingw64/lib
 
-CFLAGS = -I$(INCLUDEDIR) -Iinclude -c -g
-LDFLAGS = -L$(LIBDIR) -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_net -lSDL2_mixer
+# Egen header-mapp
+MYINCLUDES = -Iinclude
 
+# Flaggar
+CFLAGS = -I$(INCLUDEDIR) $(MYINCLUDES) -c
+LDFLAGS = -L$(LIBDIR) -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_net -lSDL2_mixer -mwindows
+
+# Mål
 TARGET = Game
-<<<<<<< HEAD
-OBJS = main.o game.o cleanup.o resources.o sdl_init.o
-=======
 OBJS = main.o sdl_init.o game.o resources.o cleanup.o car.o
->>>>>>> c3d084a1f269ec16b472ec2223d47f56dc563b57
 
+# Byggprogram
 $(TARGET): $(OBJS)
-	$(CC) $(OBJS) -o $(TARGET) $(LDFLAGS)
+	$(CC) $(OBJS) -o $(TARGET).exe $(LDFLAGS)
 
+# Objektfiler
 main.o: $(SRCDIR)/main.c
 	$(CC) $(CFLAGS) $(SRCDIR)/main.c
-
-game.o: $(SRCDIR)/game.c
-	$(CC) $(CFLAGS) $(SRCDIR)/game.c
-
-cleanup.o: $(SRCDIR)/cleanup.c
-	$(CC) $(CFLAGS) $(SRCDIR)/cleanup.c
-
-<<<<<<< HEAD
-resources.o: $(SRCDIR)/resources.c
-	$(CC) $(CFLAGS) $(SRCDIR)/resources.c
 
 sdl_init.o: $(SRCDIR)/sdl_init.c
 	$(CC) $(CFLAGS) $(SRCDIR)/sdl_init.c
 
-=======
+game.o: $(SRCDIR)/game.c
+	$(CC) $(CFLAGS) $(SRCDIR)/game.c
+
+resources.o: $(SRCDIR)/resources.c
+	$(CC) $(CFLAGS) $(SRCDIR)/resources.c
+
+cleanup.o: $(SRCDIR)/cleanup.c
+	$(CC) $(CFLAGS) $(SRCDIR)/cleanup.c
 car.o: $(SRCDIR)/car.c
-	$(CC) $(CFLAGS) $(SRCDIR)/car.c
+	$(CC) $(CFLAGS) -c $(SRCDIR)/car.c
+
 # Rensa
->>>>>>> c3d084a1f269ec16b472ec2223d47f56dc563b57
 clean:
-	rm -f *.o $(TARGET)
+	del *.exe *.o

@@ -28,13 +28,12 @@ typedef struct
     Mix_Music *pBgMusic;             // Bakgrundsmusik
     SDL_Rect startRect;              // Rektangel för startknappen
     SDL_Rect exitRect;               // Rektangel för avsluta-knappen
-<<<<<<< HEAD
     SDL_Texture *pTiles[NUM_TILES];  // Alla separata bilder (90 st)
-    == == == =
-                 SDL_Texture * ptilesetTexture; // Innehåller hela Tileseten
-    Car car1;                                   // initiera bil1
-    Car car2;                                   // initiera bil2
->>>>>>> c3d084a1f269ec16b472ec2223d47f56dc563b57
+
+    SDL_Texture *ptilesetTexture; // Innehåller hela Tileseten
+    Car car1;                     // initiera bil1
+    Car car2;                     // initiera bil2
+
 } GameResources;
 
 // Funktion som kör spelets huvudloop
