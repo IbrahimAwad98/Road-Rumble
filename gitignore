@@ -1,32 +1,14 @@
-# Kompilerade binärer
+# Binärer
 *.exe
 *.o
-*.out
+Game
 
-# Plattformsspecifika filer
+# Systemfiler
 .DS_Store
 Thumbs.db
 
-# Byggfiler
-Makefile
-Makefile.*
-*.a
-*.lib
-
-# SDL-tillfälliga filer (om du har loggar, cache etc.)
-*.log
-
-# Backup/Editorfiler
+# Makefile-backupfiler
 *~
-*.swp
 
-# Visual Studio Code (valfritt)
-.vscode/
-
-# macOS
-*.DS_Store
-
-# Windows
-*.bak
-*.ilk
-*.pdb
+# Byggfiler
+*.out

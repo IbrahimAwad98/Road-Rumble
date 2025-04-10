@@ -131,6 +131,7 @@ void gameLoop(GameResources *pRes)
             // Rendera bilar
             renderCar(pRes->pRenderer, &pRes->car1);
             renderCar(pRes->pRenderer, &pRes->car2);
+
             // Test: rendera en tile
             SDL_Rect src = getTileSrcByID(2); // tile ID 2 från tileset
             SDL_Rect dest = {400, 300, TILE_SIZE, TILE_SIZE};
