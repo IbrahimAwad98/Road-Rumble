@@ -16,7 +16,7 @@ bool initiCar(SDL_Renderer *pRenderer, Car *pCar, const char *pImagepath, int x,
         SDL_Log("Failed to create car texture: %s\n", SDL_GetError());
         return false;
     }
-    
+
     pCar->carRect.x = x; // Var bilen ritas horisontellt (vänster/höger)
     pCar->carRect.y = y; // Var bilen ritas vertikalt (upp/ner)
     pCar->carRect.w = w; // bredd

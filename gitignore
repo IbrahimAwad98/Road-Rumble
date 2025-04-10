@@ -1,18 +1,14 @@
+# Binärer
+*.exe
+*.o
+Game
 
-# macOS
+# Systemfiler
 .DS_Store
+Thumbs.db
+
+# Makefile-backupfiler
+*~
 
 # Byggfiler
-*.o
 *.out
-*.exe
-*.log
-
-# SDL2 och make-relaterat
-build/
-bin/
-*.dSYM/
-
-# Backupfiler
-*~
-*.swp
