@@ -1,0 +1,18 @@
+
+# macOS
+.DS_Store
+
+# Byggfiler
+*.o
+*.out
+*.exe
+*.log
+
+# SDL2 och make-relaterat
+build/
+bin/
+*.dSYM/
+
+# Backupfiler
+*~
+*.swp

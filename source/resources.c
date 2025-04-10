@@ -53,8 +53,8 @@ bool loadResources(GameResources *pRes)
     pRes->pExitTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pExitSurf);
 
     // bredd x höjd
-    pRes->startRect = (SDL_Rect){370, 610, pStartSurf->w, pStartSurf->h};
-    pRes->exitRect = (SDL_Rect){370, 670, pExitSurf->w, pExitSurf->h};
+    pRes->startRect = (SDL_Rect){370, 670, pStartSurf->w, pStartSurf->h};
+    pRes->exitRect = (SDL_Rect){370, 720, pExitSurf->w, pExitSurf->h};
 
     SDL_FreeSurface(pStartSurf);
     SDL_FreeSurface(pExitSurf);
