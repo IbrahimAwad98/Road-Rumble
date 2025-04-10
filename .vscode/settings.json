@@ -1,6 +1,12 @@
 {
     "files.associations": {
         "stdio.h": "c",
-        "sdl_ttf.h": "c"
+        "sdl_ttf.h": "c",
+        "stdbool.h": "c",
+        "sdl_net.h": "c",
+        "sdl_mixer.h": "c",
+        "sdl_image.h": "c",
+        "cleanup.h": "c",
+        "resources.h": "c"
     }
 }
