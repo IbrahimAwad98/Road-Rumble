@@ -37,7 +37,6 @@ int tilemap[MAP_HEIGHT][MAP_WIDTH] = {
     {100, 100, 100, 100, 100, 100, 100, 100, 100, 100},
 };
 
-
 void gameLoop(GameResources *pRes)
 {
     SDL_Event event;
@@ -107,37 +106,41 @@ void gameLoop(GameResources *pRes)
             SDL_RenderCopy(pRes->pRenderer, pRes->pStartTexture, NULL, &pRes->startRect);
             SDL_RenderCopy(pRes->pRenderer, pRes->pExitTexture, NULL, &pRes->exitRect);
 <<<<<<< HEAD
-        } 
-        else if (mode == PLAYING) {
-        SDL_SetRenderDrawColor(pRes->pRenderer, 255, 255, 255, 255);
-        SDL_RenderClear(pRes->pRenderer);
-
-        for (int row = 0; row < MAP_HEIGHT; row++) {
-            for (int col = 0; col < MAP_WIDTH; col++) {
-                int tileID = tilemap[row][col];
-                SDL_Rect dest = { col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE };
-
-                if (tileID >= 0 && tileID < NUM_TILES && pRes->pTiles[tileID]) {
-                    SDL_RenderCopy(pRes->pRenderer, pRes->pTiles[tileID], NULL, &dest);
-                }
-            }
-=======
         }
         else if (mode == PLAYING)
         {
-            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255); // svart
+            SDL_SetRenderDrawColor(pRes->pRenderer, 255, 255, 255, 255);
             SDL_RenderClear(pRes->pRenderer);
 
-            renderCar(pRes->pRenderer, &pRes->car1);
-            renderCar(pRes->pRenderer, &pRes->car2);
+            for (int row = 0; row < MAP_HEIGHT; row++)
+            {
+                for (int col = 0; col < MAP_WIDTH; col++)
+                {
+                    int tileID = tilemap[row][col];
+                    SDL_Rect dest = {col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE};
 
-            // Test: rendera en tile
-            SDL_Rect src = getTileSrcByID(2); // tile ID 2 från tileset
-            SDL_Rect dest = {400, 300, TILE_SIZE, TILE_SIZE};
-            SDL_RenderCopy(pRes->pRenderer, pRes->ptilesetTexture, &src, &dest);
+                    if (tileID >= 0 && tileID < NUM_TILES && pRes->pTiles[tileID])
+                    {
+                        SDL_RenderCopy(pRes->pRenderer, pRes->pTiles[tileID], NULL, &dest);
+                    }
+                }
+                == == == =
+            }
+            else if (mode == PLAYING)
+            {
+                SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255); // svart
+                SDL_RenderClear(pRes->pRenderer);
+
+                renderCar(pRes->pRenderer, &pRes->car1);
+                renderCar(pRes->pRenderer, &pRes->car2);
+
+                // Test: rendera en tile
+                SDL_Rect src = getTileSrcByID(2); // tile ID 2 från tileset
+                SDL_Rect dest = {400, 300, TILE_SIZE, TILE_SIZE};
+                SDL_RenderCopy(pRes->pRenderer, pRes->ptilesetTexture, &src, &dest);
 >>>>>>> c3d084a1f269ec16b472ec2223d47f56dc563b57
+            }
         }
-    }
 
         SDL_RenderPresent(pRes->pRenderer);
     }
