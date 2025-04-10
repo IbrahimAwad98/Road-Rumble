@@ -20,6 +20,7 @@ bool loadResources(GameResources *pRes)
         printf("Failed to create background texture: %s\n", SDL_GetError());
         return false;
     }
+
     // ladda musiken och hantera fel.
     pRes->pBgMusic = Mix_LoadMUS("resources/music/intro_Opening.mp3");
     if (!pRes->pBgMusic)
@@ -30,6 +31,7 @@ bool loadResources(GameResources *pRes)
     {
         Mix_PlayMusic(pRes->pBgMusic, -1);
     }
+
     // ladda upp texten t.ex. meny och hantera fel.
     pRes->pFont = TTF_OpenFont("resources/fonts/PressStart2P-Regular.ttf", 35);
     if (!pRes->pFont)
@@ -37,17 +39,20 @@ bool loadResources(GameResources *pRes)
         printf("Failed to load font: %s\n", TTF_GetError());
         return false;
     }
+
     // desgina texten (färgen)
     SDL_Color green = {0, 255, 0};
     SDL_Color red = {255, 0, 0};
     SDL_Surface *pStartSurf = TTF_RenderText_Solid(pRes->pFont, "Start Game", green);
     SDL_Surface *pExitSurf = TTF_RenderText_Solid(pRes->pFont, "Quit Game", red);
+
     // hantera fel
     if (!pStartSurf || !pExitSurf)
     {
         printf("Failed to render text surfaces: %s\n", SDL_GetError());
         return false;
     }
+
     // omvandla dem till texture
     pRes->pStartTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pStartSurf);
     pRes->pExitTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pExitSurf);
@@ -55,6 +60,7 @@ bool loadResources(GameResources *pRes)
     // bredd x höjd
     pRes->startRect = (SDL_Rect){370, 670, pStartSurf->w, pStartSurf->h};
     pRes->exitRect = (SDL_Rect){370, 720, pExitSurf->w, pExitSurf->h};
+
     // bygga dem
     SDL_FreeSurface(pStartSurf);
     SDL_FreeSurface(pExitSurf);
@@ -66,7 +72,7 @@ bool loadResources(GameResources *pRes)
         return false;
     }
 
-<<<<<<< HEAD
+    // 🔁 Ladda in asfalt-tiles (road_asphalt01.png → road_asphalt90.png)
     char path[100];
     for (int i = 0; i < NUM_ASPHALT_TILES; i++) {
         snprintf(path, sizeof(path), "resources/bana/asfalt/road_asphalt%02d.png", i + 1);  // laddar 01 → 90
@@ -83,18 +89,25 @@ bool loadResources(GameResources *pRes)
             printf("Failed to create texture for tile %d: %s\n", i + 1, SDL_GetError());
             return false;
         }
-=======
-    // 💡 Laddar tileset-bild också:
-    SDL_Surface *surface = IMG_Load("resources/images/tileset.png");
-    // hantera fel.
-    if (!surface)
+    }
+
+    // 🧩 Ladda in hela tileset.png till ptilesetTexture
+    SDL_Surface *tilesetSurface = IMG_Load("resources/images/tileset.png");
+    if (!tilesetSurface)
     {
         printf("Failed to load tileset image: %s\n", IMG_GetError());
         return false;
->>>>>>> c3d084a1f269ec16b472ec2223d47f56dc563b57
     }
 
-        // Ladda grass-bilderna: land_grass01.png → land_grass14.png
+    pRes->ptilesetTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, tilesetSurface);
+    SDL_FreeSurface(tilesetSurface);
+
+    if (!pRes->ptilesetTexture) {
+        printf("Failed to create tileset texture: %s\n", SDL_GetError());
+        return false;
+    }
+
+    // Ladda grass-bilderna: land_grass01.png → land_grass14.png
     for (int i = 0; i < 14; i++) {
         snprintf(path, sizeof(path), "resources/bana/grass/land_grass%02d.png", i + 1);  // 01 → 14
         SDL_Surface *surface = IMG_Load(path);
@@ -111,7 +124,5 @@ bool loadResources(GameResources *pRes)
             return false;
         }
     }
-
-
     return true;
 }

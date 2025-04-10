@@ -29,14 +29,13 @@ SDL_Rect getTileSrcByID(int tileID)
 
 int tilemap[MAP_HEIGHT][MAP_WIDTH] = {
     {100, 100, 100, 100, 100, 100, 100, 100, 100, 100},
-    {100, 2, 1, 0, 0, 0, 0, 0, 0, 100},
-    {100, 0, 0, 0, 0, 0, 0, 0, 0, 100},
-    {100, 0, 0, 0, 0, 0, 0, 0, 0, 100},
-    {100, 0, 0, 0, 0, 0, 0, 0, 0, 100},
-    {100, 0, 0, 0, 0, 0, 0, 0, 0, 100},
+    {100, 2,   1,   0,   0,   0,   0,   0,   0,   100},
+    {100, 0,   0,   0,   0,   0,   0,   0,   0,   100},
+    {100, 0,   0,   0,   0,   0,   0,   0,   0,   100},
+    {100, 0,   0,   0,   0,   0,   0,   0,   0,   100},
+    {100, 0,   0,   0,   0,   0,   0,   0,   0,   100},
     {100, 100, 100, 100, 100, 100, 100, 100, 100, 100},
 };
-
 
 void gameLoop(GameResources *pRes)
 {
@@ -106,39 +105,37 @@ void gameLoop(GameResources *pRes)
             SDL_RenderCopy(pRes->pRenderer, pRes->pBackgroundTexture, NULL, NULL);
             SDL_RenderCopy(pRes->pRenderer, pRes->pStartTexture, NULL, &pRes->startRect);
             SDL_RenderCopy(pRes->pRenderer, pRes->pExitTexture, NULL, &pRes->exitRect);
-<<<<<<< HEAD
         } 
-        else if (mode == PLAYING) {
-        SDL_SetRenderDrawColor(pRes->pRenderer, 255, 255, 255, 255);
-        SDL_RenderClear(pRes->pRenderer);
-
-        for (int row = 0; row < MAP_HEIGHT; row++) {
-            for (int col = 0; col < MAP_WIDTH; col++) {
-                int tileID = tilemap[row][col];
-                SDL_Rect dest = { col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE };
-
-                if (tileID >= 0 && tileID < NUM_TILES && pRes->pTiles[tileID]) {
-                    SDL_RenderCopy(pRes->pRenderer, pRes->pTiles[tileID], NULL, &dest);
-                }
-            }
-=======
-        }
         else if (mode == PLAYING)
         {
-            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255); // svart
+            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255); // svart bakgrund
             SDL_RenderClear(pRes->pRenderer);
 
+            // 🔲 Din del: Rendera tilemap
+            for (int row = 0; row < MAP_HEIGHT; row++)
+            {
+                for (int col = 0; col < MAP_WIDTH; col++)
+                {
+                    int tileID = tilemap[row][col];
+                    SDL_Rect dest = { col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE };
+                    if (tileID >= 0 && tileID < NUM_TILES && pRes->pTiles[tileID])
+                    {
+                        SDL_RenderCopy(pRes->pRenderer, pRes->pTiles[tileID], NULL, &dest);
+                    }
+                }
+            }
+
+            // 🚗 Hans del: Rendera bilar
             renderCar(pRes->pRenderer, &pRes->car1);
             renderCar(pRes->pRenderer, &pRes->car2);
 
-            // Test: rendera en tile
+            // 🧪 Test: rendera en test-tile (valfritt behålla)
             SDL_Rect src = getTileSrcByID(2); // tile ID 2 från tileset
             SDL_Rect dest = {400, 300, TILE_SIZE, TILE_SIZE};
             SDL_RenderCopy(pRes->pRenderer, pRes->ptilesetTexture, &src, &dest);
->>>>>>> c3d084a1f269ec16b472ec2223d47f56dc563b57
         }
-    }
 
+        // Flytta upp SDL_RenderPresent hit så att det körs varje loop-iteration
         SDL_RenderPresent(pRes->pRenderer);
-    }
-}
+    } // end while(isRunning)
+} // end gameLoop
