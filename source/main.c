@@ -30,10 +30,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    // Starta huvudloopen för spelet
-    gameLoop(&res);
-
-    // Rensa och avsluta
-    cleanup(&res);
+    gameLoop(&res); // Starta huvudloopen för spelet
+    cleanup(&res);  // Rensa och avsluta
     return 0;
 }

@@ -4,10 +4,11 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
+#include "car.h"
 
 // Konstanter för fönsterstorlek och ljud
-#define WIDTH 1280
-#define HEIGHT 720
+#define WIDTH 1366
+#define HEIGHT 768
 #define AUDIO_FREQ 44100
 #define AUDIO_CHANNELS 2
 #define AUDIO_CHUNKSIZE 2048
@@ -28,12 +29,18 @@ typedef struct
     Mix_Music *pBgMusic;             // Bakgrundsmusik
     SDL_Rect startRect;              // Rektangel för startknappen
     SDL_Rect exitRect;               // Rektangel för avsluta-knappen
+<<<<<<< HEAD
     SDL_Texture *pTiles[NUM_TILES];  // Alla separata bilder (90 st)
+=======
+    SDL_Texture *ptilesetTexture;    // Innehåller hela Tileseten
+    Car car1;                        // initiera bil1
+    Car car2;                        // initiera bil2
+>>>>>>> c3d084a1f269ec16b472ec2223d47f56dc563b57
 } GameResources;
 
 // Funktion som kör spelets huvudloop
 void gameLoop(GameResources *pRes);
 
-SDL_Rect getTileSrcByID(int tileID); //Funktion som laddar upp bilder till banan på ett enklare sätt.
+SDL_Rect getTileSrcByID(int tileID); // Funktion som laddar upp bilder till banan på ett enklare sätt.
 
 #endif
