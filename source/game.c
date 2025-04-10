@@ -52,6 +52,11 @@ void gameLoop(GameResources *pRes)
         return;
     }
 
+    pRes->car1.angle = 0.0f;
+    pRes->car1.speed = 3.0f;
+    
+
+
     while (isRunning)
     {
         // Hantera event
@@ -113,6 +118,20 @@ void gameLoop(GameResources *pRes)
             SDL_RenderClear(pRes->pRenderer);
 
             // Din del: Rendera tilemap
+           
+
+            const Uint8 *keys = SDL_GetKeyboardState(NULL);
+            if (keys[SDL_SCANCODE_UP]) {
+                 pRes->car1.carRect.x += cos(pRes->car1.angle * M_PI/180.0f) * pRes->car1.speed;
+                 pRes->car1.carRect.y += sin(pRes->car1.angle * M_PI/180.0f) * pRes->car1.speed;
+            }
+            if(keys[SDL_SCANCODE_LEFT]) {
+                pRes->car1.angle -= 4;
+            } 
+            if(keys[SDL_SCANCODE_RIGHT]) {
+                pRes->car1.angle += 4;
+            }
+
 
             for (int row = 0; row < MAP_HEIGHT; row++)
             {
