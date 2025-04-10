@@ -7,13 +7,15 @@
 #include <stdbool.h>
 
 // Skapa läges-typ (enum)
-typedef enum {
+typedef enum
+{
     MENU,
     PLAYING
 } GameMode;
 
 // Hjälpfunktion: hämtar rätt tile från tileset utifrån ID
-SDL_Rect getTileSrcByID(int tileID) {
+SDL_Rect getTileSrcByID(int tileID)
+{
     SDL_Rect src;
     src.x = (tileID % TILESET_COLUMNS) * TILE_SIZE;
     src.y = (tileID / TILESET_COLUMNS) * TILE_SIZE;
@@ -26,7 +28,7 @@ void gameLoop(GameResources *pRes)
 {
     SDL_Event event;
     bool isRunning = true;
-    GameMode mode = MENU;  // Starta i meny-läge
+    GameMode mode = MENU; // Starta i meny-läge
 
     while (isRunning)
     {
@@ -57,11 +59,15 @@ void gameLoop(GameResources *pRes)
             }
 
             // Byt mode via tangent
-            if (event.type == SDL_KEYDOWN) {
-                if (event.key.keysym.sym == SDLK_t) {
+            if (event.type == SDL_KEYDOWN)
+            {
+                if (event.key.keysym.sym == SDLK_t)
+                {
                     mode = PLAYING;
                     SDL_Log("Växlar till PLAYING-läge");
-                } else if (event.key.keysym.sym == SDLK_m) {
+                }
+                else if (event.key.keysym.sym == SDLK_m)
+                {
                     mode = MENU;
                     SDL_Log("Växlar till MENU-läge");
                 }
@@ -72,18 +78,20 @@ void gameLoop(GameResources *pRes)
         SDL_RenderClear(pRes->pRenderer);
 
         // Rendera beroende på vilket läge vi är i
-        if (mode == MENU) {
+        if (mode == MENU)
+        {
             SDL_RenderCopy(pRes->pRenderer, pRes->pBackgroundTexture, NULL, NULL);
             SDL_RenderCopy(pRes->pRenderer, pRes->pStartTexture, NULL, &pRes->startRect);
             SDL_RenderCopy(pRes->pRenderer, pRes->pExitTexture, NULL, &pRes->exitRect);
-        } 
-        else if (mode == PLAYING) {
+        }
+        else if (mode == PLAYING)
+        {
             SDL_SetRenderDrawColor(pRes->pRenderer, 255, 255, 255, 255);
             SDL_RenderClear(pRes->pRenderer);
 
             // Test: rendera en tile
-            SDL_Rect src = getTileSrcByID(2);  // tile ID 2 från tileset
-            SDL_Rect dest = { 400, 300, TILE_SIZE, TILE_SIZE };
+            SDL_Rect src = getTileSrcByID(2); // tile ID 2 från tileset
+            SDL_Rect dest = {400, 300, TILE_SIZE, TILE_SIZE};
             SDL_RenderCopy(pRes->pRenderer, pRes->ptilesetTexture, &src, &dest);
         }
 

@@ -5,7 +5,7 @@
 
 bool loadResources(GameResources *pRes)
 {
-    SDL_Surface *pSurface = IMG_Load("resources/backgrounds/Sim2.png");
+    SDL_Surface *pSurface = IMG_Load("resources/images/Background.png");
     if (!pSurface)
     {
         printf("Failed to load background image: %s\n", IMG_GetError());
@@ -52,8 +52,9 @@ bool loadResources(GameResources *pRes)
     pRes->pStartTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pStartSurf);
     pRes->pExitTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pExitSurf);
 
-    pRes->startRect = (SDL_Rect){120, 450, pStartSurf->w, pStartSurf->h};
-    pRes->exitRect = (SDL_Rect){120, 500, pExitSurf->w, pExitSurf->h};
+    // bredd x höjd
+    pRes->startRect = (SDL_Rect){370, 610, pStartSurf->w, pStartSurf->h};
+    pRes->exitRect = (SDL_Rect){370, 670, pExitSurf->w, pExitSurf->h};
 
     SDL_FreeSurface(pStartSurf);
     SDL_FreeSurface(pExitSurf);
@@ -66,8 +67,9 @@ bool loadResources(GameResources *pRes)
     }
 
     // 💡 Laddar tileset-bild också:
-    SDL_Surface* surface = IMG_Load("resources/images/tileset.png");
-    if (!surface) {
+    SDL_Surface *surface = IMG_Load("resources/images/tileset.png");
+    if (!surface)
+    {
         printf("Failed to load tileset image: %s\n", IMG_GetError());
         return false;
     }
