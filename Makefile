@@ -15,7 +15,7 @@ LDFLAGS = -L$(LIBDIR) -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2
 
 # Mål
 TARGET = Game
-OBJS = main.o sdl_init.o game.o resources.o cleanup.o
+OBJS = main.o sdl_init.o game.o resources.o cleanup.o car.o
 
 # Byggprogram
 $(TARGET): $(OBJS)
@@ -37,6 +37,8 @@ resources.o: $(SRCDIR)/resources.c
 cleanup.o: $(SRCDIR)/cleanup.c
 	$(CC) $(CFLAGS) $(SRCDIR)/cleanup.c
 
+car.o: $(SRCDIR)/car.c
+	$(CC) $(CFLAGS) $(SRCDIR)/car.c
 # Rensa
 clean:
 	del *.exe *.o

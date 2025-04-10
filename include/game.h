@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
+#include "car.h"
 
 // Konstanter för fönsterstorlek och ljud
 #define WIDTH 1366
@@ -25,6 +26,8 @@ typedef struct
     SDL_Rect startRect;              // Rektangel för startknappen
     SDL_Rect exitRect;               // Rektangel för avsluta-knappen
     SDL_Texture *ptilesetTexture;    // Innehåller hela Tileseten
+    Car car1;                        // initiera bil1
+    Car car2;                        // initiera bil2
 } GameResources;
 
 // Funktion som kör spelets huvudloop
