@@ -16,7 +16,6 @@
 #define NUM_GRASS_TILES 14
 #define NUM_TILES (NUM_ASPHALT_TILES + NUM_GRASS_TILES)
 
-
 // Struktur som innehåller alla resurser som behövs för spelet
 typedef struct
 {
@@ -31,10 +30,10 @@ typedef struct
     SDL_Rect exitRect;               // Rektangel för avsluta-knappen
 <<<<<<< HEAD
     SDL_Texture *pTiles[NUM_TILES];  // Alla separata bilder (90 st)
-=======
-    SDL_Texture *ptilesetTexture;    // Innehåller hela Tileseten
-    Car car1;                        // initiera bil1
-    Car car2;                        // initiera bil2
+    == == == =
+                 SDL_Texture * ptilesetTexture; // Innehåller hela Tileseten
+    Car car1;                                   // initiera bil1
+    Car car2;                                   // initiera bil2
 >>>>>>> c3d084a1f269ec16b472ec2223d47f56dc563b57
 } GameResources;
 
