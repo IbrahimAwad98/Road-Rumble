@@ -1,5 +1,7 @@
 #define TILE_SIZE 128
 #define TILESET_COLUMNS 3
+#define MAP_WIDTH 20
+#define MAP_HEIGHT 10
 
 #include "game.h"
 #include "car.h"
@@ -24,6 +26,16 @@ SDL_Rect getTileSrcByID(int tileID)
     src.h = TILE_SIZE;
     return src;
 }
+
+int tilemap[MAP_HEIGHT][MAP_WIDTH] = {
+    {100, 100, 100, 100, 100, 100, 100, 100, 100, 100},
+    {100, 2, 1, 0, 0, 0, 0, 0, 0, 100},
+    {100, 0, 0, 0, 0, 0, 0, 0, 0, 100},
+    {100, 0, 0, 0, 0, 0, 0, 0, 0, 100},
+    {100, 0, 0, 0, 0, 0, 0, 0, 0, 100},
+    {100, 0, 0, 0, 0, 0, 0, 0, 0, 100},
+    {100, 100, 100, 100, 100, 100, 100, 100, 100, 100},
+};
 
 void gameLoop(GameResources *pRes)
 {
@@ -96,9 +108,27 @@ void gameLoop(GameResources *pRes)
         }
         else if (mode == PLAYING)
         {
-            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255); // svart
+
+            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255); // svart bakgrund
             SDL_RenderClear(pRes->pRenderer);
 
+            // Din del: Rendera tilemap
+
+            for (int row = 0; row < MAP_HEIGHT; row++)
+            {
+                for (int col = 0; col < MAP_WIDTH; col++)
+                {
+                    int tileID = tilemap[row][col];
+
+                    SDL_Rect dest = {col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE};
+
+                    if (tileID >= 0 && tileID < NUM_TILES && pRes->pTiles[tileID])
+                    {
+                        SDL_RenderCopy(pRes->pRenderer, pRes->pTiles[tileID], NULL, &dest);
+                    }
+                }
+            }
+            // Rendera bilar
             renderCar(pRes->pRenderer, &pRes->car1);
             renderCar(pRes->pRenderer, &pRes->car2);
 
@@ -107,7 +137,7 @@ void gameLoop(GameResources *pRes)
             SDL_Rect dest = {400, 300, TILE_SIZE, TILE_SIZE};
             SDL_RenderCopy(pRes->pRenderer, pRes->ptilesetTexture, &src, &dest);
         }
-
+        // Presentera det som ritats
         SDL_RenderPresent(pRes->pRenderer);
     }
 }
