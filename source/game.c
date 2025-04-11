@@ -1,7 +1,10 @@
 #define TILE_SIZE 128
 #define TILESET_COLUMNS 3
+#define MAP_WIDTH 20
+#define MAP_HEIGHT 10
 
 #include "game.h"
+#include "car.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <stdbool.h>
@@ -26,11 +29,30 @@ SDL_Rect getTileSrcByID(int tileID)
     return src;
 }
 
+int tilemap[MAP_HEIGHT][MAP_WIDTH] = {
+    {100, 100, 100, 100, 100, 100, 100, 100, 100, 100},
+    {100, 2, 1, 0, 0, 0, 0, 0, 0, 100},
+    {100, 0, 0, 0, 0, 0, 0, 0, 0, 100},
+    {100, 0, 0, 0, 0, 0, 0, 0, 0, 100},
+    {100, 0, 0, 0, 0, 0, 0, 0, 0, 100},
+    {100, 0, 0, 0, 0, 0, 0, 0, 0, 100},
+    {100, 100, 100, 100, 100, 100, 100, 100, 100, 100},
+};
+
 void gameLoop(GameResources *pRes)
 {
     SDL_Event event;
     bool isRunning = true;
     GameMode mode = MENU; // Starta i meny-läge
+
+    // Initiera bilarna EN gång (bra för hantera minnet)
+    // nummerna = pixlar horisontellt, vertikalt och storlek: bredd x höjd
+    if (!initiCar(pRes->pRenderer, &pRes->car1, "resources/Cars/Black_viper.png", 300, 300, 128, 64) ||
+        !initiCar(pRes->pRenderer, &pRes->car2, "resources/Cars/Police.png", 100, 100, 128, 64))
+    {
+        printf("Failed to create car texture: %s\n", SDL_GetError());
+        return;
+    }
 
     while (isRunning)
     {
@@ -49,13 +71,13 @@ void gameLoop(GameResources *pRes)
 
                 if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->startRect))
                 {
-                    SDL_Log("Starta spelet!");
-                    mode = PLAYING;
+                    SDL_Log("Start the Game!");
+                    mode = PLAYING; // aktivera playingläge
                 }
 
                 if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->exitRect))
                 {
-                    SDL_Log("Avslutar spelet!");
+                    SDL_Log("End the Game!");
                     isRunning = false;
                 }
                 if (SDL_PointInRect(&(SDL_Point){x,y}, &pRes->multiplayerRect)) {
@@ -75,12 +97,12 @@ void gameLoop(GameResources *pRes)
                 if (event.key.keysym.sym == SDLK_t)
                 {
                     mode = PLAYING;
-                    SDL_Log("Växlar till PLAYING-läge");
+                    SDL_Log("Change to playing-mode");
                 }
                 else if (event.key.keysym.sym == SDLK_m)
                 {
                     mode = MENU;
-                    SDL_Log("Växlar till MENU-läge");
+                    SDL_Log("Change to meny-mode");
                 }
             }
         }
@@ -99,15 +121,36 @@ void gameLoop(GameResources *pRes)
         }
         else if (mode == PLAYING)
         {
-            SDL_SetRenderDrawColor(pRes->pRenderer, 255, 255, 255, 255);
+
+            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255); // svart bakgrund
             SDL_RenderClear(pRes->pRenderer);
+
+            // Din del: Rendera tilemap
+
+            for (int row = 0; row < MAP_HEIGHT; row++)
+            {
+                for (int col = 0; col < MAP_WIDTH; col++)
+                {
+                    int tileID = tilemap[row][col];
+
+                    SDL_Rect dest = {col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE};
+
+                    if (tileID >= 0 && tileID < NUM_TILES && pRes->pTiles[tileID])
+                    {
+                        SDL_RenderCopy(pRes->pRenderer, pRes->pTiles[tileID], NULL, &dest);
+                    }
+                }
+            }
+            // Rendera bilar
+            renderCar(pRes->pRenderer, &pRes->car1);
+            renderCar(pRes->pRenderer, &pRes->car2);
 
             // Test: rendera en tile
             SDL_Rect src = getTileSrcByID(2); // tile ID 2 från tileset
             SDL_Rect dest = {400, 300, TILE_SIZE, TILE_SIZE};
             SDL_RenderCopy(pRes->pRenderer, pRes->ptilesetTexture, &src, &dest);
         }
-
+        // Presentera det som ritats
         SDL_RenderPresent(pRes->pRenderer);
     }
 }

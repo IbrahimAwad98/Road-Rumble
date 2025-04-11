@@ -1,4 +1,5 @@
 #include "cleanup.h"
+#include "car.h"
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_net.h>
@@ -6,6 +7,10 @@
 
 void cleanup(GameResources *pRes)
 {
+    // städa bilar
+    destroyCar(&pRes->car1);
+    destroyCar(&pRes->car2);
+
     // Frigör alla resurser i omvänd ordning
     SDL_DestroyTexture(pRes->pStartTexture);
     SDL_DestroyTexture(pRes->pExitTexture);
