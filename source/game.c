@@ -44,6 +44,8 @@ void gameLoop(GameResources *pRes)
     SDL_Event event;
     bool isRunning = true;
     GameMode mode = MENU; // Starta i meny-läge
+    int hoveredButton = -1; 
+
 
     // Initiera bilarna EN gång (bra för hantera minnet)
     // nummerna = pixlar horisontellt, vertikalt och storlek: bredd x höjd
@@ -91,6 +93,17 @@ void gameLoop(GameResources *pRes)
 
             }
 
+            if (event.type == SDL_MOUSEMOTION && mode == MENU) {
+                int x = event.motion.x;
+                int y = event.motion.y;
+                hoveredButton = -1; 
+            
+                if (SDL_PointInRect(&(SDL_Point){x,y}, &pRes->startRect))       hoveredButton = 0;
+                else if (SDL_PointInRect(&(SDL_Point){x,y}, &pRes->multiplayerRect)) hoveredButton = 1;
+                else if (SDL_PointInRect(&(SDL_Point){x,y}, &pRes->optionsRect))     hoveredButton = 2;
+                else if (SDL_PointInRect(&(SDL_Point){x,y}, &pRes->exitRect))        hoveredButton = 3;
+            }
+
             // Byt mode via tangent
             if (event.type == SDL_KEYDOWN)
             {
@@ -118,6 +131,34 @@ void gameLoop(GameResources *pRes)
             SDL_RenderCopy(pRes->pRenderer, pRes->pExitTexture, NULL, &pRes->exitRect);
             SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerTexture, NULL, &pRes->multiplayerRect);
             SDL_RenderCopy(pRes->pRenderer, pRes->pOptionsTexture, NULL, &pRes->optionsRect);
+            // START-Rekt effekt
+            if (hoveredButton == 0)
+            SDL_SetTextureColorMod(pRes->pStartTexture, 200, 200, 255); // mörkare glöd 
+            else
+            SDL_SetTextureColorMod(pRes->pStartTexture, 255, 255, 255); // vanlig
+            SDL_RenderCopy(pRes->pRenderer, pRes->pStartTexture, NULL, &pRes->startRect);
+
+            // MULTIPLAYER-Rekt effekt
+            if (hoveredButton == 1)
+            SDL_SetTextureColorMod(pRes->pMultiplayerTexture, 200, 200, 255);
+            else
+            SDL_SetTextureColorMod(pRes->pMultiplayerTexture, 255, 255, 255);
+            SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerTexture, NULL, &pRes->multiplayerRect);
+
+            // OPTIONS-Rekt effekt          
+            if (hoveredButton == 2)
+            SDL_SetTextureColorMod(pRes->pOptionsTexture, 200, 200, 255);
+            else
+            SDL_SetTextureColorMod(pRes->pOptionsTexture, 255, 255, 255);
+            SDL_RenderCopy(pRes->pRenderer, pRes->pOptionsTexture, NULL, &pRes->optionsRect);
+
+            // EXIT-Rekt effekt
+            if (hoveredButton == 3)
+            SDL_SetTextureColorMod(pRes->pExitTexture, 200, 200, 255);
+            else
+            SDL_SetTextureColorMod(pRes->pExitTexture, 255, 255, 255);
+            SDL_RenderCopy(pRes->pRenderer, pRes->pExitTexture, NULL, &pRes->exitRect);
+
         }
         else if (mode == PLAYING)
         {
@@ -153,4 +194,5 @@ void gameLoop(GameResources *pRes)
         // Presentera det som ritats
         SDL_RenderPresent(pRes->pRenderer);
     }
+    
 }
