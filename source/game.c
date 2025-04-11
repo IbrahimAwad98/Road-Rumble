@@ -185,16 +185,7 @@ void gameLoop(GameResources *pRes)
            
 
             const Uint8 *keys = SDL_GetKeyboardState(NULL);
-            if (keys[SDL_SCANCODE_UP]) {
-                 pRes->car1.carRect.x += cos(pRes->car1.angle * M_PI/180.0f) * pRes->car1.speed;
-                 pRes->car1.carRect.y += sin(pRes->car1.angle * M_PI/180.0f) * pRes->car1.speed;
-            }
-            if(keys[SDL_SCANCODE_LEFT]) {
-                pRes->car1.angle -= 4;
-            } 
-            if(keys[SDL_SCANCODE_RIGHT]) {
-                pRes->car1.angle += 4;
-            }
+            updateCar(&pRes->car1, keys);
 
 
             for (int row = 0; row < MAP_HEIGHT; row++)
