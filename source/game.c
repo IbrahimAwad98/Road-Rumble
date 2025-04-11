@@ -84,11 +84,11 @@ void gameLoop(GameResources *pRes)
                 }
                 if (SDL_PointInRect(&(SDL_Point){x,y}, &pRes->multiplayerRect)) {
                     SDL_Log("MULTIPLAYER");
-                    mode = MULTIPLAYER;  // Or handle however you like
+                    mode = MULTIPLAYER;  // gå in Multiplayer Menyn
                 }
                 if (SDL_PointInRect(&(SDL_Point){x,y}, &pRes->optionsRect)) {
                     SDL_Log("OPTIONS clicked");
-                    mode = OPTIONS;  // Or handle however you like
+                    mode = OPTIONS;  // gå in Options Menyn
                 }
 
             }
@@ -191,8 +191,14 @@ void gameLoop(GameResources *pRes)
             SDL_Rect dest = {400, 300, TILE_SIZE, TILE_SIZE};
             SDL_RenderCopy(pRes->pRenderer, pRes->ptilesetTexture, &src, &dest);
         }
+        else if (mode == OPTIONS)
+        {
+          SDL_RenderCopy(pRes->pRenderer, pRes->pOptionsMenuTex, NULL,NULL);
+        }
+
         // Presentera det som ritats
         SDL_RenderPresent(pRes->pRenderer);
     }
     
 }
+    
