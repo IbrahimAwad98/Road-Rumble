@@ -1,3 +1,5 @@
+#Det här skulle underlätta push och mellan blandning bland OS t.ex. Windows/Mac.
+
 # Binärer
 *.exe
 *.o
