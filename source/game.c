@@ -80,15 +80,16 @@ void gameLoop(GameResources *pRes)
                     SDL_Log("End the Game!");
                     isRunning = false;
                 }
-                if (SDL_PointInRect(&(SDL_Point){x,y}, &pRes->multiplayerRect)) {
+                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->multiplayerRect))
+                {
                     SDL_Log("MULTIPLAYER");
-                    mode = MULTIPLAYER;  // Or handle however you like
+                    mode = MULTIPLAYER; // Or handle however you like
                 }
-                if (SDL_PointInRect(&(SDL_Point){x,y}, &pRes->optionsRect)) {
+                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->optionsRect))
+                {
                     SDL_Log("OPTIONS clicked");
-                    mode = OPTIONS;  // Or handle however you like
+                    mode = OPTIONS; // Or handle however you like
                 }
-
             }
 
             // Byt mode via tangent
