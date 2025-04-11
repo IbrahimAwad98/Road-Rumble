@@ -41,4 +41,4 @@ car.o: $(SRCDIR)/car.c
 
 # Rensa
 clean:
-	del *.exe *.o
+	del /Q *.exe *.o
