@@ -9,6 +9,7 @@ typedef struct
 {
     SDL_Texture *pCartexture;
     SDL_Rect carRect;
+    float x, y; //flyttalsposition
     float angle;
     float speed;
 } Car;
@@ -17,5 +18,6 @@ typedef struct
 bool initiCar(SDL_Renderer *pRenderer, Car *pCar, const char *pImagepath, int x, int y, int w, int h);
 void renderCar(SDL_Renderer *pRenderer, Car *pCar);
 void destroyCar(Car *pCar);
+void updateCar(Car *pCar, const Uint8 *keys);
 
 #endif
