@@ -20,16 +20,18 @@ bool loadResources(GameResources *pRes)
         printf("Failed to create background texture: %s\n", SDL_GetError());
         return false;
     }
-    // ladda "start game" bild 
+    // ladda "start game" bild
     SDL_Surface *pStartSurface = IMG_Load("resources/images/start.png");
-    if (!pStartSurface) {
+    if (!pStartSurface)
+    {
         printf("Failed to load start button image: %s\n", IMG_GetError());
         return false;
     }
-    //omvandla textur och hantera fel...
+    // omvandla textur och hantera fel...
     pRes->pStartTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pStartSurface);
     SDL_FreeSurface(pStartSurface);
-    if (!pRes->pStartTexture) {
+    if (!pRes->pStartTexture)
+    {
         printf("Failed to create start button texture: %s\n", SDL_GetError());
         return false;
     }
@@ -40,24 +42,27 @@ bool loadResources(GameResources *pRes)
         printf("Failed to load multiplayer image: %s\n", IMG_GetError());
         return false;
     }
-    //omvandla textur och hantera fel...
-    pRes->pMultiplayerTexture =  SDL_CreateTextureFromSurface(pRes->pRenderer,pMultiSurface);
+    // omvandla textur och hantera fel...
+    pRes->pMultiplayerTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pMultiSurface);
     SDL_FreeSurface(pMultiSurface);
-    if (!pRes->pMultiplayerTexture) {
+    if (!pRes->pMultiplayerTexture)
+    {
         printf("Failed to create multiplayer button texture: %s\n", SDL_GetError());
         return false;
     }
     // ladda "Options" bild
-    SDL_Surface *pOptionsSurface = IMG_Load("resources/images/options.png");;
+    SDL_Surface *pOptionsSurface = IMG_Load("resources/images/options.png");
+    ;
     if (!pOptionsSurface)
     {
         printf("Failed to load option image: %s\n", IMG_GetError());
-        return false;    
+        return false;
     }
     // omvandla textur och hantera fel...
-    pRes->pOptionsTexture = SDL_CreateTextureFromSurface(pRes->pRenderer,pOptionsSurface);
+    pRes->pOptionsTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pOptionsSurface);
     SDL_FreeSurface(pOptionsSurface);
-    if (!pRes->pOptionsTexture) {
+    if (!pRes->pOptionsTexture)
+    {
         printf("Failed to create multiplayer button texture: %s\n", SDL_GetError());
         return false;
     }
@@ -69,21 +74,21 @@ bool loadResources(GameResources *pRes)
         return false;
     }
     // omvandla textur och hantera fel...
-    pRes->pExitTexture = SDL_CreateTextureFromSurface(pRes->pRenderer,pExitSurface);
+    pRes->pExitTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pExitSurface);
     SDL_FreeSurface(pExitSurface);
 
     if (!pRes->pExitTexture)
     {
-        printf("Failed to create exit button texture: %s\n",SDL_GetError());
+        printf("Failed to create exit button texture: %s\n", SDL_GetError());
         return false;
     }
-    
-    //bredd x höjd "Start,Multi...."
-    pRes->startRect       = (SDL_Rect){830, 505, 340, 60};
+
+    // bredd x höjd "Start,Multi...."
+    pRes->startRect = (SDL_Rect){830, 505, 340, 60};
     pRes->multiplayerRect = (SDL_Rect){830, 585, 340, 60};
-    pRes->optionsRect     = (SDL_Rect){830, 665, 180, 60};
-    pRes->exitRect        = (SDL_Rect){1015, 665, 160, 60};
-    
+    pRes->optionsRect = (SDL_Rect){830, 665, 180, 60};
+    pRes->exitRect = (SDL_Rect){1015, 665, 160, 60};
+
     // ladda musiken och hantera fel.
     pRes->pBgMusic = Mix_LoadMUS("resources/music/intro_Opening.mp3");
     if (!pRes->pBgMusic)
