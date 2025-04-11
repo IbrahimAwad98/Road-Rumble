@@ -10,6 +10,8 @@
 typedef enum
 {
     MENU,
+    OPTIONS,
+    MULTIPLAYER,
     PLAYING
 } GameMode;
 
@@ -56,6 +58,15 @@ void gameLoop(GameResources *pRes)
                     SDL_Log("Avslutar spelet!");
                     isRunning = false;
                 }
+                if (SDL_PointInRect(&(SDL_Point){x,y}, &pRes->multiplayerRect)) {
+                    SDL_Log("MULTIPLAYER");
+                    mode = MULTIPLAYER;  // Or handle however you like
+                }
+                if (SDL_PointInRect(&(SDL_Point){x,y}, &pRes->optionsRect)) {
+                    SDL_Log("OPTIONS clicked");
+                    mode = OPTIONS;  // Or handle however you like
+                }
+
             }
 
             // Byt mode via tangent
@@ -83,6 +94,8 @@ void gameLoop(GameResources *pRes)
             SDL_RenderCopy(pRes->pRenderer, pRes->pBackgroundTexture, NULL, NULL);
             SDL_RenderCopy(pRes->pRenderer, pRes->pStartTexture, NULL, &pRes->startRect);
             SDL_RenderCopy(pRes->pRenderer, pRes->pExitTexture, NULL, &pRes->exitRect);
+            SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerTexture, NULL, &pRes->multiplayerRect);
+            SDL_RenderCopy(pRes->pRenderer, pRes->pOptionsTexture, NULL, &pRes->optionsRect);
         }
         else if (mode == PLAYING)
         {

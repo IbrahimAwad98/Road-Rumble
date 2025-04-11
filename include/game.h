@@ -19,11 +19,15 @@ typedef struct
     SDL_Renderer *pRenderer;         // Renderare
     SDL_Texture *pBackgroundTexture; // Bakgrundsbild
     SDL_Texture *pStartTexture;      // "Start Game"-textur
+    SDL_Texture *pMultiplayerTexture;// "Multiplayer"-textur
+    SDL_Texture *pOptionsTexture;    // "Options"-textur 
     SDL_Texture *pExitTexture;       // "Quit Game"-textur
     TTF_Font *pFont;                 // Typsnitt
     Mix_Music *pBgMusic;             // Bakgrundsmusik
     SDL_Rect startRect;              // Rektangel för startknappen
     SDL_Rect exitRect;               // Rektangel för avsluta-knappen
+    SDL_Rect multiplayerRect;        // Rektangel för multispelare-knappen
+    SDL_Rect optionsRect;            // Rektangel för inställning-knappen
     SDL_Texture *ptilesetTexture;    // Innehåller hela Tileseten
 } GameResources;
 

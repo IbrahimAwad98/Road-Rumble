@@ -30,6 +30,9 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    printf("Resources loaded successfully!\n");
+
+
     gameLoop(&res); // Starta huvudloopen för spelet
     cleanup(&res);  // Rensa och avsluta
     return 0;
