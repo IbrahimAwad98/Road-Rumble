@@ -3,8 +3,8 @@ SRCDIR = source
 CC = gcc
 
 # SDL2-headers och bibliotek (justera om nödvändigt)
-INCLUDEDIR = C:/msys64/mingw64/include/SDL2
-LIBDIR = C:/msys64/mingw64/lib
+INCLUDEDIR = C:\msys64\mingw64\include\SDL2
+LIBDIR = C:\msys64\mingw64\lib
 
 # Egen header-mapp
 MYINCLUDES = -Iinclude
@@ -39,4 +39,4 @@ cleanup.o: $(SRCDIR)/cleanup.c
 
 # Rensa
 clean:
-	del *.exe *.o
+	rm -f *.exe *.o
