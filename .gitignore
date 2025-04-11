@@ -1,1 +1,22 @@
+<<<<<<< HEAD
 Road-Rumble/
+=======
+#Det här skulle underlätta push och mellan blandning bland OS t.ex. Windows/Mac.
+
+# Binärer
+*.exe
+*.o
+Game
+
+# Systemfiler
+.DS_Store
+Thumbs.db
+
+# Makefile-backupfiler
+*~
+
+# Byggfiler
+*.out
+# Ignorera alla kompilerade objektfiler
+*.o
+>>>>>>> origin/main
