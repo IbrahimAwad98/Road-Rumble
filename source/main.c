@@ -14,6 +14,7 @@ int main(int argc, char **argv)
 {
     // Strukturen som håller alla resurser
     GameResources res = {0};
+    int count=0;
 
     // Initiera SDL, fönster, ljud, nätverk
     if (!initSDL(&res))
