@@ -162,7 +162,7 @@ bool loadResources(GameResources *pRes)
         }
     }
 
-    // 🧩 Ladda in hela tileset.png till ptilesetTexture
+    //  Ladda in hela tileset.png till ptilesetTexture
     SDL_Surface *tilesetSurface = IMG_Load("resources/images/tileset.png");
     if (!tilesetSurface)
     {
@@ -199,13 +199,14 @@ bool loadResources(GameResources *pRes)
             return false;
         }
     }
-        // ladda "Options-menu" bild...
+    // ladda "Options-menu" bild...
     SDL_Surface *pOptionsMenuSur = IMG_Load("resources/images/options-menu.png");
-    if(!pOptionsMenuSur){
+    if (!pOptionsMenuSur)
+    {
         printf("Failed to load options menu image: %s\n", IMG_GetError());
         return false;
     }
-    pRes->pOptionsMenuTex = SDL_CreateTextureFromSurface(pRes->pRenderer,pOptionsMenuSur);
+    pRes->pOptionsMenuTex = SDL_CreateTextureFromSurface(pRes->pRenderer, pOptionsMenuSur);
     SDL_FreeSurface(pOptionsMenuSur);
     if (!pRes->pOptionsMenuTex)
     {
