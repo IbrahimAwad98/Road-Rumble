@@ -199,5 +199,18 @@ bool loadResources(GameResources *pRes)
             return false;
         }
     }
+        // ladda "Options-menu" bild...
+    SDL_Surface *pOptionsMenuSur = IMG_Load("resources/images/options-menu.png");
+    if(!pOptionsMenuSur){
+        printf("Failed to load options menu image: %s\n", IMG_GetError());
+        return false;
+    }
+    pRes->pOptionsMenuTex = SDL_CreateTextureFromSurface(pRes->pRenderer,pOptionsMenuSur);
+    SDL_FreeSurface(pOptionsMenuSur);
+    if (!pRes->pOptionsMenuTex)
+    {
+        printf("Failed to create texture for option menu : %s\n", SDL_GetError());
+        return false;
+    }
     return true;
 }
