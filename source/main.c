@@ -9,6 +9,7 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL.h>
 #include "cleanup.h"
+#include <math.h>
 
 int main(int argc, char **argv)
 {
