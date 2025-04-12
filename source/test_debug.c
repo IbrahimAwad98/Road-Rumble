@@ -72,5 +72,5 @@ void runAllTests(GameResources *pRes, bool *pTestPassed, bool debugMode)
         printf("SDL_net is nworking.\n");
     }
 
-    printf("------Tests are done------\n");
+    printf("\n------Tests are done------\n");
 }

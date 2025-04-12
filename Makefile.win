@@ -40,6 +40,7 @@ car.o: $(SRCDIR)/car.c
 	$(CC) $(CFLAGS) -c $(SRCDIR)/car.c
 test_debug.o: $(SRCDIR)/test_debug.c
 	$(CC) $(CFLAGS) $(SRCDIR)/test_debug.c
+	
 # Rensa
 clean:
 	del /Q *.exe *.o

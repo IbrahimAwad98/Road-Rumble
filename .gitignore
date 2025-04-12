@@ -1,21 +1,34 @@
-Road-Rumble/
-#Det här skulle underlätta push och mellan blandning bland OS t.ex. Windows/Mac.
+# Projekt: Road-Rumble
+# Undvik att spåra tillfälliga filer, loggar och systemfiler
 
-# Binärer
+# Körbara filer och byggartefakter
 *.exe
 *.o
+*.out
+*.a
+*.so
+*.dll
 Game
 
-# Systemfiler
+# Testlogg
+testlog.txt
+
+# Editor-backups
+*~
+*.swp
+*.swo
+
+# Makefile-dependency
+*.d
+
+# OS-specifika filer
 .DS_Store
 Thumbs.db
+desktop.ini
 
-# Makefile-backupfiler
-*~
+# Visual Studio Code
+.vscode/
 
-# Byggfiler
-*.out
-
-# Ignorera alla kompilerade objektfiler
-*.lo
-*.swp
+# Test- eller debug-skript 
+test_debug.bat
+test_debug.sh
