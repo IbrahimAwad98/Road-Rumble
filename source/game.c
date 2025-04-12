@@ -55,6 +55,11 @@ void gameLoop(GameResources *pRes)
         return;
     }
 
+    pRes->car1.angle = 0.0f;
+    pRes->car1.speed = 3.0f;
+    
+
+
     while (isRunning)
     {
         // Hantera event
@@ -177,6 +182,11 @@ void gameLoop(GameResources *pRes)
             SDL_RenderClear(pRes->pRenderer);
 
             // Din del: Rendera tilemap
+           
+
+            const Uint8 *keys = SDL_GetKeyboardState(NULL);
+            updateCar(&pRes->car1, keys);
+
 
             for (int row = 0; row < MAP_HEIGHT; row++)
             {
