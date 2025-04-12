@@ -1,3 +1,4 @@
+Road-Rumble/
 #Det här skulle underlätta push och mellan blandning bland OS t.ex. Windows/Mac.
 
 # Binärer
@@ -14,3 +15,7 @@ Thumbs.db
 
 # Byggfiler
 *.out
+
+# Ignorera alla kompilerade objektfiler
+*.lo
+*.swp
