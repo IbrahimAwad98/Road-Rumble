@@ -19,32 +19,32 @@
 // Struktur som innehåller alla resurser som behövs för spelet
 typedef struct
 {
-    SDL_Window *pWindow;             // Fönster
-    SDL_Renderer *pRenderer;         // Renderare
-    SDL_Texture *pBackgroundTexture; // Bakgrundsbild
-    SDL_Texture *pStartTexture;      // "Start Game"-textur
-    SDL_Texture *pMultiplayerTexture;// "Multiplayer"-textur
-    SDL_Texture *pOptionsTexture;    // "Options"-textur 
-    SDL_Texture *pExitTexture;       // "Quit Game"-textur
-    SDL_Texture *pOptionsMenuTex;    // "Options selected"-textur
-    SDL_Texture *pTiles[NUM_TILES];  // Alla separata bilder (90 st)
-    SDL_Texture *ptilesetTexture;    // Innehåller hela Tileseten
+    SDL_Window *pWindow;              // Fönster
+    SDL_Renderer *pRenderer;          // Renderare
+    SDL_Texture *pBackgroundTexture;  // Bakgrundsbild
+    SDL_Texture *pStartTexture;       // "Start Game"-textur
+    SDL_Texture *pMultiplayerTexture; // "Multiplayer"-textur
+    SDL_Texture *pOptionsTexture;     // "Options"-textur
+    SDL_Texture *pExitTexture;        // "Quit Game"-textur
+    SDL_Texture *pOptionsMenuTex;     // "Options selected"-textur
+    SDL_Texture *pTiles[NUM_TILES];   // Alla separata bilder (90 st)
+    SDL_Texture *ptilesetTexture;     // Innehåller hela Tileseten
 
-    TTF_Font *pFont;                 // Typsnitt
-    Mix_Music *pBgMusic;             // Bakgrundsmusik
-    SDL_Rect startRect;              // Rektangel för startknappen
-    SDL_Rect exitRect;               // Rektangel för avsluta-knappen
-    SDL_Rect multiplayerRect;        // Rektangel för multispelare-knappen
-    SDL_Rect optionsRect;            // Rektangel för inställning-knappen
-    
-    Car car1;                     // initiera bil1
-    Car car2;                     // initiera bil2
+    TTF_Font *pFont;          // Typsnitt
+    Mix_Music *pBgMusic;      // Bakgrundsmusik
+    SDL_Rect startRect;       // Rektangel för startknappen
+    SDL_Rect exitRect;        // Rektangel för avsluta-knappen
+    SDL_Rect multiplayerRect; // Rektangel för multispelare-knappen
+    SDL_Rect optionsRect;     // Rektangel för inställning-knappen
+
+    Car car1, car2; // initiera bilar.
 
 } GameResources;
 
 // Funktion som kör spelets huvudloop
 void gameLoop(GameResources *pRes);
 
-SDL_Rect getTileSrcByID(int tileID); // Funktion som laddar upp bilder till banan på ett enklare sätt.
+// Funktion som laddar upp bilder till banan på ett enklare sätt.
+SDL_Rect getTileSrcByID(int tileID);
 
 #endif

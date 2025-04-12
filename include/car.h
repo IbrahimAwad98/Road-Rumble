@@ -9,7 +9,7 @@ typedef struct
 {
     SDL_Texture *pCartexture;
     SDL_Rect carRect;
-    float x, y; //flyttalsposition
+    float x, y; // flyttalsposition
     float angle;
     float speed;
 } Car;
