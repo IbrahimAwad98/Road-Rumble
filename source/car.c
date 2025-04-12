@@ -1,5 +1,10 @@
 #include "car.h"
 #include <SDL2/SDL_image.h>
+#include <math.h>
+
+#ifndef M_PI
+#define M_PI 3.14
+#endif
 
 bool initiCar(SDL_Renderer *pRenderer, Car *pCar, const char *pImagepath, int x, int y, int w, int h)
 {
@@ -44,30 +49,41 @@ void updateCar(Car *pCar, const Uint8 *keys)
     const float turnSpeed = 3.0f;
     const float friction = 0.05f;
 
-    if (keys[SDL_SCANCODE_UP]) {
+    if (keys[SDL_SCANCODE_UP])
+    {
         pCar->speed += accel;
-        if(pCar->speed > maxSpeed) pCar->speed = maxSpeed;
+        if (pCar->speed > maxSpeed)
+            pCar->speed = maxSpeed;
     }
-    if (keys[SDL_SCANCODE_DOWN]) {
+    if (keys[SDL_SCANCODE_DOWN])
+    {
         pCar->speed -= accel;
-        if(pCar->speed < -maxSpeed / 2) pCar->speed = -maxSpeed / 2;
+        if (pCar->speed < -maxSpeed / 2)
+            pCar->speed = -maxSpeed / 2;
     }
-    if(keys[SDL_SCANCODE_LEFT]) {
+    if (keys[SDL_SCANCODE_LEFT])
+    {
         pCar->angle -= turnSpeed;
     }
-    if(keys[SDL_SCANCODE_RIGHT]) {
+    if (keys[SDL_SCANCODE_RIGHT])
+    {
         pCar->angle += turnSpeed;
     }
-    //friktion
-    if(pCar->speed > 0) {
+    // friktion
+    if (pCar->speed > 0)
+    {
         pCar->speed -= friction;
-        if(pCar->speed < 0) pCar->speed = 0;
-    } else if (pCar->speed < 0) {
+        if (pCar->speed < 0)
+            pCar->speed = 0;
+    }
+    else if (pCar->speed < 0)
+    {
         pCar->speed += friction;
-        if(pCar->speed > 0) pCar->speed = 0;
+        if (pCar->speed > 0)
+            pCar->speed = 0;
     }
 
-    //updatera positionen
+    // updatera positionen
 
     pCar->x += pCar->speed * cos(pCar->angle * M_PI / 180.0f);
     pCar->y += pCar->speed * sin(pCar->angle * M_PI / 180.0f);
@@ -76,8 +92,8 @@ void updateCar(Car *pCar, const Uint8 *keys)
     pCar->carRect.y = (int)pCar->y;
 
     // Begränsa bilen inom skärmen
-    int screenWidth = 1280;  // Byt till din fönsterbredd
-    int screenHeight = 720;  // Byt till din fönsterhöjd
+    int screenWidth = 1280; // Byt till din fönsterbredd
+    int screenHeight = 720; // Byt till din fönsterhöjd
 
     // Begränsning X
     if (pCar->x < 0)
@@ -94,5 +110,4 @@ void updateCar(Car *pCar, const Uint8 *keys)
     // Uppdatera rektangel för att rita
     pCar->carRect.x = (int)pCar->x;
     pCar->carRect.y = (int)pCar->y;
-
 }
