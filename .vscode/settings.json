@@ -8,6 +8,7 @@
         "sdl_image.h": "c",
         "cleanup.h": "c",
         "resources.h": "c",
-        "car.h": "c"
+        "car.h": "c",
+        "math.h": "c"
     }
 }

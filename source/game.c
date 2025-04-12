@@ -9,7 +9,7 @@
 #include <SDL2/SDL_image.h>
 #include <stdbool.h>
 
-// Skapa läges-typ (enum)
+// Spellägen (enum) som styr vilken "skärm" spelet befinner sig i
 typedef enum
 {
     MENU,
@@ -43,8 +43,8 @@ void gameLoop(GameResources *pRes)
 {
     SDL_Event event;
     bool isRunning = true;
-    GameMode mode = MENU; // Starta i meny-läge
-    int hoveredButton = -1;
+    GameMode mode = MENU;   // Starta i meny-läge
+    int hoveredButton = -1; // -1 betyder att ingen knapp är markerad
 
     // Initiera bilarna EN gång (bra för hantera minnet)
     // nummerna = pixlar horisontellt, vertikalt och storlek: bredd x höjd
@@ -55,6 +55,7 @@ void gameLoop(GameResources *pRes)
         return;
     }
 
+    // Startvärden för första bilen
     pRes->car1.angle = 0.0f;
     pRes->car1.speed = 3.0f;
 
@@ -63,11 +64,13 @@ void gameLoop(GameResources *pRes)
         // Hantera event
         while (SDL_PollEvent(&event))
         {
+            // Avsluta spelet via ESC eller stänga fönstret
             if (event.type == SDL_QUIT ||
                 (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE))
             {
                 isRunning = false;
             }
+            // Klick på meny-knappar
             else if (event.type == SDL_MOUSEBUTTONDOWN && mode == MENU)
             {
                 int x = event.button.x;
@@ -109,23 +112,36 @@ void gameLoop(GameResources *pRes)
                 hoveredButton = -1;
 
                 if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->startRect))
+                {
                     hoveredButton = 0;
+                }
+
                 else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->multiplayerRect))
+                {
                     hoveredButton = 1;
+                }
+
                 else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->optionsRect))
+                {
                     hoveredButton = 2;
+                }
+
                 else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->exitRect))
+                {
                     hoveredButton = 3;
+                }
             }
 
             // Byt mode via tangent
             if (event.type == SDL_KEYDOWN)
             {
-                if (event.key.keysym.sym == SDLK_t)
+                // p start spelet
+                if (event.key.keysym.sym == SDLK_p)
                 {
                     mode = PLAYING;
                     SDL_Log("Change to playing-mode");
                 }
+                // m tillbaka till meny
                 else if (event.key.keysym.sym == SDLK_m)
                 {
                     mode = MENU;
@@ -179,8 +195,6 @@ void gameLoop(GameResources *pRes)
             SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255); // svart bakgrund
             SDL_RenderClear(pRes->pRenderer);
 
-            // Din del: Rendera tilemap
-
             const Uint8 *keys = SDL_GetKeyboardState(NULL);
             updateCar(&pRes->car1, keys);
 
@@ -207,12 +221,13 @@ void gameLoop(GameResources *pRes)
             SDL_Rect dest = {400, 300, TILE_SIZE, TILE_SIZE};
             SDL_RenderCopy(pRes->pRenderer, pRes->ptilesetTexture, &src, &dest);
         }
+        //  Inställningar
         else if (mode == OPTIONS)
         {
             SDL_RenderCopy(pRes->pRenderer, pRes->pOptionsMenuTex, NULL, NULL);
         }
 
-        // Presentera det som ritats
+        //  Presentera allt som ritats
         SDL_RenderPresent(pRes->pRenderer);
     }
 }

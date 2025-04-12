@@ -33,15 +33,17 @@ bool initiCar(SDL_Renderer *pRenderer, Car *pCar, const char *pImagepath, int x,
 
     return true;
 }
+// rendera bilen
 void renderCar(SDL_Renderer *pRenderer, Car *pCar)
 {
     SDL_RenderCopyEx(pRenderer, pCar->pCartexture, NULL, &pCar->carRect, pCar->angle, NULL, SDL_FLIP_NONE);
 }
+// städa up (för minnet)
 void destroyCar(Car *pCar)
 {
     SDL_DestroyTexture(pCar->pCartexture);
 }
-
+// bilen rörelse
 void updateCar(Car *pCar, const Uint8 *keys)
 {
     const float accel = 0.2f;
@@ -53,13 +55,17 @@ void updateCar(Car *pCar, const Uint8 *keys)
     {
         pCar->speed += accel;
         if (pCar->speed > maxSpeed)
+        {
             pCar->speed = maxSpeed;
+        }
     }
     if (keys[SDL_SCANCODE_DOWN])
     {
         pCar->speed -= accel;
         if (pCar->speed < -maxSpeed / 2)
+        {
             pCar->speed = -maxSpeed / 2;
+        }
     }
     if (keys[SDL_SCANCODE_LEFT])
     {
@@ -84,7 +90,6 @@ void updateCar(Car *pCar, const Uint8 *keys)
     }
 
     // updatera positionen
-
     pCar->x += pCar->speed * cos(pCar->angle * M_PI / 180.0f);
     pCar->y += pCar->speed * sin(pCar->angle * M_PI / 180.0f);
 
@@ -97,15 +102,23 @@ void updateCar(Car *pCar, const Uint8 *keys)
 
     // Begränsning X
     if (pCar->x < 0)
+    {
         pCar->x = 0;
+    }
     else if (pCar->x + pCar->carRect.w > screenWidth)
+    {
         pCar->x = screenWidth - pCar->carRect.w;
+    }
 
     // Begränsning Y
     if (pCar->y < 0)
+    {
         pCar->y = 0;
+    }
     else if (pCar->y + pCar->carRect.h > screenHeight)
+    {
         pCar->y = screenHeight - pCar->carRect.h;
+    }
 
     // Uppdatera rektangel för att rita
     pCar->carRect.x = (int)pCar->x;
