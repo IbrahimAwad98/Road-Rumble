@@ -6,13 +6,19 @@
 
 void runAllTests(GameResources *pRes, bool *pTestPassed, bool debugMode)
 {
+    // header för filen
+    printf("===============================\n");
+    printf("         STATUSRAPPORT         \n");
+    printf("===============================\n");
+
     if (debugMode)
     {
-        printf("------Debug mode is active------\n");
+        printf("Debug mode is active\n");
     }
 
     //------Testläge som gäller------
-    printf("------Test mode is active------\n");
+    printf("Test mode is active\n");
+    printf("===============================\n");
     *pTestPassed = true;
     // visa mode på skärm
     SDL_Color white = {255, 255, 255};
@@ -117,5 +123,6 @@ void runAllTests(GameResources *pRes, bool *pTestPassed, bool debugMode)
     }
 
     // testlog.txt
-    printf("\n------Tests are done------\n");
+    printf("\nTests are done\n");
+    printf("===============================\n");
 }
