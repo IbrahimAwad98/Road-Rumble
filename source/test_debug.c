@@ -11,6 +11,7 @@ void runAllTests(GameResources *pRes, bool *pTestPassed, bool debugMode)
         printf("------Debug mode is active------\n");
     }
 
+    //------Testläge som gäller------
     printf("------Test mode is active------\n");
     *pTestPassed = true;
     // visa mode på skärm
@@ -38,6 +39,7 @@ void runAllTests(GameResources *pRes, bool *pTestPassed, bool debugMode)
         SDL_DestroyTexture(pLoadingTex);
     }
 
+    //------Här är tester------
     // hantera renderer och fönsteret
     if (!pRes->pRenderer || !pRes->pWindow)
     {
@@ -57,38 +59,6 @@ void runAllTests(GameResources *pRes, bool *pTestPassed, bool debugMode)
     else
     {
         printf("SDL font is working.\n");
-    }
-
-    // rita resultat (korrekt = grön & fel = röd)
-    SDL_Color green = {0, 255, 0};
-    SDL_Color red = {255, 0, 0};
-    SDL_Color resultColor = green;
-    const char *pResultText = "TEST OK";
-
-    SDL_Surface *pResultSurf = TTF_RenderText_Solid(pRes->pFont, pResultText, green);
-    if (!pResultSurf)
-    {
-        resultColor = red;
-        pResultText = "TEST FAILED";
-        pResultSurf = TTF_RenderText_Solid(pRes->pFont, pResultText, red);
-        *pTestPassed = false;
-    }
-    if (pResultSurf)
-    {
-        SDL_Texture *pResultTex = SDL_CreateTextureFromSurface(pRes->pRenderer, pResultSurf);
-
-        SDL_Rect rTest = {.w = pResultSurf->w,
-                          .h = pResultSurf->h,
-                          .x = (WIDTH - pResultSurf->w) / 2,
-                          .y = rRunning.y + rRunning.h + 20};
-
-        SDL_RenderCopy(pRes->pRenderer, pResultTex, NULL, &rTest);
-        SDL_RenderPresent(pRes->pRenderer);
-        SDL_Delay(3000); // 3 sekunder
-
-        // städa
-        SDL_FreeSurface(pResultSurf);
-        SDL_DestroyTexture(pResultTex);
     }
     // hantera map
     if (!pRes->ptilesetTexture)
@@ -110,6 +80,42 @@ void runAllTests(GameResources *pRes, bool *pTestPassed, bool debugMode)
     {
         printf("SDL_net is nworking.\n");
     }
+
+    // simulering till test failed.
+    //*pTestPassed = false;
+
+    // rita resultat (korrekt = grön & fel = röd)
+    SDL_Color green = {0, 255, 0};
+    SDL_Color red = {255, 0, 0};
+    SDL_Color resultColor = green;
+    const char *pResultText = "TEST OK";
+
+    if (!*pTestPassed)
+    {
+        resultColor = red;
+        pResultText = "TEST FAILED";
+    }
+    // med rätt färg
+    SDL_Surface *pResultSurf = TTF_RenderText_Solid(pRes->pFont, pResultText, resultColor);
+    if (pResultSurf)
+    {
+        SDL_Texture *pResultTex = SDL_CreateTextureFromSurface(pRes->pRenderer, pResultSurf);
+
+        SDL_Rect rTest = {
+            .w = pResultSurf->w,
+            .h = pResultSurf->h,
+            .x = (WIDTH - pResultSurf->w) / 2,
+            .y = rRunning.y + rRunning.h + 20};
+
+        SDL_RenderCopy(pRes->pRenderer, pResultTex, NULL, &rTest);
+        SDL_RenderPresent(pRes->pRenderer);
+        SDL_Delay(3000); // 3 sekunder
+
+        // städa
+        SDL_FreeSurface(pResultSurf);
+        SDL_DestroyTexture(pResultTex);
+    }
+
     // testlog.txt
     printf("\n------Tests are done------\n");
 }
