@@ -63,7 +63,7 @@ int main(int argc, char **argv)
         {
             printf("TEST RESULTAT: PASSED.\n");
             printf("Everything went fine! Test completed without errors.\n");
-            return 0;
+            gameLoop(&res); // starta spelet
         }
         else
         {
