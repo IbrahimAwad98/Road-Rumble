@@ -2,9 +2,15 @@
 ------Test mode is active------
 SDL is working.
 SDL font is working.
-Text-rendering OK.
-Tileset  is working.
+Tileset is working.
 SDL_net is nworking.
+
 ------Tests are done------
 TEST RESULTAT: PASSED.
 Everything went fine! Test completed without errors.
+libpng warning: iCCP: known incorrect sRGB profile
+libpng warning: iCCP: known incorrect sRGB profile
+INFO: End the Game!
+libpng warning: iCCP: known incorrect sRGB profile
+libpng warning: iCCP: known incorrect sRGB profile
+INFO: End the Game!
