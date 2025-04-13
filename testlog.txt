@@ -6,11 +6,5 @@ Tileset is working.
 SDL_net is nworking.
 
 ------Tests are done------
-TEST RESULTAT: PASSED.
-Everything went fine! Test completed without errors.
-libpng warning: iCCP: known incorrect sRGB profile
-libpng warning: iCCP: known incorrect sRGB profile
-INFO: End the Game!
-libpng warning: iCCP: known incorrect sRGB profile
-libpng warning: iCCP: known incorrect sRGB profile
-INFO: End the Game!
+TEST RESULTAT: FAILED.
+One or more tests failed. Check the log above for details.
