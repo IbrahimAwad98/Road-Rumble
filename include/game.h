@@ -7,7 +7,7 @@
 #include "car.h"
 
 // Konstanter för fönsterstorlek och ljud
-#define WIDTH 1366
+#define WIDTH 1408
 #define HEIGHT 768
 #define AUDIO_FREQ 44100
 #define AUDIO_CHANNELS 2
@@ -15,7 +15,6 @@
 #define NUM_ASPHALT_TILES 90
 #define NUM_GRASS_TILES 14
 #define NUM_TILES (NUM_ASPHALT_TILES + NUM_GRASS_TILES)
-
 
 // Struktur som innehåller alla resurser som behövs för spelet
 typedef struct
@@ -29,10 +28,13 @@ typedef struct
     Mix_Music *pBgMusic;             // Bakgrundsmusik
     SDL_Rect startRect;              // Rektangel för startknappen
     SDL_Rect exitRect;               // Rektangel för avsluta-knappen
-    SDL_Texture *pTiles[NUM_TILES];  // Alla separata bilder (90 st)
+    SDL_Texture *pTiles[NUM_TILES];  // Alla separata bilder 103 st gräs o asfalt
     SDL_Texture *ptilesetTexture;    // Innehåller hela Tileseten
     Car car1;                        // initiera bil1
     Car car2;                        // initiera bil2
+    Camera camera1;   // Kamera för spelare 1
+    Camera camera2;   // Kamera för spelare 2
+    int localPlayerID;     // 0 eller 1 – sätts i framtiden via nätverk
 } GameResources;
 
 // Funktion som kör spelets huvudloop
