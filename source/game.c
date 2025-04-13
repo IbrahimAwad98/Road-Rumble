@@ -1,13 +1,18 @@
 #define TILE_SIZE 128
 #define TILESET_COLUMNS 3
-#define MAP_WIDTH 20
-#define MAP_HEIGHT 10
+#define MAP_WIDTH 11
+#define MAP_HEIGHT 6
 
 #include "game.h"
 #include "car.h"
+#include "camera.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <stdbool.h>
+
+void renderGrassBackground(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int grassTileID, Camera *pCamera);
+void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int tilemap[MAP_HEIGHT][MAP_WIDTH], Camera *pCamera);
+void updateCamera(Camera *pCamera, SDL_Rect *pTarget);
 
 // Skapa läges-typ (enum)
 typedef enum
@@ -28,13 +33,12 @@ SDL_Rect getTileSrcByID(int tileID)
 }
 
 int tilemap[MAP_HEIGHT][MAP_WIDTH] = {
-    {100, 100, 100, 100, 100, 100, 100, 100, 100, 100},
-    {100, 2,   1,   0,   0,   0,   0,   0,   0,   100},
-    {100, 0,   0,   0,   0,   0,   0,   0,   0,   100},
-    {100, 0,   0,   0,   0,   0,   0,   0,   0,   100},
-    {100, 0,   0,   0,   0,   0,   0,   0,   0,   100},
-    {100, 0,   0,   0,   0,   0,   0,   0,   0,   100},
-    {100, 100, 100, 100, 100, 100, 100, 100, 100, 100},
+    {-1, 2, 1, 1, 1, 1, 1, 1, 1, 4, -1},
+    {-1, 0, -1, -1, -1, -1, -1, -1, -1, 0, -1},
+    {-1, 0, -1, -1, -1, -1, -1, -1, -1, 0, -1},
+    {-1, 0, -1, -1, -1, -1, -1, -1, -1, 0, -1},
+    {-1, 0, -1, -1, -1, -1, -1, -1, -1, 0, -1},
+    {-1, 38, 1, 1, 1, 1, 1, 1, 1, 40, -1}
 };
 
 void gameLoop(GameResources *pRes)
@@ -42,6 +46,16 @@ void gameLoop(GameResources *pRes)
     SDL_Event event;
     bool isRunning = true;
     GameMode mode = MENU; // Starta i meny-läge
+
+    pRes->camera1.x = 0;
+    pRes->camera1.y = 0;
+    pRes->camera1.w = WIDTH;
+    pRes->camera1.h = HEIGHT;
+
+    pRes->camera2.x = 0;
+    pRes->camera2.y = 0;
+    pRes->camera2.w = WIDTH;
+    pRes->camera2.h = HEIGHT;
 
     // Initiera bilarna EN gång (bra för hantera minnet)
     // nummerna = pixlar horisontellt, vertikalt och storlek: bredd x höjd
@@ -110,24 +124,15 @@ void gameLoop(GameResources *pRes)
         {
             SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255); // svart bakgrund
             SDL_RenderClear(pRes->pRenderer);
+            Camera *pActiveCamera = (pRes->localPlayerID == 0) ? &pRes->camera1 : &pRes->camera2;
 
-            // 🔲 Din del: Rendera tilemap
-            for (int row = 0; row < MAP_HEIGHT; row++)
-            {
-                for (int col = 0; col < MAP_WIDTH; col++)
-                {
-                    int tileID = tilemap[row][col];
-                    SDL_Rect dest = { col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE };
-                    if (tileID >= 0 && tileID < NUM_TILES && pRes->pTiles[tileID])
-                    {
-                        SDL_RenderCopy(pRes->pRenderer, pRes->pTiles[tileID], NULL, &dest);
-                    }
-                }
-            }
-
-            // 🚗 Hans del: Rendera bilar
-            renderCar(pRes->pRenderer, &pRes->car1);
-            renderCar(pRes->pRenderer, &pRes->car2);
+            updateCamera(pActiveCamera, &pRes->car1.carRect);
+            
+            renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93, pActiveCamera);
+            renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap, pActiveCamera);
+            
+            renderCar(pRes->pRenderer, &pRes->car1, pActiveCamera);
+            renderCar(pRes->pRenderer, &pRes->car2, pActiveCamera);
 
             // 🧪 Test: rendera en test-tile (valfritt behålla)
             SDL_Rect src = getTileSrcByID(2); // tile ID 2 från tileset
@@ -139,3 +144,34 @@ void gameLoop(GameResources *pRes)
         SDL_RenderPresent(pRes->pRenderer);
     } // end while(isRunning)
 } // end gameLoop
+
+void renderGrassBackground(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int grassTileID, Camera *pCamera){
+    for (int row = 0; row < MAP_HEIGHT; row++) {
+        for (int col = 0; col < MAP_WIDTH; col++) {
+            SDL_Rect dest = { col * TILE_SIZE - pCamera->x, row * TILE_SIZE - pCamera->y, TILE_SIZE, TILE_SIZE };
+
+            if (pTiles[grassTileID]) {
+                SDL_RenderCopy(pRenderer, pTiles[grassTileID], NULL, &dest);
+            }
+        }
+    }
+}
+
+void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int tilemap[MAP_HEIGHT][MAP_WIDTH], Camera *pCamera){
+    for (int row = 0; row < MAP_HEIGHT; row++) {
+        for (int col = 0; col < MAP_WIDTH; col++) {
+            SDL_Rect dest = { col * TILE_SIZE - pCamera->x, row * TILE_SIZE - pCamera->y, TILE_SIZE, TILE_SIZE };
+            int tileID = tilemap[row][col];
+
+            if (tileID == -1) {
+                continue; // ❌ hoppa över rutor som är täckta
+            }
+
+            // ✅ RITA om: Endast om giltigt ID och texturen finns
+            if (tileID >= 0 && tileID < NUM_TILES && pTiles[tileID]) {
+                SDL_RenderCopy(pRenderer, pTiles[tileID], NULL, &dest);
+            }
+        }
+    }
+}
+

@@ -23,9 +23,15 @@ bool initiCar(SDL_Renderer *pRenderer, Car *pCar, const char *pImagepath, int x,
     pCar->carRect.h = h; // höjd
     return true;
 }
-void renderCar(SDL_Renderer *pRenderer, Car *pCar)
+void renderCar(SDL_Renderer *pRenderer, Car *pCar, Camera *pCamera)
 {
-    SDL_RenderCopy(pRenderer, pCar->pCartexture, NULL, &pCar->carRect);
+    SDL_Rect dest = {
+        pCar->carRect.x - pCamera->x,
+        pCar->carRect.y - pCamera->y,
+        pCar->carRect.w,
+        pCar->carRect.h
+    };
+    SDL_RenderCopy(pRenderer, pCar->pCartexture, NULL, &dest);
 }
 void destroyCar(Car *pCar)
 {

@@ -10,7 +10,7 @@ CFLAGS = -I$(INCLUDEDIR) -Iinclude -c -g
 LDFLAGS = -L$(LIBDIR) -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_net -lSDL2_mixer
 
 TARGET = Game
-OBJS = main.o game.o cleanup.o resources.o sdl_init.o car.o
+OBJS = main.o game.o cleanup.o resources.o sdl_init.o car.o camera.o
 
 $(TARGET): $(OBJS)
 	$(CC) $(OBJS) -o $(TARGET) $(LDFLAGS)
@@ -32,6 +32,9 @@ sdl_init.o: $(SRCDIR)/sdl_init.c
 
 car.o: $(SRCDIR)/car.c
 	$(CC) $(CFLAGS) $(SRCDIR)/car.c
+
+camera.o: $(SRCDIR)/camera.c
+	$(CC) $(CFLAGS) $(SRCDIR)/camera.c
 
 clean:
 	@rm -f *.o $(TARGET)
