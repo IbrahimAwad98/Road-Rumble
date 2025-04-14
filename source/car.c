@@ -46,10 +46,22 @@ void destroyCar(Car *pCar)
 // bilen rörelse
 void updateCar(Car *pCar, const Uint8 *keys)
 {
+    // Hur snabbt bilen accelererar när spelaren trycker på gas (UP).
+    // Ett högre värde gör att bilen når maxhastighet snabbare, men kan kännas ryckig.
     const float accel = 0.2f;
+
+    // Den högsta hastigheten bilen får uppnå i någon riktning.
+    // Används som säkerhet för att bilen inte ska gå för snabbt.
     const float maxSpeed = 5.0f;
+
+    // Hur snabbt bilen roterar (vinkeländring) när man trycker vänster eller höger.
+    // Ett högre värde gör bilen mer känslig vid styrning.
     const float turnSpeed = 3.0f;
+
+    // Friktionens styrka – hur snabbt bilen bromsas naturligt när du släpper gasen.
+    // Ett högre värde gör att bilen stannar snabbare, ett lägre gör att den glider längre.
     const float friction = 0.05f;
+
 
     if (keys[SDL_SCANCODE_UP])
     {
