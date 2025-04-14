@@ -1,10 +1,1 @@
-------Debug mode is active------
-------Test mode is active------
-SDL is working.
-SDL font is working.
-Text-rendering OK.
-Tileset  is working.
-SDL_net is nworking.
-------Tests are done------
-TEST RESULTAT: PASSED.
-Everything went fine! Test completed without errors.
+2025-04-15 00:56:01.188 Game[36574:263701] INFO: Start the Game!
