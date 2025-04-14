@@ -4,6 +4,7 @@
 #include "game.h"
 #include <stdbool.h>
 
+// funktion som ska testköra om allt är korrekt
 void runAllTests(GameResources *pRes, bool *pTestPassed, bool debugMode);
 
 #endif
