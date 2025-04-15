@@ -4,9 +4,11 @@
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
+#include <limits.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL.h>
 
+// filer
 #include "cleanup.h"
 #include "game.h"
 #include "sdl_init.h"
