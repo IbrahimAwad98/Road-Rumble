@@ -1,3 +1,10 @@
+SDL video initialized successfully.
+SDL_image (PNG) initialized successfully.
+SDL_ttf initialized successfully.
+SDL_mixer initialized successfully.
+SDL_net initialized successfully.
+SDL window created successfully.
+SDL renderer created successfully.
 ===============================
          STATUSRAPPORT         
 ===============================
@@ -7,7 +14,7 @@ Test mode is active
 SDL is working.
 SDL font is working.
 Tileset is working.
-SDL_net is nworking.
+SDL_net is working.
 
 Tests are done
 ===============================
@@ -15,6 +22,6 @@ TEST RESULTAT: PASSED.
 Everything went fine! Test completed without errors.
 libpng warning: iCCP: known incorrect sRGB profile
 libpng warning: iCCP: known incorrect sRGB profile
-INFO: Change to menu-mode
+INFO: Change to playing-mode
 libpng warning: iCCP: known incorrect sRGB profile
 libpng warning: iCCP: known incorrect sRGB profile
