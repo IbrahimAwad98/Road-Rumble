@@ -5,6 +5,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
 #include "car.h"
+#include "camera.h" // Include the header file defining Camera
 
 // Konstanter för fönsterstorlek och ljud
 #define WIDTH 1366
@@ -15,6 +16,14 @@
 #define NUM_ASPHALT_TILES 90
 #define NUM_GRASS_TILES 14
 #define NUM_TILES (NUM_ASPHALT_TILES + NUM_GRASS_TILES)
+
+#define TILE_SIZE 128
+#define TILESET_COLUMNS 3
+#define MAP_WIDTH 11
+#define MAP_HEIGHT 6
+
+#include "camera.h"
+#include "car.h"
 
 // Struktur som innehåller alla resurser som behövs för spelet
 typedef struct
@@ -37,12 +46,21 @@ typedef struct
     SDL_Rect multiplayerRect; // Rektangel för multispelare-knappen
     SDL_Rect optionsRect;     // Rektangel för inställning-knappen
 
-    Car car1, car2; // initiera bilar.
+    Car car1, car2;                   // initiera bilar.
+    Camera camera1;                   // Kamera för spelare 1
+    Camera camera2;                   // Kamera för spelare 2
+    int localPlayerID;                // 0 eller 1 – sätts i framtiden via nätverk
+    SDL_Texture *pMultiplayerMenuTex; // Added missing field
 
 } GameResources;
 
 // Funktion som kör spelets huvudloop
 void gameLoop(GameResources *pRes);
+
+// Funktioner för rendering och kamera
+void renderGrassBackground(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int grassTileID, Camera *pCamera);
+void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int tilemap[MAP_HEIGHT][MAP_WIDTH], Camera *pCamera);
+void updateCamera(Camera *pCamera, SDL_Rect *pTarget);
 
 // Funktion som laddar upp bilder till banan på ett enklare sätt.
 SDL_Rect getTileSrcByID(int tileID);
