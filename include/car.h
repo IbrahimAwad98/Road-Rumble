@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 #include <stdbool.h>
 #include <math.h>
+#include "camera.h"
 
 // definiera bilen
 typedef struct
@@ -16,7 +17,7 @@ typedef struct
 
 // tre funktioner för att laddar bilen och städa efter
 bool initiCar(SDL_Renderer *pRenderer, Car *pCar, const char *pImagepath, int x, int y, int w, int h);
-void renderCar(SDL_Renderer *pRenderer, Car *pCar);
+void renderCar(SDL_Renderer *pRenderer, Car *pCar, Camera *pCamera);
 void destroyCar(Car *pCar);
 void updateCar(Car *pCar, const Uint8 *keys);
 

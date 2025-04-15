@@ -11,6 +11,7 @@
         "car.h": "c",
         "math.h": "c",
         "test_debug.h": "c",
-        "sdl.h": "c"
+        "sdl.h": "c",
+        "camera.h": "c"
     }
 }
