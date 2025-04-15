@@ -1,2 +1,24 @@
-Failed to load tile 1: Couldn't open resources/tile/asphalt/road_asphalt01.png
-Failed to load game resources.
+===============================
+         STATUSRAPPORT         
+===============================
+Debug mode is active
+Test mode is active
+===============================
+SDL is working.
+SDL font is working.
+Tileset is working.
+SDL_net is nworking.
+
+Tests are done
+===============================
+TEST RESULTAT: PASSED.
+Everything went fine! Test completed without errors.
+libpng warning: iCCP: known incorrect sRGB profile
+libpng warning: iCCP: known incorrect sRGB profile
+INFO: Start the Game!
+libpng warning: iCCP: known incorrect sRGB profile
+libpng warning: iCCP: known incorrect sRGB profile
+INFO: Change to meny-mode
+INFO: OPTIONS clicked
+INFO: Change to meny-mode
+INFO: End the Game!
