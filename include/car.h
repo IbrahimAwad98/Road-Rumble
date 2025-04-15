@@ -16,7 +16,7 @@ typedef struct
     float speed;              // Nuvarande hastighet
 } Car;
 
-bool initCar(SDL_Renderer *pRenderer, Car *pCar, const char *pImagepath, int x, int y, int w, int h); // Initierar bilen (laddar bild, ställer in position & storlek)
+bool initCar(SDL_Renderer *pRenderer, Car *pCar, const char *pImagepath, int x, int y, int w, int h); // Initiera bilar
 void renderCar(SDL_Renderer *pRenderer, Car *pCar, Camera *pCamera);                                  // Renderar bilen till skärmen, med hänsyn till kamerans position
 void destroyCar(Car *pCar);                                                                           // Frigör minne och textur som bilen använder
 void updateCar(Car *pCar, const Uint8 *keys);                                                         // Uppdaterar bilens position och rörelse baserat på tangentinmatning
