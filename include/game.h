@@ -4,64 +4,84 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
+
 #include "car.h"
-#include "camera.h" // Include the header file defining Camera
-
-// Konstanter för fönsterstorlek och ljud
-#define WIDTH 1366
-#define HEIGHT 768
-#define AUDIO_FREQ 44100
-#define AUDIO_CHANNELS 2
-#define AUDIO_CHUNKSIZE 2048
-#define NUM_ASPHALT_TILES 90
-#define NUM_GRASS_TILES 14
-#define NUM_TILES (NUM_ASPHALT_TILES + NUM_GRASS_TILES)
-#define TILE_SIZE 128
-#define TILESET_COLUMNS 3
-#define MAP_WIDTH 11
-#define MAP_HEIGHT 6
-
 #include "camera.h"
-#include "car.h"
 
-// Struktur som innehåller alla resurser som behövs för spelet
+// Spelkonstanter
+#define WIDTH 1366                                      // Fönstrets bredd
+#define HEIGHT 768                                      // Fönstrets höjd
+#define AUDIO_FREQ 44100                                // Ljudfrekvens i Hz
+#define AUDIO_CHANNELS 2                                // Antal ljudkanaler (stereo)
+#define AUDIO_CHUNKSIZE 2048                            // Buffertstorlek för ljud
+#define NUM_ASPHALT_TILES 90                            // Antal asfalt-tiles
+#define NUM_GRASS_TILES 14                              // Antal gräs-tiles
+#define NUM_TILES (NUM_ASPHALT_TILES + NUM_GRASS_TILES) // Totalt antal tiles
+#define TILE_SIZE 128                                   // Storlek på varje tile i pixlar
+#define TILESET_COLUMNS 3                               // Antal kolumner i tileset-texturen
+#define MAP_WIDTH 11                                    // Bredd på tilemap (antal kolumner)
+#define MAP_HEIGHT 6                                    // Höjd på tilemap (antal rader)
+
+// Struktur: GameResources
+// Håller alla resurser som används under spelet
 typedef struct
 {
-    SDL_Window *pWindow;              // Fönster
-    SDL_Renderer *pRenderer;          // Renderare
-    SDL_Texture *pBackgroundTexture;  // Bakgrundsbild
-    SDL_Texture *pStartTexture;       // "Start Game"-textur
-    SDL_Texture *pMultiplayerTexture; // "Multiplayer"-textur
-    SDL_Texture *pOptionsTexture;     // "Options"-textur
-    SDL_Texture *pExitTexture;        // "Quit Game"-textur
-    SDL_Texture *pOptionsMenuTex;     // "Options selected"-textur
-    SDL_Texture *pTiles[NUM_TILES];   // Alla separata bilder (90 st)
-    SDL_Texture *ptilesetTexture;     // Innehåller hela Tileseten
+    SDL_Window *pWindow;     // Fönster där spelet visas
+    SDL_Renderer *pRenderer; // Renderare för att rita grafik
 
-    TTF_Font *pFont;          // Typsnitt
-    Mix_Music *pBgMusic;      // Bakgrundsmusik
-    SDL_Rect startRect;       // Rektangel för startknappen
-    SDL_Rect exitRect;        // Rektangel för avsluta-knappen
-    SDL_Rect multiplayerRect; // Rektangel för multispelare-knappen
-    SDL_Rect optionsRect;     // Rektangel för inställning-knappen
+    // Texturer för menyer och grafik
+    SDL_Texture *pBackgroundTexture;  // Bakgrundsbild i menyn
+    SDL_Texture *pStartTexture;       // "Start Game"-knapp
+    SDL_Texture *pMultiplayerTexture; // "Multiplayer"-knapp
+    SDL_Texture *pOptionsTexture;     // "Options"-knapp
+    SDL_Texture *pExitTexture;        // "Quit Game"-knapp
+    SDL_Texture *pOptionsMenuTex;     // Textur för alternativmeny
+    SDL_Texture *pMultiplayerMenuTex; // Textur för multiplayer-meny
 
-    Car car1, car2;    // initiera bilar.
-    Camera camera1;    // Kamera för spelare 1
-    Camera camera2;    // Kamera för spelare 2
-    int localPlayerID; // 0 eller 1 – sätts i framtiden via nätverk
-    SDL_Texture *pMultiplayerMenuTex;
+    SDL_Texture *pTiles[NUM_TILES]; // Enskilda tiles som extraherats från tileset
+    SDL_Texture *ptilesetTexture;   // Hela tileset-bilden (spritesheet)
+
+    TTF_Font *pFont;     // Typsnitt för text
+    Mix_Music *pBgMusic; // Bakgrundsmusik
+
+    // Rektanglar som definierar var knappar ritas och för att upptäcka klick
+    SDL_Rect startRect;
+    SDL_Rect exitRect;
+    SDL_Rect multiplayerRect;
+    SDL_Rect optionsRect;
+
+    // Spelare – två bilar
+    Car car1, car2;
+
+    // Kameror för varje spelare
+    Camera camera1;
+    Camera camera2;
+
+    int localPlayerID; // 0 eller 1 – används i nätverk för att avgöra "min" spelare
 
 } GameResources;
 
-// Funktion som kör spelets huvudloop
-void gameLoop(GameResources *pRes);
+// Enum: GameMode
+// Anger vilket läge spelet är i just nu
+typedef enum
+{
+    MENU,        // Huvudmenyn
+    OPTIONS,     // Inställningar
+    MULTIPLAYER, // Multiplayerläge
+    PLAYING      // Själva spelet pågår
+} GameMode;
 
-// Funktioner för rendering och kamera
-void renderGrassBackground(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int grassTileID, Camera *pCamera);
-void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int tilemap[MAP_HEIGHT][MAP_WIDTH], Camera *pCamera);
-void updateCamera(Camera *pCamera, SDL_Rect *pTarget);
-
-// Funktion som laddar upp bilder till banan på ett enklare sätt.
-SDL_Rect getTileSrcByID(int tileID);
+// Funktionsdeklarationer
+void gameLoop(GameResources *pRes);                                                                                             // Startar spel-loopen (huvudfunktionen som kör spelet)
+void initGame(GameResources *pRes);                                                                                             // Initierar bilar, kameror m.m.
+void handleGlobalKeyEvents(SDL_Event *event, GameMode *mode, bool *isRunning);                                                  // Hanterar tangenttryck som fungerar i alla lägen (t.ex. ESC, P, M)
+void handleMenuEvents(SDL_Event *event, GameResources *pRes, GameMode *mode, bool *isRunning, int *hoveredButton);              // Hanterar musinmatning i menyn och ändrar spelläge vid klick
+void renderMenu(GameResources *pRes, int hoveredButton);                                                                        // Renderar huvudmenyn och dess knappar
+void renderPlaying(GameResources *pRes);                                                                                        // Renderar själva spelet (tiles, bilar, etc.)
+void renderOptions(GameResources *pRes);                                                                                        // Renderar inställningsmenyn
+void renderMultiplayer(GameResources *pRes);                                                                                    // Renderar multiplayer-menyn
+SDL_Rect getTileSrcByID(int tileID);                                                                                            // Returnerar en rektangel från tileset baserat på ett tileID
+void renderGrassBackground(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int grassTileID, Camera *pCamera);                    // Renderar gräs över hela spelplanen
+void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int tilemap[MAP_HEIGHT][MAP_WIDTH], Camera *pCamera); // Renderar vägar och objekt utifrån tilemap
 
 #endif
