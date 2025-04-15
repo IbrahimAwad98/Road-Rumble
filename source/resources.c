@@ -144,7 +144,7 @@ bool loadResources(GameResources *pRes)
     char path[100];
     for (int i = 0; i < NUM_ASPHALT_TILES; i++)
     {
-        snprintf(path, sizeof(path), "resources/bana/asfalt/road_asphalt%02d.png", i + 1); // laddar 01 → 90
+        snprintf(path, sizeof(path), "resources/tile/asphalt/road_asphalt%02d.png", i + 1); // laddar 01 → 90
         SDL_Surface *surface = IMG_Load(path);
         if (!surface)
         {
@@ -182,7 +182,7 @@ bool loadResources(GameResources *pRes)
     // Ladda grass-bilderna: land_grass01.png → land_grass14.png
     for (int i = 0; i < 14; i++)
     {
-        snprintf(path, sizeof(path), "resources/bana/grass/land_grass%02d.png", i + 1); // 01 → 14
+        snprintf(path, sizeof(path), "resources/tile/grass/land_grass%02d.png", i + 1); // 01 → 14
         SDL_Surface *surface = IMG_Load(path);
         if (!surface)
         {
