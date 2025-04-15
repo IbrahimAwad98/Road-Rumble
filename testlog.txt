@@ -23,7 +23,5 @@ Everything went fine! Test completed without errors.
 libpng warning: iCCP: known incorrect sRGB profile
 libpng warning: iCCP: known incorrect sRGB profile
 INFO: Change to menu-mode
-INFO: Change to playing-mode
-INFO: Change to menu-mode
 libpng warning: iCCP: known incorrect sRGB profile
 libpng warning: iCCP: known incorrect sRGB profile
