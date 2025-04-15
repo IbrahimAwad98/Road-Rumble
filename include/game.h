@@ -16,7 +16,6 @@
 #define NUM_ASPHALT_TILES 90
 #define NUM_GRASS_TILES 14
 #define NUM_TILES (NUM_ASPHALT_TILES + NUM_GRASS_TILES)
-
 #define TILE_SIZE 128
 #define TILESET_COLUMNS 3
 #define MAP_WIDTH 11
@@ -46,11 +45,11 @@ typedef struct
     SDL_Rect multiplayerRect; // Rektangel för multispelare-knappen
     SDL_Rect optionsRect;     // Rektangel för inställning-knappen
 
-    Car car1, car2;                   // initiera bilar.
-    Camera camera1;                   // Kamera för spelare 1
-    Camera camera2;                   // Kamera för spelare 2
-    int localPlayerID;                // 0 eller 1 – sätts i framtiden via nätverk
-    SDL_Texture *pMultiplayerMenuTex; // Added missing field
+    Car car1, car2;    // initiera bilar.
+    Camera camera1;    // Kamera för spelare 1
+    Camera camera2;    // Kamera för spelare 2
+    int localPlayerID; // 0 eller 1 – sätts i framtiden via nätverk
+    SDL_Texture *pMultiplayerMenuTex;
 
 } GameResources;
 
