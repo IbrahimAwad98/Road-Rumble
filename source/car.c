@@ -1,6 +1,7 @@
 #include "car.h"
 #include <SDL2/SDL_image.h>
 #include <math.h>
+#include "camera.h"
 
 #ifndef M_PI
 #define M_PI 3.14
@@ -34,9 +35,14 @@ bool initiCar(SDL_Renderer *pRenderer, Car *pCar, const char *pImagepath, int x,
     return true;
 }
 // rendera bilen
-void renderCar(SDL_Renderer *pRenderer, Car *pCar)
+void renderCar(SDL_Renderer *pRenderer, Car *pCar, Camera *pCamera)
 {
-    SDL_RenderCopyEx(pRenderer, pCar->pCartexture, NULL, &pCar->carRect, pCar->angle, NULL, SDL_FLIP_NONE);
+    SDL_Rect dest = {
+        pCar->carRect.x - pCamera->x,
+        pCar->carRect.y - pCamera->y,
+        pCar->carRect.w,
+        pCar->carRect.h};
+    SDL_RenderCopy(pRenderer, pCar->pCartexture, NULL, &dest);
 }
 // städa up (för minnet)
 void destroyCar(Car *pCar)
@@ -61,7 +67,6 @@ void updateCar(Car *pCar, const Uint8 *keys)
     // Friktionens styrka – hur snabbt bilen bromsas naturligt när du släpper gasen.
     // Ett högre värde gör att bilen stannar snabbare, ett lägre gör att den glider längre.
     const float friction = 0.05f;
-
 
     if (keys[SDL_SCANCODE_UP])
     {
