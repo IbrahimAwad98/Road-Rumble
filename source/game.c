@@ -11,7 +11,9 @@ typedef enum
     MENU,
     OPTIONS,
     MULTIPLAYER,
-    PLAYING
+    PLAYING,
+    MUTE,
+    UNMUTE
 } GameMode;
 
 // Hjälpfunktion: hämtar rätt tile från tileset utifrån ID
@@ -74,6 +76,7 @@ void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int ti
 
 void gameLoop(GameResources *pRes)
 {
+    int isMuted = 0; // 0 = ljud, 1 = ljud av
     SDL_Event event;
     bool isRunning = true;
     GameMode mode = MENU;
@@ -126,6 +129,20 @@ void gameLoop(GameResources *pRes)
                     SDL_Log("OPTIONS clicked");
                     mode = OPTIONS;
                 }
+                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->muteRect))
+                {
+                    SDL_Log("Mute clicked");
+                    if (isMuted)
+                        {
+                            Mix_VolumeMusic(MIX_MAX_VOLUME); // ljudet på
+                            isMuted = 0;
+                        }
+                        else
+                        {
+                            Mix_VolumeMusic(0); // ljudet av
+                            isMuted = 1;
+                        }
+                }
             }
 
             if (event.type == SDL_MOUSEMOTION && mode == MENU)
@@ -141,6 +158,8 @@ void gameLoop(GameResources *pRes)
                     hoveredButton = 2;
                 else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->exitRect))
                     hoveredButton = 3;
+                else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->muteRect))
+                    hoveredButton = 4;
             }
 
             if (event.type == SDL_KEYDOWN)
@@ -169,11 +188,31 @@ void gameLoop(GameResources *pRes)
             SDL_SetTextureColorMod(pRes->pMultiplayerTexture, hoveredButton == 1 ? 200 : 255, hoveredButton == 1 ? 200 : 255, 255);
             SDL_SetTextureColorMod(pRes->pOptionsTexture, hoveredButton == 2 ? 200 : 255, hoveredButton == 2 ? 200 : 255, 255);
             SDL_SetTextureColorMod(pRes->pExitTexture, hoveredButton == 3 ? 200 : 255, hoveredButton == 3 ? 200 : 255, 255);
+            if (isMuted == 1)
+            {
+                SDL_SetTextureColorMod(pRes->pMuteTexture, hoveredButton == 4 ? 200 : 255, hoveredButton == 4 ? 200 : 255, 255);
+            }
+            else
+            {
+                SDL_SetTextureColorMod(pRes->pUnmuteTexture, hoveredButton == 4 ? 200 : 255, hoveredButton == 4 ? 200 : 255, 255);
+            }
+            
+            
+
 
             SDL_RenderCopy(pRes->pRenderer, pRes->pStartTexture, NULL, &pRes->startRect);
             SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerTexture, NULL, &pRes->multiplayerRect);
             SDL_RenderCopy(pRes->pRenderer, pRes->pOptionsTexture, NULL, &pRes->optionsRect);
             SDL_RenderCopy(pRes->pRenderer, pRes->pExitTexture, NULL, &pRes->exitRect);
+            
+            if (isMuted == 0)
+            {
+                SDL_RenderCopy(pRes->pRenderer, pRes->pUnmuteTexture, NULL, &pRes->muteRect);
+            }else
+            {
+                SDL_RenderCopy(pRes->pRenderer, pRes->pMuteTexture, NULL, &pRes->muteRect);
+                
+            }
         }
         else if (mode == PLAYING)
         {
