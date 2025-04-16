@@ -82,12 +82,49 @@ bool loadResources(GameResources *pRes)
         printf("Failed to create exit button texture: %s\n", SDL_GetError());
         return false;
     }
+    
+    // skapa mute knappen texure....
+    SDL_Surface *pMuteSurface = IMG_Load("resources/images/mute.png");
+    if (!pMuteSurface)
+    {
+        printf("Failed to load mute button image: %s\n", IMG_GetError());
+        return false;
+    }
+    // omvandla textur och hantera fel...
+    pRes->pMuteTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pMuteSurface);
+    SDL_FreeSurface(pMuteSurface);
 
+    if (!pRes->pMuteTexture)
+    {
+        printf("Failed to create mute button texture: %s\n", SDL_GetError());
+        return false;
+    }
+
+        // skapa unmute knappen texure....
+        SDL_Surface *pUnmuteSurface = IMG_Load("resources/images/unmute.png");
+        if (!pUnmuteSurface)
+        {
+            printf("Failed to load unmute button image: %s\n", IMG_GetError());
+            return false;
+        }
+        // omvandla textur och hantera fel...
+        pRes->pUnmuteTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pUnmuteSurface);
+        SDL_FreeSurface(pUnmuteSurface);
+    
+        if (!pRes->pUnmuteTexture)
+        {
+            printf("Failed to create unmute button texture: %s\n", SDL_GetError());
+            return false;
+        }
+
+    
     // bredd x höjd "Start,Multi...."
     pRes->startRect = (SDL_Rect){830, 505, 340, 60};
     pRes->multiplayerRect = (SDL_Rect){830, 585, 340, 60};
     pRes->optionsRect = (SDL_Rect){830, 665, 180, 60};
     pRes->exitRect = (SDL_Rect){1015, 665, 160, 60};
+    pRes->muteRect = (SDL_Rect){1250, 665, 60, 60};
+
 
     // ladda musiken och hantera fel.
     pRes->pBgMusic = Mix_LoadMUS("resources/music/intro_Opening.mp3");
@@ -107,38 +144,6 @@ bool loadResources(GameResources *pRes)
         printf("Failed to load font: %s\n", TTF_GetError());
         return false;
     }
-
-    // desgina texten (färgen)
-    /*SDL_Color green = {0, 255, 0};
-    SDL_Color red = {255, 0, 0};
-    SDL_Surface *pStartSurf = TTF_RenderText_Solid(pRes->pFont, "Start Game", green);
-    SDL_Surface *pExitSurf = TTF_RenderText_Solid(pRes->pFont, "Quit Game", red);
-
-    // hantera fel
-    if (!pStartSurf || !pExitSurf)
-    {
-        printf("Failed to render text surfaces: %s\n", SDL_GetError());
-        return false;
-    }
-
-    // omvandla dem till texture
-    pRes->pStartTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pStartSurf);
-    pRes->pExitTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pExitSurf);
-
-    // bredd x höjd
-    pRes->startRect = (SDL_Rect){370, 670, pStartSurf->w, pStartSurf->h};
-    pRes->exitRect = (SDL_Rect){370, 720, pExitSurf->w, pExitSurf->h};
-
-    // bygga dem
-    SDL_FreeSurface(pStartSurf);
-    SDL_FreeSurface(pExitSurf);
-
-    // 💡 Kombinerar båda delar här:
-    if (!pRes->pStartTexture || !pRes->pExitTexture)
-    {
-        printf("Failed to create button textures: %s\n", SDL_GetError());
-        return false;
-    }*/
 
     //  Ladda in asfalt-tiles (road_asphalt01.png → road_asphalt90.png)
     char path[100];
@@ -211,6 +216,20 @@ bool loadResources(GameResources *pRes)
     if (!pRes->pOptionsMenuTex)
     {
         printf("Failed to create texture for option menu : %s\n", SDL_GetError());
+        return false;
+    }
+    // ladda "Multiplayer-menu" bild...
+    SDL_Surface *pMultiplayerMenuSur = IMG_Load("resources/images/multiplayer-menu.png");
+    if (!pMultiplayerMenuSur)
+    {
+        printf("Failed to load multiplayer menu image: %s\n", IMG_GetError());
+        return false;
+    }
+    pRes->pMultiplayerMenuTex = SDL_CreateTextureFromSurface(pRes->pRenderer, pMultiplayerMenuSur);
+    SDL_FreeSurface(pMultiplayerMenuSur);
+    if (!pRes->pMultiplayerMenuTex)
+    {
+        printf("Failed to create texture for multiplayer menu : %s\n", SDL_GetError());
         return false;
     }
     return true;
