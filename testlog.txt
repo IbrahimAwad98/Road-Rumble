@@ -22,26 +22,11 @@ TEST RESULTAT: PASSED.
 Everything went fine! Test completed without errors.
 libpng warning: iCCP: known incorrect sRGB profile
 libpng warning: iCCP: known incorrect sRGB profile
-
-INFO: Mute clicked
-INFO: Mute clicked
-INFO: Mute clicked
-INFO: MULTIPLAYER
-INFO: Change to meny-mode
-INFO: Mute clicked
 INFO: OPTIONS clicked
 INFO: Change to meny-mode
+INFO: End the Game!
+libpng warning: iCCP: known incorrect sRGB profile
+libpng warning: iCCP: known incorrect sRGB profile
+INFO: Mute clicked
 INFO: Mute clicked
 INFO: Start the Game!
-INFO: Change to meny-mode
-INFO: Mute clicked
-INFO: Mute clicked
-INFO: Mute clicked
-INFO: Mute clicked
-INFO: Mute clicked
-=======
-INFO: Change to menu-mode
-
-libpng warning: iCCP: known incorrect sRGB profile
-libpng warning: iCCP: known incorrect sRGB profile
-INFO: End the Game!

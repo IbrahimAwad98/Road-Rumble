@@ -29,46 +29,44 @@
 typedef struct
 {
     // SDL-fönster och renderare
-    SDL_Window *pWindow;           // Huvudfönstret för spelet
-    SDL_Renderer *pRenderer;       // Renderare för grafik
+    SDL_Window *pWindow;     // Huvudfönstret för spelet
+    SDL_Renderer *pRenderer; // Renderare för grafik
 
     // Menytexturer
-    SDL_Texture *pBackgroundTexture;      // Bakgrundsbild för menyer
-    SDL_Texture *pStartTexture;           // Textur för "Start Game"-knapp
-    SDL_Texture *pMultiplayerTexture;     // Textur för "Multiplayer"-knapp
-    SDL_Texture *pOptionsTexture;         // Textur för "Options"-knapp
-    SDL_Texture *pExitTexture;            // Textur för "Quit Game"-knapp
-    SDL_Texture *pOptionsMenuTex;         // Textur för vald inställningsmeny
-    SDL_Texture *pMultiplayerMenuTex;     // Textur för vald multiplayer-meny
-    SDL_Texture *pMuteTexture;            // Textur för mute-knapp
-    SDL_Texture *pUnmuteTexture;          // Textur för unmute-knapp
+    SDL_Texture *pBackgroundTexture;  // Bakgrundsbild för menyer
+    SDL_Texture *pStartTexture;       // Textur för "Start Game"-knapp
+    SDL_Texture *pMultiplayerTexture; // Textur för "Multiplayer"-knapp
+    SDL_Texture *pOptionsTexture;     // Textur för "Options"-knapp
+    SDL_Texture *pExitTexture;        // Textur för "Quit Game"-knapp
+    SDL_Texture *pOptionsMenuTex;     // Textur för vald inställningsmeny
+    SDL_Texture *pMultiplayerMenuTex; // Textur för vald multiplayer-meny
+    SDL_Texture *pMuteTexture;        // Textur för mute-knapp
+    SDL_Texture *pUnmuteTexture;      // Textur för unmute-knapp
 
     // Tileset och individuella tile-texturer
-    SDL_Texture *pTiles[NUM_TILES];       // Array av alla enskilda tiles (90 asfalt + 14 gräs)
-    SDL_Texture *ptilesetTexture;         // Hela tileset-spritesheeten
+    SDL_Texture *pTiles[NUM_TILES]; // Array av alla enskilda tiles (90 asfalt + 14 gräs)
+    SDL_Texture *ptilesetTexture;   // Hela tileset-spritesheeten
 
     // Typsnitt och musik
-    TTF_Font *pFont;               // Typsnitt för menyer och text
-    Mix_Music *pBgMusic;          // Bakgrundsmusik
+    TTF_Font *pFont;     // Typsnitt för menyer och text
+    Mix_Music *pBgMusic; // Bakgrundsmusik
 
     // Rektanglar för att hantera musinteraktion med menyer
-    SDL_Rect startRect;           // Klickyta för "Start Game"
-    SDL_Rect exitRect;            // Klickyta för "Quit Game"
-    SDL_Rect multiplayerRect;     // Klickyta för "Multiplayer"
-    SDL_Rect optionsRect;         // Klickyta för "Options"
-    SDL_Rect muteRect;            // Klickyta för ljud av/på
+    SDL_Rect startRect;       // Klickyta för "Start Game"
+    SDL_Rect exitRect;        // Klickyta för "Quit Game"
+    SDL_Rect multiplayerRect; // Klickyta för "Multiplayer"
+    SDL_Rect optionsRect;     // Klickyta för "Options"
+    SDL_Rect muteRect;        // Klickyta för ljud av/på
 
     // Spelobjekt – bilar och kameror
-    Car car1, car2;               // Spelarnas bilar
-    Camera camera1, camera2;      // Kameror för varje spelare
+    Car car1, car2;          // Spelarnas bilar
+    Camera camera1, camera2; // Kameror för varje spelare
 
-    int localPlayerID;            // ID för den lokala spelaren (0 eller 1) – används vid nätverksspel
+    int localPlayerID; // ID för den lokala spelaren (0 eller 1) – används vid nätverksspel
 
 } GameResources;
 
-
 // Enum: GameMode
-// Anger vilket läge spelet är i just nu
 typedef enum
 {
     MENU,        // Huvudmenyn
