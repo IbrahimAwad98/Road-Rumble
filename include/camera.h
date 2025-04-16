@@ -4,7 +4,8 @@
 #include <SDL2/SDL.h>
 
 // Struct som håller kamerans position och storlek
-typedef struct {
+typedef struct
+{
     int x, y;
     int w, h;
 } Camera;

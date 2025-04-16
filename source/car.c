@@ -7,7 +7,7 @@
 #define M_PI 3.14
 #endif
 
-bool initiCar(SDL_Renderer *pRenderer, Car *pCar, const char *pImagepath, int x, int y, int w, int h)
+bool initCar(SDL_Renderer *pRenderer, Car *pCar, const char *pImagepath, int x, int y, int w, int h)
 {
     SDL_Surface *pSurface = IMG_Load(pImagepath);
     if (!pSurface)
@@ -16,6 +16,7 @@ bool initiCar(SDL_Renderer *pRenderer, Car *pCar, const char *pImagepath, int x,
     }
     pCar->pCartexture = SDL_CreateTextureFromSurface(pRenderer, pSurface);
     SDL_FreeSurface(pSurface);
+
     // hantera felet.
     if (!pCar->pCartexture)
     {
@@ -23,6 +24,7 @@ bool initiCar(SDL_Renderer *pRenderer, Car *pCar, const char *pImagepath, int x,
         return false;
     }
 
+    // Initiera bilens position och egenskaper
     pCar->carRect.x = x; // Var bilen ritas horisontellt (vänster/höger)
     pCar->carRect.y = y; // Var bilen ritas vertikalt (upp/ner)
     pCar->carRect.w = w; // bredd
@@ -34,14 +36,16 @@ bool initiCar(SDL_Renderer *pRenderer, Car *pCar, const char *pImagepath, int x,
 
     return true;
 }
-// rendera bilen
+
+// Rendera bilen på skärmen i förhållande till kameran
 void renderCar(SDL_Renderer *pRenderer, Car *pCar, Camera *pCamera)
 {
     SDL_Rect dest = {
-        pCar->carRect.x - pCamera->x,
+        pCar->carRect.x - pCamera->x, // position relativ till kameran
         pCar->carRect.y - pCamera->y,
         pCar->carRect.w,
         pCar->carRect.h};
+
     SDL_RenderCopy(pRenderer, pCar->pCartexture, NULL, &dest);
 }
 // städa up (för minnet)
@@ -68,6 +72,7 @@ void updateCar(Car *pCar, const Uint8 *keys)
     // Ett högre värde gör att bilen stannar snabbare, ett lägre gör att den glider längre.
     const float friction = 0.05f;
 
+    // Gasa
     if (keys[SDL_SCANCODE_UP])
     {
         pCar->speed += accel;
@@ -76,6 +81,7 @@ void updateCar(Car *pCar, const Uint8 *keys)
             pCar->speed = maxSpeed;
         }
     }
+    // Backa
     if (keys[SDL_SCANCODE_DOWN])
     {
         pCar->speed -= accel;
@@ -84,15 +90,17 @@ void updateCar(Car *pCar, const Uint8 *keys)
             pCar->speed = -maxSpeed / 2;
         }
     }
+    // Sväng vänster
     if (keys[SDL_SCANCODE_LEFT])
     {
         pCar->angle -= turnSpeed;
     }
+    // Sväng höger
     if (keys[SDL_SCANCODE_RIGHT])
     {
         pCar->angle += turnSpeed;
     }
-    // friktion
+    // Applicera friktion
     if (pCar->speed > 0)
     {
         pCar->speed -= friction;
@@ -106,7 +114,7 @@ void updateCar(Car *pCar, const Uint8 *keys)
             pCar->speed = 0;
     }
 
-    // updatera positionen
+    // Uppdatera bilens position utifrån vinkel och hastighet
     pCar->x += pCar->speed * cos(pCar->angle * M_PI / 180.0f);
     pCar->y += pCar->speed * sin(pCar->angle * M_PI / 180.0f);
 
@@ -114,10 +122,8 @@ void updateCar(Car *pCar, const Uint8 *keys)
     pCar->carRect.y = (int)pCar->y;
 
     // Begränsa bilen inom skärmen
-    int screenWidth = 1280; // Byt till din fönsterbredd
-    int screenHeight = 720; // Byt till din fönsterhöjd
-
-    // Begränsning X
+    int screenWidth = 1280;
+    int screenHeight = 720;
     if (pCar->x < 0)
     {
         pCar->x = 0;
@@ -127,7 +133,6 @@ void updateCar(Car *pCar, const Uint8 *keys)
         pCar->x = screenWidth - pCar->carRect.w;
     }
 
-    // Begränsning Y
     if (pCar->y < 0)
     {
         pCar->y = 0;
@@ -137,7 +142,7 @@ void updateCar(Car *pCar, const Uint8 *keys)
         pCar->y = screenHeight - pCar->carRect.h;
     }
 
-    // Uppdatera rektangel för att rita
+    // Uppdatera rektangeln efter begränsning
     pCar->carRect.x = (int)pCar->x;
     pCar->carRect.y = (int)pCar->y;
 }
