@@ -36,6 +36,9 @@ typedef struct
     SDL_Texture *pOptionsTexture;     // "Options"-textur
     SDL_Texture *pExitTexture;        // "Quit Game"-textur
     SDL_Texture *pOptionsMenuTex;     // "Options selected"-textur
+    SDL_Texture *pMultiplayerMenuTex; // "Multiplayer selected"- textur
+    SDL_Texture *pMuteTexture;        // "Mute" textur
+    SDL_Texture *pUnmuteTexture;      // "Unmute" textur
     SDL_Texture *pTiles[NUM_TILES];   // Alla separata bilder (90 st)
     SDL_Texture *ptilesetTexture;     // Innehåller hela Tileseten
 
@@ -45,12 +48,13 @@ typedef struct
     SDL_Rect exitRect;        // Rektangel för avsluta-knappen
     SDL_Rect multiplayerRect; // Rektangel för multispelare-knappen
     SDL_Rect optionsRect;     // Rektangel för inställning-knappen
+    SDL_Rect muteRect;        // Rektangel för mute-knappen
 
     Car car1, car2;                   // initiera bilar.
     Camera camera1;                   // Kamera för spelare 1
     Camera camera2;                   // Kamera för spelare 2
     int localPlayerID;                // 0 eller 1 – sätts i framtiden via nätverk
-    SDL_Texture *pMultiplayerMenuTex; // Added missing field
+    
 
 } GameResources;
 
