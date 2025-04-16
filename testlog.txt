@@ -24,9 +24,9 @@ libpng warning: iCCP: known incorrect sRGB profile
 libpng warning: iCCP: known incorrect sRGB profile
 INFO: OPTIONS clicked
 INFO: Change to meny-mode
-INFO: End the Game!
-libpng warning: iCCP: known incorrect sRGB profile
-libpng warning: iCCP: known incorrect sRGB profile
-INFO: Mute clicked
 INFO: Mute clicked
 INFO: Start the Game!
+INFO: Change to meny-mode
+INFO: Mute clicked
+libpng warning: iCCP: known incorrect sRGB profile
+libpng warning: iCCP: known incorrect sRGB profile
