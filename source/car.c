@@ -7,7 +7,7 @@
 #define M_PI 3.14
 #endif
 
-bool initCar(SDL_Renderer *pRenderer, Car *pCar, const char *pImagepath, int x, int y, int w, int h)
+bool initiCar(SDL_Renderer *pRenderer, Car *pCar, const char *pImagepath, int x, int y, int w, int h)
 {
     SDL_Surface *pSurface = IMG_Load(pImagepath);
     if (!pSurface)
