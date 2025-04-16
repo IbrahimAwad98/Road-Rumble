@@ -1,12 +1,12 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
-#include "resources.h"
+#include "game.h"
 
-// Laddar in alla bilder, texturer, ljud och typsnitt
+// Laddar alla resurser till spelet: bilder, texturer, ljud och typsnitt
 bool loadResources(GameResources *pRes)
 {
-    // ===== BAKGRUNDSBILD =====
+    // === BAKGRUNDSBILD ===
     SDL_Surface *pSurface = IMG_Load("resources/images/Background.png");
     if (!pSurface)
     {
@@ -21,7 +21,8 @@ bool loadResources(GameResources *pRes)
         return false;
     }
 
-    // ===== START-KNAPP =====
+    // === MENYKNAPPAR ===
+    // Start-knapp
     SDL_Surface *pStartSurface = IMG_Load("resources/images/start.png");
     if (!pStartSurface)
     {
@@ -36,7 +37,7 @@ bool loadResources(GameResources *pRes)
         return false;
     }
 
-    // ===== MULTIPLAYER =====
+    // Multiplayer-knapp
     SDL_Surface *pMultiSurface = IMG_Load("resources/images/multiplayer.png");
     if (!pMultiSurface)
     {
@@ -51,7 +52,7 @@ bool loadResources(GameResources *pRes)
         return false;
     }
 
-    // ===== OPTIONS =====
+    // Options-knapp
     SDL_Surface *pOptionsSurface = IMG_Load("resources/images/options.png");
     if (!pOptionsSurface)
     {
@@ -66,7 +67,7 @@ bool loadResources(GameResources *pRes)
         return false;
     }
 
-    // ===== EXIT =====
+    // Exit-knapp
     SDL_Surface *pExitSurface = IMG_Load("resources/images/exit.png");
     if (!pExitSurface)
     {
@@ -80,52 +81,45 @@ bool loadResources(GameResources *pRes)
         printf("Failed to create exit button texture: %s\n", SDL_GetError());
         return false;
     }
-    
-    // skapa mute knappen texure....
+
+    // Mute-knapp
     SDL_Surface *pMuteSurface = IMG_Load("resources/images/mute.png");
     if (!pMuteSurface)
     {
         printf("Failed to load mute button image: %s\n", IMG_GetError());
         return false;
     }
-    // omvandla textur och hantera fel...
     pRes->pMuteTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pMuteSurface);
     SDL_FreeSurface(pMuteSurface);
-
     if (!pRes->pMuteTexture)
     {
         printf("Failed to create mute button texture: %s\n", SDL_GetError());
         return false;
     }
 
-        // skapa unmute knappen texure....
-        SDL_Surface *pUnmuteSurface = IMG_Load("resources/images/unmute.png");
-        if (!pUnmuteSurface)
-        {
-            printf("Failed to load unmute button image: %s\n", IMG_GetError());
-            return false;
-        }
-        // omvandla textur och hantera fel...
-        pRes->pUnmuteTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pUnmuteSurface);
-        SDL_FreeSurface(pUnmuteSurface);
-    
-        if (!pRes->pUnmuteTexture)
-        {
-            printf("Failed to create unmute button texture: %s\n", SDL_GetError());
-            return false;
-        }
+    // Unmute-knapp
+    SDL_Surface *pUnmuteSurface = IMG_Load("resources/images/unmute.png");
+    if (!pUnmuteSurface)
+    {
+        printf("Failed to load unmute button image: %s\n", IMG_GetError());
+        return false;
+    }
+    pRes->pUnmuteTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pUnmuteSurface);
+    SDL_FreeSurface(pUnmuteSurface);
+    if (!pRes->pUnmuteTexture)
+    {
+        printf("Failed to create unmute button texture: %s\n", SDL_GetError());
+        return false;
+    }
 
-    
-    // bredd x höjd "Start,Multi...."
-    // ===== KNAPPARNAS POSITIONER =====
+    // === KNAPPARNAS POSITIONER I MENYN ===
     pRes->startRect = (SDL_Rect){830, 505, 340, 60};
     pRes->multiplayerRect = (SDL_Rect){830, 585, 340, 60};
     pRes->optionsRect = (SDL_Rect){830, 665, 180, 60};
     pRes->exitRect = (SDL_Rect){1015, 665, 160, 60};
     pRes->muteRect = (SDL_Rect){1250, 665, 60, 60};
 
-
-    // ===== LJUD/MUSIK =====
+    // === BAKGRUNDSMUSIK ===
     pRes->pBgMusic = Mix_LoadMUS("resources/music/intro_Opening.mp3");
     if (!pRes->pBgMusic)
     {
@@ -133,10 +127,10 @@ bool loadResources(GameResources *pRes)
     }
     else
     {
-        Mix_PlayMusic(pRes->pBgMusic, -1); // spela i loop
+        Mix_PlayMusic(pRes->pBgMusic, -1); // Loopa musiken
     }
 
-    // ===== FONT =====
+    // === TYPSNITT ===
     pRes->pFont = TTF_OpenFont("resources/fonts/PressStart2P-Regular.ttf", 35);
     if (!pRes->pFont)
     {
@@ -144,11 +138,7 @@ bool loadResources(GameResources *pRes)
         return false;
     }
 
-
-    //  Ladda in asfalt-tiles (road_asphalt01.png → road_asphalt90.png)
-
-    // ===== ASFALT-TILES: road_asphalt01 → road_asphalt90 =====
-
+    // === ASFALT-TILES: 1 till 90 ===
     char path[100];
     for (int i = 0; i < NUM_ASPHALT_TILES; i++)
     {
@@ -159,10 +149,8 @@ bool loadResources(GameResources *pRes)
             printf("Failed to load tile %d: %s\n", i + 1, IMG_GetError());
             return false;
         }
-
         pRes->pTiles[i] = SDL_CreateTextureFromSurface(pRes->pRenderer, surface);
         SDL_FreeSurface(surface);
-
         if (!pRes->pTiles[i])
         {
             printf("Failed to create texture for tile %d: %s\n", i + 1, SDL_GetError());
@@ -170,7 +158,7 @@ bool loadResources(GameResources *pRes)
         }
     }
 
-    // ===== TILESET.PNG =====
+    // === TILESET-BILD (för tilemap-baserade banor) ===
     SDL_Surface *tilesetSurface = IMG_Load("resources/images/tileset.png");
     if (!tilesetSurface)
     {
@@ -185,7 +173,7 @@ bool loadResources(GameResources *pRes)
         return false;
     }
 
-    // ===== GRÄS-TILES: land_grass01 → land_grass14 (index 90–103) =====
+    // === GRÄS-TILES: 14 stycken (land_grass01.png → land_grass14.png) till index 90-103 ===
     for (int i = 0; i < 14; i++)
     {
         snprintf(path, sizeof(path), "resources/tile/grass/land_grass%02d.png", i + 1);
@@ -195,10 +183,8 @@ bool loadResources(GameResources *pRes)
             printf("Failed to load grass tile %d: %s\n", i + 1, IMG_GetError());
             return false;
         }
-
         pRes->pTiles[90 + i] = SDL_CreateTextureFromSurface(pRes->pRenderer, surface);
         SDL_FreeSurface(surface);
-
         if (!pRes->pTiles[90 + i])
         {
             printf("Failed to create texture for grass tile %d: %s\n", i + 1, SDL_GetError());
@@ -206,7 +192,7 @@ bool loadResources(GameResources *pRes)
         }
     }
 
-    // ===== OPTIONS-MENY-BAKGRUND =====
+    // === OPTIONS-MENYNS BAKGRUND ===
     SDL_Surface *pOptionsMenuSur = IMG_Load("resources/images/options-menu.png");
     if (!pOptionsMenuSur)
     {
@@ -221,7 +207,7 @@ bool loadResources(GameResources *pRes)
         return false;
     }
 
-    // ladda "Multiplayer-menu" bild...
+    // === MULTIPLAYER-MENYNS BAKGRUND ===
     SDL_Surface *pMultiplayerMenuSur = IMG_Load("resources/images/multiplayer-menu.png");
     if (!pMultiplayerMenuSur)
     {
@@ -236,6 +222,6 @@ bool loadResources(GameResources *pRes)
         return false;
     }
 
-    // Allt laddat korrekt
+    // === KLART ===
     return true;
 }
