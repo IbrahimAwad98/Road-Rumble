@@ -80,12 +80,50 @@ bool loadResources(GameResources *pRes)
         printf("Failed to create exit button texture: %s\n", SDL_GetError());
         return false;
     }
+    
+    // skapa mute knappen texure....
+    SDL_Surface *pMuteSurface = IMG_Load("resources/images/mute.png");
+    if (!pMuteSurface)
+    {
+        printf("Failed to load mute button image: %s\n", IMG_GetError());
+        return false;
+    }
+    // omvandla textur och hantera fel...
+    pRes->pMuteTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pMuteSurface);
+    SDL_FreeSurface(pMuteSurface);
 
+    if (!pRes->pMuteTexture)
+    {
+        printf("Failed to create mute button texture: %s\n", SDL_GetError());
+        return false;
+    }
+
+        // skapa unmute knappen texure....
+        SDL_Surface *pUnmuteSurface = IMG_Load("resources/images/unmute.png");
+        if (!pUnmuteSurface)
+        {
+            printf("Failed to load unmute button image: %s\n", IMG_GetError());
+            return false;
+        }
+        // omvandla textur och hantera fel...
+        pRes->pUnmuteTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pUnmuteSurface);
+        SDL_FreeSurface(pUnmuteSurface);
+    
+        if (!pRes->pUnmuteTexture)
+        {
+            printf("Failed to create unmute button texture: %s\n", SDL_GetError());
+            return false;
+        }
+
+    
+    // bredd x höjd "Start,Multi...."
     // ===== KNAPPARNAS POSITIONER =====
     pRes->startRect = (SDL_Rect){830, 505, 340, 60};
     pRes->multiplayerRect = (SDL_Rect){830, 585, 340, 60};
     pRes->optionsRect = (SDL_Rect){830, 665, 180, 60};
     pRes->exitRect = (SDL_Rect){1015, 665, 160, 60};
+    pRes->muteRect = (SDL_Rect){1250, 665, 60, 60};
+
 
     // ===== LJUD/MUSIK =====
     pRes->pBgMusic = Mix_LoadMUS("resources/music/intro_Opening.mp3");
@@ -106,7 +144,11 @@ bool loadResources(GameResources *pRes)
         return false;
     }
 
+
+    //  Ladda in asfalt-tiles (road_asphalt01.png → road_asphalt90.png)
+
     // ===== ASFALT-TILES: road_asphalt01 → road_asphalt90 =====
+
     char path[100];
     for (int i = 0; i < NUM_ASPHALT_TILES; i++)
     {
@@ -176,6 +218,21 @@ bool loadResources(GameResources *pRes)
     if (!pRes->pOptionsMenuTex)
     {
         printf("Failed to create texture for option menu: %s\n", SDL_GetError());
+        return false;
+    }
+
+    // ladda "Multiplayer-menu" bild...
+    SDL_Surface *pMultiplayerMenuSur = IMG_Load("resources/images/multiplayer-menu.png");
+    if (!pMultiplayerMenuSur)
+    {
+        printf("Failed to load multiplayer menu image: %s\n", IMG_GetError());
+        return false;
+    }
+    pRes->pMultiplayerMenuTex = SDL_CreateTextureFromSurface(pRes->pRenderer, pMultiplayerMenuSur);
+    SDL_FreeSurface(pMultiplayerMenuSur);
+    if (!pRes->pMultiplayerMenuTex)
+    {
+        printf("Failed to create texture for multiplayer menu : %s\n", SDL_GetError());
         return false;
     }
 

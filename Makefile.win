@@ -65,4 +65,4 @@ test_debug.o: $(SRCDIR)/test_debug.c
 # Rensa objekt och binär
 # ============================
 clean:
-	del /Q *.exe *.o
+	rm -f *.exe *.o
