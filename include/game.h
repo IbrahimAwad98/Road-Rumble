@@ -8,21 +8,19 @@
 #include "car.h"
 #include "camera.h"
 
-
 // Spelkonstanter
-#define WIDTH 1366                    // Fönstrets bredd
-#define HEIGHT 768                    // Fönstrets höjd
-#define AUDIO_FREQ 44100              // Ljudfrekvens i Hz
-#define AUDIO_CHANNELS 2              // Antal ljudkanaler (stereo)
-#define AUDIO_CHUNKSIZE 2048          // Buffertstorlek för ljud
-#define NUM_ASPHALT_TILES 90          // Antal asfalt-tiles
-#define NUM_GRASS_TILES 14            // Antal gräs-tiles
+#define WIDTH 1366                                      // Fönstrets bredd
+#define HEIGHT 768                                      // Fönstrets höjd
+#define AUDIO_FREQ 44100                                // Ljudfrekvens i Hz
+#define AUDIO_CHANNELS 2                                // Antal ljudkanaler (stereo)
+#define AUDIO_CHUNKSIZE 2048                            // Buffertstorlek för ljud
+#define NUM_ASPHALT_TILES 90                            // Antal asfalt-tiles
+#define NUM_GRASS_TILES 14                              // Antal gräs-tiles
 #define NUM_TILES (NUM_ASPHALT_TILES + NUM_GRASS_TILES) // Totalt antal tiles
-#define TILE_SIZE 128                 // Storlek på varje tile i pixlar
-#define TILESET_COLUMNS 3             // Antal kolumner i tileset-bilden
-#define MAP_WIDTH 11                  // Bredd på tilemap (antal kolumner)
-#define MAP_HEIGHT 6                  // Höjd på tilemap (antal rader)
-
+#define TILE_SIZE 128                                   // Storlek på varje tile i pixlar
+#define TILESET_COLUMNS 3                               // Antal kolumner i tileset-bilden
+#define MAP_WIDTH 11                                    // Bredd på tilemap (antal kolumner)
+#define MAP_HEIGHT 6                                    // Höjd på tilemap (antal rader)
 
 // Struktur: GameResources
 typedef struct
@@ -44,12 +42,12 @@ typedef struct
     SDL_Texture *pBackToMenuTexture;
 
     // Tiles (alla som separata SDL_Texture)
-    SDL_Texture *pTiles[NUM_TILES];    // 104 tiles totalt (90 asfalt + 14 gräs)
-    SDL_Texture *ptilesetTexture;      // Komplett tileset-bild
+    SDL_Texture *pTiles[NUM_TILES]; // 104 tiles totalt (90 asfalt + 14 gräs)
+    SDL_Texture *ptilesetTexture;   // Komplett tileset-bild
 
     // Font och musik
-    TTF_Font *pFont;                   // Typsnitt
-    Mix_Music *pBgMusic;              // Bakgrundsmusik
+    TTF_Font *pFont;     // Typsnitt
+    Mix_Music *pBgMusic; // Bakgrundsmusik
 
     // Rektanglar för menyknappar och UI-element
     SDL_Rect startRect;
@@ -62,14 +60,13 @@ typedef struct
     SDL_Rect SfxRect;
 
     // Spelobjekt
-    Car car1, car2;                    // Två bilar
-    Camera camera1, camera2;          // Två kameror för splitscreen eller nätverk
+    Car car1, car2;          // Två bilar
+    Camera camera1, camera2; // Två kameror för splitscreen eller nätverk
 
     // Multiplayerdata
-    int localPlayerID;                // ID för lokala spelaren (0 eller 1)
+    int localPlayerID; // ID för lokala spelaren (0 eller 1)
 
 } GameResources;
-
 
 // Enum: GameMode – olika lägen i spelet
 typedef enum
@@ -80,11 +77,10 @@ typedef enum
     PLAYING      // Själva spelet pågår
 } GameMode;
 
-
 // Funktionsdeklarationer
 
-void gameLoop(GameResources *pRes);  // Startar spelets huvudloop
-void initGame(GameResources *pRes);  // Initierar bilar, kameror m.m.
+void gameLoop(GameResources *pRes); // Startar spelets huvudloop
+void initGame(GameResources *pRes); // Initierar bilar, kameror m.m.
 
 void handleGlobalKeyEvents(SDL_Event *event, GameMode *mode, bool *isRunning);
 // Hanterar tangenttryck som fungerar i alla lägen (t.ex. ESC, P, M)
@@ -93,9 +89,9 @@ void handleMenuEvents(SDL_Event *event, GameResources *pRes, GameMode *mode, boo
 // Hanterar menyinteraktion via mus och ändrar spelläge vid klick
 
 void renderMenu(GameResources *pRes, int hoveredButton); // Renderar huvudmenyn
-void renderOptions(GameResources *pRes);                  // Renderar inställningsmenyn
-void renderMultiplayer(GameResources *pRes);              // Renderar multiplayer-menyn
-void renderPlaying(GameResources *pRes);                  // Renderar spelet i PLAYING-läge
+void renderOptions(GameResources *pRes);                 // Renderar inställningsmenyn
+void renderMultiplayer(GameResources *pRes);             // Renderar multiplayer-menyn
+void renderPlaying(GameResources *pRes);                 // Renderar spelet i PLAYING-läge
 
 SDL_Rect getTileSrcByID(int tileID);
 // Returnerar en rektangel från tileset baserat på tileID
