@@ -146,9 +146,6 @@ bool loadResources(GameResources *pRes)
     pRes->backRect = (SDL_Rect){340, 580, 590, 90};
     pRes->SfxRect = (SDL_Rect){680, 329, 220, 30};
 
-
-
-
     // ladda musiken och hantera fel.
     pRes->pBgMusic = Mix_LoadMUS("resources/music/intro_Opening.mp3");
     if (!pRes->pBgMusic)
