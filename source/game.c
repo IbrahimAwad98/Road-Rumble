@@ -76,6 +76,10 @@ void gameLoop(GameResources *pRes)
     bool isRunning = true;
     GameMode mode = MENU; // Startläge
     int hoveredButton = -1;
+    int musicVolumeLevel = 4;                   // 0 (ljud av) to 4 (max)
+    int sfxLevel = 4;                           // 0(sfx av) to 4 (max)
+    int musicVolumes[5] = {0, 32, 64, 96, 128}; // ljud inställning
+    int sfxVolumes[5] = {0, 32, 64, 96, 128};   // ljud inställning
 
     // Initiera två kameror (för ev. split screen)
     pRes->camera1 = (Camera){0, 0, WIDTH, HEIGHT};
@@ -185,6 +189,48 @@ void gameLoop(GameResources *pRes)
                     SDL_Log("Change to meny-mode");
                 }
             }
+
+            if (event.type == SDL_MOUSEBUTTONDOWN && mode == OPTIONS)
+            {
+                int x = event.button.x;
+                int y = event.button.y;
+
+                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->musicVolumeRect))
+                {
+                    int segmentWidth = pRes->musicVolumeRect.w / 5;
+                    int clickedSegment = (x - pRes->musicVolumeRect.x) / segmentWidth;
+
+                    if (clickedSegment < 0)
+                        clickedSegment = 0;
+                    if (clickedSegment > 4)
+                        clickedSegment = 4;
+
+                    musicVolumeLevel = clickedSegment;
+                    Mix_VolumeMusic(musicVolumes[musicVolumeLevel]);
+
+                    printf("Music volume set to level %d (%d)\n", musicVolumeLevel, musicVolumes[musicVolumeLevel]);
+                }
+                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->SfxRect))
+                {
+                    int segmentWidth = pRes->SfxRect.w / 5;
+                    int clickedSegment = (x - pRes->SfxRect.x) / segmentWidth;
+
+                    if (clickedSegment < 0)
+                        clickedSegment = 0;
+                    if (clickedSegment > 4)
+                        clickedSegment = 4;
+
+                    sfxLevel = clickedSegment;
+                    Mix_VolumeMusic(sfxVolumes[sfxLevel]);
+
+                    printf("Music volume set to level %d (%d)\n", sfxLevel, sfxVolumes[sfxLevel]);
+                }
+                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->backRect))
+                {
+                    mode = MENU;
+                    SDL_Log("Change to meny-mode");
+                }
+            }
         }
 
         // Rensa renderingsytan
@@ -201,6 +247,16 @@ void gameLoop(GameResources *pRes)
             SDL_SetTextureColorMod(pRes->pMultiplayerTexture, hoveredButton == 1 ? 200 : 255, hoveredButton == 1 ? 200 : 255, 255);
             SDL_SetTextureColorMod(pRes->pOptionsTexture, hoveredButton == 2 ? 200 : 255, hoveredButton == 2 ? 200 : 255, 255);
             SDL_SetTextureColorMod(pRes->pExitTexture, hoveredButton == 3 ? 200 : 255, hoveredButton == 3 ? 200 : 255, 255);
+
+            if (isMuted == 1)
+            {
+                SDL_SetTextureColorMod(pRes->pMuteTexture, hoveredButton == 4 ? 200 : 255, hoveredButton == 4 ? 200 : 255, 255);
+            }
+            else
+            {
+                SDL_SetTextureColorMod(pRes->pUnmuteTexture, hoveredButton == 4 ? 200 : 255, hoveredButton == 4 ? 200 : 255, 255);
+            }
+
             SDL_SetTextureColorMod(isMuted ? pRes->pMuteTexture : pRes->pUnmuteTexture, hoveredButton == 4 ? 200 : 255, hoveredButton == 4 ? 200 : 255, 255);
 
             // Rita knappar
@@ -235,6 +291,40 @@ void gameLoop(GameResources *pRes)
         else if (mode == OPTIONS)
         {
             SDL_RenderCopy(pRes->pRenderer, pRes->pOptionsMenuTex, NULL, NULL);
+            SDL_RenderCopy(pRes->pRenderer, pRes->pBackToMenuTexture, NULL, &pRes->backRect);
+
+            for (int i = 0; i < 5; i++)
+            {
+                SDL_Rect block = {
+                    pRes->musicVolumeRect.x + i * (pRes->musicVolumeRect.w / 5),
+                    pRes->musicVolumeRect.y,
+                    (pRes->musicVolumeRect.w / 5) - 4,
+                    pRes->musicVolumeRect.h};
+
+                SDL_SetRenderDrawColor(pRes->pRenderer, 255, 128, 0, 255); // orange fill
+
+                if (i <= musicVolumeLevel)
+                    SDL_RenderFillRect(pRes->pRenderer, &block);
+                else
+                    SDL_SetRenderDrawColor(pRes->pRenderer, 30, 30, 30, 255); // empty bar
+                SDL_RenderFillRect(pRes->pRenderer, &block);
+            }
+            for (int i = 0; i < 5; i++)
+            {
+                SDL_Rect block = {
+                    pRes->SfxRect.x + i * (pRes->SfxRect.w / 5),
+                    pRes->SfxRect.y,
+                    (pRes->SfxRect.w / 5) - 4,
+                    pRes->SfxRect.h};
+
+                SDL_SetRenderDrawColor(pRes->pRenderer, 255, 128, 0, 255); // orange fill
+
+                if (i <= sfxLevel)
+                    SDL_RenderFillRect(pRes->pRenderer, &block);
+                else
+                    SDL_SetRenderDrawColor(pRes->pRenderer, 30, 30, 30, 255); // empty bar
+                SDL_RenderFillRect(pRes->pRenderer, &block);
+            }
         }
         else if (mode == MULTIPLAYER)
         {
