@@ -1,9 +1,10 @@
-#include "cleanup.h"
-#include "car.h"
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_net.h>
 #include <SDL2/SDL_mixer.h>
+
+#include "cleanup.h"
+#include "car.h"
 
 void cleanup(GameResources *pRes)
 {
