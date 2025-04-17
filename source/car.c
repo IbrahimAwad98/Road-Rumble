@@ -1,7 +1,7 @@
-#include "car.h"
 #include <SDL2/SDL_image.h>
 #include <math.h>
 #include "camera.h"
+#include "car.h"
 
 #ifndef M_PI
 #define M_PI 3.14

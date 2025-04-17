@@ -1,9 +1,8 @@
-#include "test_debug.h"
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_net.h>
 #include <SDL2/SDL_mixer.h>
 #include <stdio.h>
-
+#include "test_debug.h"
 // Kör alla tester för spelets resurser och SDL-komponenter
 void runAllTests(GameResources *pRes, bool *pTestPassed, bool debugMode)
 {

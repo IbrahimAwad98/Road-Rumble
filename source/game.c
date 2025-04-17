@@ -1,9 +1,10 @@
-#include "game.h"
-#include "car.h"
-#include "camera.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <stdbool.h>
+
+#include "game.h"
+#include "car.h"
+#include "camera.h"
 
 // Returnerar rektangel för rätt tile från tileset baserat på tileID
 SDL_Rect getTileSrcByID(int tileID)
@@ -150,17 +151,26 @@ void gameLoop(GameResources *pRes)
                 hoveredButton = -1;
 
                 if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->startRect))
+                {
                     hoveredButton = 0;
+                }
                 else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->multiplayerRect))
+                {
                     hoveredButton = 1;
+                }
                 else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->optionsRect))
+                {
                     hoveredButton = 2;
+                }
                 else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->exitRect))
+                {
                     hoveredButton = 3;
+                }
                 else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->muteRect))
+                {
                     hoveredButton = 4;
+                }
             }
-
             // Snabbtangenter för att byta läge
             if (event.type == SDL_KEYDOWN)
             {
