@@ -5,26 +5,19 @@
 #include <SDL2/SDL_image.h>
 #include <stdbool.h>
 
-// Spellägen (enum) som styr vilken "skärm" spelet befinner sig i
-typedef enum
-{
-    MENU,
-    OPTIONS,
-    MULTIPLAYER,
-    PLAYING
-} GameMode;
 
-// Hjälpfunktion: hämtar rätt tile från tileset utifrån ID
+// Returnerar rektangel för rätt tile från tileset baserat på tileID
 SDL_Rect getTileSrcByID(int tileID)
 {
     SDL_Rect src;
-    src.x = (tileID % TILESET_COLUMNS) * TILE_SIZE;
-    src.y = (tileID / TILESET_COLUMNS) * TILE_SIZE;
+    src.x = (tileID % TILESET_COLUMNS) * TILE_SIZE; // kolumn
+    src.y = (tileID / TILESET_COLUMNS) * TILE_SIZE; // rad
     src.w = TILE_SIZE;
     src.h = TILE_SIZE;
     return src;
 }
 
+// Definierar spelvärldens tilemap med ID:n, -1 = tom eller täckt
 int tilemap[MAP_HEIGHT][MAP_WIDTH] = {
     {-1, 2, 1, 1, 1, 1, 1, 1, 1, 4, -1},
     {-1, 0, -1, -1, -1, -1, -1, -1, -1, 0, -1},
@@ -33,12 +26,14 @@ int tilemap[MAP_HEIGHT][MAP_WIDTH] = {
     {-1, 0, -1, -1, -1, -1, -1, -1, -1, 0, -1},
     {-1, 38, 1, 1, 1, 1, 1, 1, 1, 40, -1}};
 
+// Renderar hela bakgrunden med ett gräs-tile
 void renderGrassBackground(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int grassTileID, Camera *pCamera)
 {
     for (int row = 0; row < MAP_HEIGHT; row++)
     {
         for (int col = 0; col < MAP_WIDTH; col++)
         {
+            // Position för varje tile justerat för kamera
             SDL_Rect dest = {col * TILE_SIZE - pCamera->x, row * TILE_SIZE - pCamera->y, TILE_SIZE, TILE_SIZE};
 
             if (pTiles[grassTileID])
@@ -49,6 +44,7 @@ void renderGrassBackground(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int gr
     }
 }
 
+// Renderar bana + objekt enligt tilemap, hoppar över tomma tiles
 void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int tilemap[MAP_HEIGHT][MAP_WIDTH], Camera *pCamera)
 {
     for (int row = 0; row < MAP_HEIGHT; row++)
@@ -60,10 +56,10 @@ void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int ti
 
             if (tileID == -1)
             {
-                continue; // hoppa över rutor som är täckta
+                continue; // skippar "tomma" rutor
             }
 
-            // RITA om: Endast om giltigt ID och texturen finns
+            // Renderar tile om ID är giltigt och textur finns
             if (tileID >= 0 && tileID < NUM_TILES && pTiles[tileID])
             {
                 SDL_RenderCopy(pRenderer, pTiles[tileID], NULL, &dest);
@@ -74,12 +70,15 @@ void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int ti
 
 
 
+
+
+// Huvudloopen för spelet där all logik och rendering sker
 void gameLoop(GameResources *pRes)
 {
-    int isMuted = 0; // 0 = ljud, 1 = ljud av
+    int isMuted = 0; // Ljud: 0 på, 1 av
     SDL_Event event;
     bool isRunning = true;
-    GameMode mode = MENU;
+    GameMode mode = MENU; // Startläge
     int hoveredButton = -1;
     int musicVolumeLevel = 4; // 0 (ljud av) to 4 (max)
     int sfxLevel = 4;    // 0(sfx av) to 4 (max)
@@ -87,7 +86,7 @@ void gameLoop(GameResources *pRes)
     int sfxVolumes[5] = {0, 32, 64, 96, 128}; // ljud inställning
 
 
-    // Initiera kameror
+    // Initiera två kameror (för ev. split screen)
     pRes->camera1 = (Camera){0, 0, WIDTH, HEIGHT};
     pRes->camera2 = (Camera){0, 0, WIDTH, HEIGHT};
 
@@ -99,17 +98,21 @@ void gameLoop(GameResources *pRes)
         return;
     }
 
-    // Startvärden
+    // Startvärden för bil 1
     pRes->car1.angle = 0.0f;
     pRes->car1.speed = 3.0f;
 
+    // Huvudloop
     while (isRunning)
     {
+        // Eventhantering
         while (SDL_PollEvent(&event))
         {
+            // Avsluta
             if (event.type == SDL_QUIT || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE))
                 isRunning = false;
 
+            // Meny: hantera klick
             else if (event.type == SDL_MOUSEBUTTONDOWN && mode == MENU)
             {
                 int x = event.button.x, y = event.button.y;
@@ -138,18 +141,19 @@ void gameLoop(GameResources *pRes)
                 {
                     SDL_Log("Mute clicked");
                     if (isMuted)
-                        {
-                            Mix_VolumeMusic(MIX_MAX_VOLUME); // ljudet på
-                            isMuted = 0;
-                        }
-                        else
-                        {
-                            Mix_VolumeMusic(0); // ljudet av
-                            isMuted = 1;
-                        }
+                    {
+                        Mix_VolumeMusic(MIX_MAX_VOLUME);
+                        isMuted = 0;
+                    }
+                    else
+                    {
+                        Mix_VolumeMusic(0);
+                        isMuted = 1;
+                    }
                 }
             }
 
+            // Muspekare över knappar – sätt hover
             if (event.type == SDL_MOUSEMOTION && mode == MENU)
             {
                 int x = event.motion.x, y = event.motion.y;
@@ -167,6 +171,7 @@ void gameLoop(GameResources *pRes)
                     hoveredButton = 4;
             }
 
+            // Snabbtangenter för att byta läge
             if (event.type == SDL_KEYDOWN)
             {
                 if (event.key.keysym.sym == SDLK_p)
@@ -219,17 +224,21 @@ void gameLoop(GameResources *pRes)
             }
         }
 
+        // Rensa renderingsytan
         SDL_RenderClear(pRes->pRenderer);
 
+        // Lägesberoende rendering
         if (mode == MENU)
         {
+            // Bakgrund
             SDL_RenderCopy(pRes->pRenderer, pRes->pBackgroundTexture, NULL, NULL);
 
-            // Menyknappar + hovereffekter
+            // Sätt färg på knappar beroende på hover
             SDL_SetTextureColorMod(pRes->pStartTexture, hoveredButton == 0 ? 200 : 255, hoveredButton == 0 ? 200 : 255, 255);
             SDL_SetTextureColorMod(pRes->pMultiplayerTexture, hoveredButton == 1 ? 200 : 255, hoveredButton == 1 ? 200 : 255, 255);
             SDL_SetTextureColorMod(pRes->pOptionsTexture, hoveredButton == 2 ? 200 : 255, hoveredButton == 2 ? 200 : 255, 255);
             SDL_SetTextureColorMod(pRes->pExitTexture, hoveredButton == 3 ? 200 : 255, hoveredButton == 3 ? 200 : 255, 255);
+
             if (isMuted == 1)
             {
                 SDL_SetTextureColorMod(pRes->pMuteTexture, hoveredButton == 4 ? 200 : 255, hoveredButton == 4 ? 200 : 255, 255);
@@ -239,37 +248,33 @@ void gameLoop(GameResources *pRes)
                 SDL_SetTextureColorMod(pRes->pUnmuteTexture, hoveredButton == 4 ? 200 : 255, hoveredButton == 4 ? 200 : 255, 255);
             }
             
+            SDL_SetTextureColorMod(isMuted ? pRes->pMuteTexture : pRes->pUnmuteTexture, hoveredButton == 4 ? 200 : 255, hoveredButton == 4 ? 200 : 255, 255);
+
+            // Rita knappar
             SDL_RenderCopy(pRes->pRenderer, pRes->pStartTexture, NULL, &pRes->startRect);
             SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerTexture, NULL, &pRes->multiplayerRect);
             SDL_RenderCopy(pRes->pRenderer, pRes->pOptionsTexture, NULL, &pRes->optionsRect);
             SDL_RenderCopy(pRes->pRenderer, pRes->pExitTexture, NULL, &pRes->exitRect);
-            
-            if (isMuted == 0)
-            {
-                SDL_RenderCopy(pRes->pRenderer, pRes->pUnmuteTexture, NULL, &pRes->muteRect);
-            }else
-            {
-                SDL_RenderCopy(pRes->pRenderer, pRes->pMuteTexture, NULL, &pRes->muteRect);
-                
-            }
+            SDL_RenderCopy(pRes->pRenderer, isMuted ? pRes->pMuteTexture : pRes->pUnmuteTexture, NULL, &pRes->muteRect);
         }
         else if (mode == PLAYING)
         {
+            // Rensa till svart, uppdatera bil och kamera
             SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255);
             SDL_RenderClear(pRes->pRenderer);
 
             const Uint8 *keys = SDL_GetKeyboardState(NULL);
             updateCar(&pRes->car1, keys);
-
             Camera *pCam = (pRes->localPlayerID == 0) ? &pRes->camera1 : &pRes->camera2;
             updateCamera(pCam, &pRes->car1.carRect);
 
+            // Rendera bana + bilar
             renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93, pCam);
             renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap, pCam);
-
             renderCar(pRes->pRenderer, &pRes->car1, pCam);
             renderCar(pRes->pRenderer, &pRes->car2, pCam);
 
+            // Test: visa en specifik tile på skärmen
             SDL_Rect src = getTileSrcByID(2);
             SDL_Rect dest = {400, 300, TILE_SIZE, TILE_SIZE};
             SDL_RenderCopy(pRes->pRenderer, pRes->ptilesetTexture, &src, &dest);
@@ -319,6 +324,7 @@ void gameLoop(GameResources *pRes)
             SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerMenuTex, NULL, NULL);
         }
 
+        // Visa renderat innehåll
         SDL_RenderPresent(pRes->pRenderer);
     }
 }
