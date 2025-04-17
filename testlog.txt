@@ -13,24 +13,15 @@ Tests are done
 ===============================
 TEST RESULTAT: PASSED.
 Everything went fine! Test completed without errors.
+Music volume set to level 4 (128)
+Music volume set to level 3 (96)
+Music volume set to level 2 (64)
+Music volume set to level 1 (32)
+Music volume set to level 4 (128)
+Music volume set to level 3 (96)
+Music volume set to level 2 (64)
 libpng warning: iCCP: known incorrect sRGB profile
 libpng warning: iCCP: known incorrect sRGB profile
-INFO: Mute clicked
-INFO: Mute clicked
-INFO: Mute clicked
-INFO: MULTIPLAYER
-INFO: Change to meny-mode
-INFO: Mute clicked
 INFO: OPTIONS clicked
-INFO: Change to meny-mode
-INFO: Mute clicked
-INFO: Start the Game!
-INFO: Change to meny-mode
-INFO: Mute clicked
-INFO: Mute clicked
-INFO: Mute clicked
-INFO: Mute clicked
-INFO: Mute clicked
 libpng warning: iCCP: known incorrect sRGB profile
 libpng warning: iCCP: known incorrect sRGB profile
-INFO: End the Game!
