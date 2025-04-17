@@ -89,7 +89,7 @@ bool loadResources(GameResources *pRes)
     {
         printf("Failed to load mute button image: %s\n", IMG_GetError());
         return false;
-    }
+    }   
     // omvandla textur och hantera fel...
     pRes->pMuteTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pMuteSurface);
     SDL_FreeSurface(pMuteSurface);
@@ -100,23 +100,41 @@ bool loadResources(GameResources *pRes)
         return false;
     }
 
-        // skapa unmute knappen texure....
-        SDL_Surface *pUnmuteSurface = IMG_Load("resources/images/unmute.png");
-        if (!pUnmuteSurface)
-        {
-            printf("Failed to load unmute button image: %s\n", IMG_GetError());
-            return false;
-        }
-        // omvandla textur och hantera fel...
-        pRes->pUnmuteTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pUnmuteSurface);
-        SDL_FreeSurface(pUnmuteSurface);
+    // skapa unmute knappen texure....
+    SDL_Surface *pUnmuteSurface = IMG_Load("resources/images/unmute.png");
+    if (!pUnmuteSurface)
+    {
+        printf("Failed to load unmute button image: %s\n", IMG_GetError());
+        return false;
+    }
+    // omvandla textur och hantera fel...
+    pRes->pUnmuteTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pUnmuteSurface);
+    SDL_FreeSurface(pUnmuteSurface);
     
-        if (!pRes->pUnmuteTexture)
-        {
-            printf("Failed to create unmute button texture: %s\n", SDL_GetError());
-            return false;
-        }
+    if (!pRes->pUnmuteTexture)
+    {
+        printf("Failed to create unmute button texture: %s\n", SDL_GetError());
+        return false;
+    }
 
+    //Skapa "back to menu" knapp...
+    SDL_Surface *pBackSurface = IMG_Load("resources/images/backtomenu.png");
+    if (!pBackSurface)
+    {
+        printf("Failed to load mute button image: %s\n", IMG_GetError());
+        return false;
+    }
+    // omvandla textur och fel hantering...
+    pRes->pBackToMenuTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pBackSurface);
+    SDL_FreeSurface(pBackSurface);
+
+    if (!pRes->pBackToMenuTexture)
+    {
+        printf("Failed to create /back to menu/ button texture: %s\n", SDL_GetError());
+        return false;
+    }
+
+    
     
     // bredd x höjd "Start,Multi...."
     pRes->startRect = (SDL_Rect){830, 505, 340, 60};
@@ -124,6 +142,11 @@ bool loadResources(GameResources *pRes)
     pRes->optionsRect = (SDL_Rect){830, 665, 180, 60};
     pRes->exitRect = (SDL_Rect){1015, 665, 160, 60};
     pRes->muteRect = (SDL_Rect){1250, 665, 60, 60};
+    pRes->musicVolumeRect = (SDL_Rect){680, 240, 220, 30};
+    pRes->backRect = (SDL_Rect){340, 580, 590, 90};
+    pRes->SfxRect = (SDL_Rect){680, 329, 220, 30};
+
+
 
 
     // ladda musiken och hantera fel.
