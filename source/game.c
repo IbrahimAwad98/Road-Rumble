@@ -330,8 +330,8 @@ void gameLoop(GameResources *pRes)
         {
             SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerMenuTex, NULL, NULL);
         }
-
-        // Visa renderat innehåll
+        // kanske fixa Themes
+        //  Visa renderat innehåll
         SDL_RenderPresent(pRes->pRenderer);
     }
 }
