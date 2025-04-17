@@ -91,8 +91,7 @@ bool loadResources(GameResources *pRes)
 
     }   
     // omvandla textur och hantera fel...
-    }
-
+    
     pRes->pMuteTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pMuteSurface);
     SDL_FreeSurface(pMuteSurface);
     if (!pRes->pMuteTexture)
