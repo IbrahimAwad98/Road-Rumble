@@ -26,7 +26,9 @@ OBJS = \
     cleanup.o \
     car.o \
     camera.o \
-    test_debug.o
+    test_debug.o \
+    client.o \
+    server.o
 
 # ============================
 # Byggprogram
@@ -61,8 +63,16 @@ camera.o: $(SRCDIR)/camera.c
 test_debug.o: $(SRCDIR)/test_debug.c
 	$(CC) $(CFLAGS) $(SRCDIR)/test_debug.c
 
+client.o: $(SRCDIR)/client.c
+	$(CC) $(CFLAGS) $(SRCDIR)/client.c
+
+server.o: $(SRCDIR)/server.c
+	$(CC) $(CFLAGS) $(SRCDIR)/server.c
+
 # ============================
 # Rensa objekt och binär
 # ============================
+RM = del /Q
+
 clean:
-	del /Q *.exe *.o
+	$(RM) *.exe *.o
