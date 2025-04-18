@@ -7,14 +7,6 @@
 #include "network.h"
 #include "resources.h" //för SDL_NET initiering
 
-// strukten skickar data till server.
-typedef struct
-{
-    int playerID;   // ID
-    float x, y;     // position
-    int actionCode; // kommando ex: 0 = idle, 1 = move...
-} PlayerData;
-
 // funktioner
 bool initClient(const char *pIpaddress, int port);
 bool sendPlayerData(PlayerData *pData);

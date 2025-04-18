@@ -6,6 +6,7 @@
 #include "cleanup.h"
 #include "car.h"
 #include "client.h"
+#include "server.h"
 
 void cleanup(GameResources *pRes)
 {
@@ -24,6 +25,7 @@ void cleanup(GameResources *pRes)
 
     // frigöra nätverk
     closeClient();
+    closetServer();
 
     // Avsluta alla SDL-subsystem
     TTF_Quit();
