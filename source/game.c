@@ -81,7 +81,7 @@ void gameLoop(GameResources *pRes)
     int sfxLevel = 4;                           // 0(sfx av) to 4 (max)
     int musicVolumes[5] = {0, 32, 64, 96, 128}; // ljud inställning
     int sfxVolumes[5] = {0, 32, 64, 96, 128};   // ljud inställning
-    
+
     // Initiera två kameror (för ev. split screen)
     pRes->camera1 = (Camera){0, 0, WIDTH, HEIGHT};
     pRes->camera2 = (Camera){0, 0, WIDTH, HEIGHT};
@@ -240,8 +240,9 @@ void gameLoop(GameResources *pRes)
         // Lägesberoende rendering
         if (mode == MENU)
         {
-            // Bakgrund
-            SDL_RenderCopy(pRes->pRenderer, pRes->pBackgroundTexture, NULL, NULL);
+            // nätverk
+            initClient("127.0.0.1", 2000);                                         // standart
+            SDL_RenderCopy(pRes->pRenderer, pRes->pBackgroundTexture, NULL, NULL); // Bakgrund
 
             // Sätt färg på knappar beroende på hover
             SDL_SetTextureColorMod(pRes->pStartTexture, hoveredButton == 0 ? 200 : 255, hoveredButton == 0 ? 200 : 255, 255);
@@ -269,6 +270,16 @@ void gameLoop(GameResources *pRes)
         }
         else if (mode == PLAYING)
         {
+
+            PlayerData player = {.playerID = 1, .x = 300, .y = 500, .actionCode = 1};
+            sendPlayerData(&player);
+
+            PlayerData serverResponse;
+            if (receiveServerData(&serverResponse))
+            {
+                printf("Server is: PlayerID %d on %.1f, %.1f\n", serverResponse.playerID, serverResponse.x, serverResponse.y);
+            }
+
             // Rensa till svart, uppdatera bil och kamera
             SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255);
             SDL_RenderClear(pRes->pRenderer);
