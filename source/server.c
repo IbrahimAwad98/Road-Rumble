@@ -38,7 +38,6 @@ bool receiveServerData(PlayerData *pData, IPaddress *pClientAddress)
     }
     return false;
 }
-
 bool sendPlayerData(PlayerData *pData, IPaddress clientAddress)
 {
     memcpy(pPacket->data, pData, sizeof(PlayerData));
