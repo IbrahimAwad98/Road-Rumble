@@ -5,8 +5,10 @@
 #include <stdbool.h>
 #include "network.h"
 
-// struct
-
 // funktioner
+bool initServer(const char *pIpaddress, int port);
+bool receiveServerData(PlayerData *pData, IPaddress clientAddress);
+bool sendPlayerData(PlayerData *pData, IPaddress *pClientAddress);
+void closetServer(void);
 
 #endif
