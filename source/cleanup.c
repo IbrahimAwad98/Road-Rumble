@@ -5,10 +5,11 @@
 
 #include "cleanup.h"
 #include "car.h"
+#include "client.h"
 
 void cleanup(GameResources *pRes)
 {
-    // städa bilar
+    // rensa bilar
     destroyCar(&pRes->car1);
     destroyCar(&pRes->car2);
 
@@ -20,6 +21,9 @@ void cleanup(GameResources *pRes)
     SDL_DestroyRenderer(pRes->pRenderer);
     SDL_DestroyWindow(pRes->pWindow);
     Mix_FreeMusic(pRes->pBgMusic);
+
+    // frigöra nätverk
+    closeClient();
 
     // Avsluta alla SDL-subsystem
     TTF_Quit();
