@@ -9,6 +9,6 @@
 bool initServer(int port);
 bool server_receivePlayerData(PlayerData *pData, IPaddress clientAddress);
 bool server_sendPlayerData(PlayerData *pData, IPaddress *pClientAddress);
-void closetServer(void);
+void closeServer(void);
 
 #endif

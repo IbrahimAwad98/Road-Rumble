@@ -45,7 +45,7 @@ bool server_sendPlayerData(PlayerData *pData, IPaddress clientAddress)
     pPacket->address = clientAddress;
     return SDLNet_UDP_Send(serverSocket, -1, pPacket) > 0;
 }
-void closetServer(void)
+void closeServer(void)
 {
     if (pPacket)
     {
