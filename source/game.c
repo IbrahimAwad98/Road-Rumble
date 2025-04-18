@@ -270,7 +270,6 @@ void gameLoop(GameResources *pRes)
         }
         else if (mode == PLAYING)
         {
-
             PlayerData player = {.playerID = 1, .x = 300, .y = 500, .actionCode = 1};
             sendPlayerData(&player);
 
