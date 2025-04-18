@@ -6,7 +6,7 @@
 static UDPsocket serverSocket = NULL;
 static UDPpacket *pPacket = NULL;
 
-bool initServer(const char *pIpaddress, int port)
+bool initServer(int port)
 {
     // hantera felet
     if (SDLNet_Init() < 0)
