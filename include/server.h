@@ -7,8 +7,8 @@
 
 // funktioner
 bool initServer(int port);
-bool receiveServerData(PlayerData *pData, IPaddress clientAddress);
-bool sendPlayerData(PlayerData *pData, IPaddress *pClientAddress);
+bool server_receivePlayerData(PlayerData *pData, IPaddress clientAddress);
+bool server_sendPlayerData(PlayerData *pData, IPaddress *pClientAddress);
 void closetServer(void);
 
 #endif

@@ -30,14 +30,14 @@ bool initClient(const char *pIpaddress, int port)
     return true;
 }
 // sätter paketes destinationsaddress;
-bool sendPlayerData(PlayerData *pData)
+bool client_sendPlayerData(PlayerData *pData)
 {
     memcpy(pPacket->data, pData, sizeof(PlayerData)); // kopierar strukten till pekare
     pPacket->len = sizeof(PlayerData);                // antal bytes
     pPacket->address = serverAddress;                 // destination
     return SDLNet_UDP_Send(sock, -1, pPacket) > 0;    // via UDP
 }
-bool receiveServerData(PlayerData *pData)
+bool client_receiveServerData(PlayerData *pData)
 {
     if (SDLNet_UDP_Recv(sock, pPacket))
     {
