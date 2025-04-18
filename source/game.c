@@ -240,8 +240,6 @@ void gameLoop(GameResources *pRes)
         // Lägesberoende rendering
         if (mode == MENU)
         {
-            // nätverk
-            initClient("127.0.0.1", 2000);                                         // standart
             SDL_RenderCopy(pRes->pRenderer, pRes->pBackgroundTexture, NULL, NULL); // Bakgrund
 
             // Sätt färg på knappar beroende på hover
@@ -270,15 +268,6 @@ void gameLoop(GameResources *pRes)
         }
         else if (mode == PLAYING)
         {
-            PlayerData player = {.playerID = 1, .x = 300, .y = 500, .actionCode = 1};
-            sendPlayerData(&player);
-
-            PlayerData serverResponse;
-            if (receiveServerData(&serverResponse))
-            {
-                printf("Server is: PlayerID %d on %.1f, %.1f\n", serverResponse.playerID, serverResponse.x, serverResponse.y);
-            }
-
             // Rensa till svart, uppdatera bil och kamera
             SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255);
             SDL_RenderClear(pRes->pRenderer);
