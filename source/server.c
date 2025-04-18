@@ -38,11 +38,11 @@ bool server_receivePlayerData(PlayerData *pData, IPaddress *pClientAddress)
     }
     return false;
 }
-bool server_sendPlayerData(PlayerData *pData, IPaddress clientAddress)
+bool server_sendPlayerData(PlayerData *pData, IPaddress *pClientAddress)
 {
     memcpy(pPacket->data, pData, sizeof(PlayerData));
     pPacket->len = sizeof(PlayerData);
-    pPacket->address = clientAddress;
+    pPacket->address = *pClientAddress; // vi måste avreferera pekaren här
     return SDLNet_UDP_Send(serverSocket, -1, pPacket) > 0;
 }
 void closeServer(void)
