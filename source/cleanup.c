@@ -25,7 +25,7 @@ void cleanup(GameResources *pRes)
 
     // frigöra nätverk
     closeClient();
-    closetServer();
+    closeServer();
 
     // Avsluta alla SDL-subsystem
     TTF_Quit();
