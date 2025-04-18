@@ -19,6 +19,6 @@ typedef struct
 bool initClient(const char *pIpaddress, int port);
 bool sendPlayerData(PlayerData *pData);
 bool receiveServerData(PlayerData *pData);
-void closeClient();
+void closeClient(void);
 
 #endif

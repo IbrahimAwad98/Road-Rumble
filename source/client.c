@@ -2,9 +2,9 @@
 #include <string.h>
 
 // socket och paket ska vara privata globala (lättare anrop)
-static UDPsocket sock;          // för att skicka data
-static UDPpacket *pPacket;      // paketet med data
-static IPaddress serverAddress; // Ip address och port
+static UDPsocket sock = NULL;     // för att skicka data
+static UDPpacket *pPacket = NULL; // paketet med data
+static IPaddress serverAddress;   // Ip address och port
 
 bool initClient(const char *pIpaddress, int port)
 {
@@ -18,6 +18,12 @@ bool initClient(const char *pIpaddress, int port)
     if (!sock)
     {
         printf("UDP open error: %s\n", SDLNet_GetError());
+        return false;
+    }
+    pPacket = SDLNet_AllocPacket(512); // storlek 512 bytes
+    if (!pPacket)
+    {
+        printf("SDL_AllocPacket error: %s\n", SDLNet_GetError());
         return false;
     }
     // allt gich bra
