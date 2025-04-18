@@ -5,10 +5,12 @@
 #include <stdbool.h>
 #include "network.h"
 
-// funktioner
-bool initServer(int port);
-bool server_receivePlayerData(PlayerData *pData, IPaddress clientAddress);
+// Båda använder pekare till IPaddress (för att modifiera och återanvända)
+bool server_receivePlayerData(PlayerData *pData, IPaddress *pClientAddress);
 bool server_sendPlayerData(PlayerData *pData, IPaddress *pClientAddress);
+
+// Init och stäng
+bool initServer(int port);
 void closeServer(void);
 
 #endif
