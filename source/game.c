@@ -5,6 +5,7 @@
 #include "game.h"
 #include "car.h"
 #include "camera.h"
+#include "client.h"
 
 // Returnerar rektangel för rätt tile från tileset baserat på tileID
 SDL_Rect getTileSrcByID(int tileID)
@@ -80,7 +81,7 @@ void gameLoop(GameResources *pRes)
     int sfxLevel = 4;                           // 0(sfx av) to 4 (max)
     int musicVolumes[5] = {0, 32, 64, 96, 128}; // ljud inställning
     int sfxVolumes[5] = {0, 32, 64, 96, 128};   // ljud inställning
-
+    
     // Initiera två kameror (för ev. split screen)
     pRes->camera1 = (Camera){0, 0, WIDTH, HEIGHT};
     pRes->camera2 = (Camera){0, 0, WIDTH, HEIGHT};
