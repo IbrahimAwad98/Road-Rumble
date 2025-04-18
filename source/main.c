@@ -18,6 +18,7 @@
 #include "camera.h"
 #include "server.h"
 #include "network.h"
+#include "client.h"
 
 int main(int argc, char **argv)
 {
@@ -29,7 +30,7 @@ int main(int argc, char **argv)
     GameResources res = {0};
 
     // Flaggor för att avgöra om spelet ska köras i test- eller debugläge
-    bool testMode = false, debugMode = false;
+    bool testMode = false, debugMode = false, isServer = true;
 
     // Kolla igenom argumenten som skickades till programmet
     for (int i = 1; i < argc; i++)
@@ -49,7 +50,21 @@ int main(int argc, char **argv)
     if (!initSDL(&res))
     {
         printf("Failed to initialize SDL components.\n");
-        return 1; // Felkod 1 = SDL-fel
+        return true; // Felkod 1 = SDL-fel
+    }
+    if (isServer)
+    {
+        if (!initServer(SERVER_PORT))
+        {
+            return true;
+        }
+        else
+        {
+            if (!initClient("127.0.0.1", SERVER_PORT))
+            {
+                return true;
+            }
+        }
     }
 
     // Ladda texturer, bilder, ljud och fonter
@@ -57,7 +72,7 @@ int main(int argc, char **argv)
     {
         printf("Failed to load game resources.\n");
         cleanup(&res); // Rensa innan vi avslutar
-        return 1;
+        return true;
     }
 
     // Om testläge är aktiverat, kör tester först
@@ -88,5 +103,5 @@ int main(int argc, char **argv)
     // Rensa alla resurser och avsluta SDL
     cleanup(&res);
 
-    return 0; // Allt gick bra
+    return false; // Allt gick bra
 }
