@@ -9,8 +9,8 @@
 
 // funktioner
 bool initClient(const char *pIpaddress, int port);
-bool sendPlayerData(PlayerData *pData);
-bool receiveServerData(PlayerData *pData);
+bool client_sendPlayerData(PlayerData *pData);
+bool client_receiveServerData(PlayerData *pData);
 void closeClient(void);
 
 #endif

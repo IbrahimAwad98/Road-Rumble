@@ -28,7 +28,7 @@ bool initServer(int port)
     }
     return true;
 }
-bool receiveServerData(PlayerData *pData, IPaddress *pClientAddress)
+bool server_receivePlayerData(PlayerData *pData, IPaddress *pClientAddress)
 {
     if (SDLNet_UDP_Recv(serverSocket, pPacket))
     {
@@ -38,7 +38,7 @@ bool receiveServerData(PlayerData *pData, IPaddress *pClientAddress)
     }
     return false;
 }
-bool sendPlayerData(PlayerData *pData, IPaddress clientAddress)
+bool server_sendPlayerData(PlayerData *pData, IPaddress clientAddress)
 {
     memcpy(pPacket->data, pData, sizeof(PlayerData));
     pPacket->len = sizeof(PlayerData);
