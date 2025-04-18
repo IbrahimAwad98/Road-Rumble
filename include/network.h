@@ -6,6 +6,12 @@
 #define SERVER_PORT 2000
 #define MAX_CLIENTS 4
 
-// behöver strukt för hantera speldata
+// strukten skickar data till server.
+typedef struct
+{
+    int playerID;   // ID
+    float x, y;     // position
+    int actionCode; // kommando ex: 0 = idle, 1 = move...
+} PlayerData;
 
 #endif
