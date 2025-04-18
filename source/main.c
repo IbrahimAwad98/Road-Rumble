@@ -16,6 +16,8 @@
 #include "resources.h"
 #include "test_debug.h"
 #include "camera.h"
+#include "server.h"
+#include "network.h"
 
 int main(int argc, char **argv)
 {
