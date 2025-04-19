@@ -58,6 +58,9 @@ typedef struct
     SDL_Rect backRect;
     SDL_Rect musicVolumeRect;
     SDL_Rect SfxRect;
+    SDL_Rect hostRect;
+    SDL_Rect joinRect;
+    SDL_Rect backRectMultiplayer;
 
     // Spelobjekt
     Car car1, car2;          // Två bilar
@@ -101,5 +104,8 @@ void renderGrassBackground(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int gr
 
 void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int tilemap[MAP_HEIGHT][MAP_WIDTH], Camera *pCamera);
 // Renderar vägar och objekt baserat på tilemap
+
+// den bli tillgänglit till andra filer
+extern bool isServer;
 
 #endif
