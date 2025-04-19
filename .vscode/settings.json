@@ -12,6 +12,9 @@
         "math.h": "c",
         "test_debug.h": "c",
         "sdl.h": "c",
-        "camera.h": "c"
+        "camera.h": "c",
+        "string.h": "c",
+        "network.h": "c",
+        "client.h": "c"
     }
 }

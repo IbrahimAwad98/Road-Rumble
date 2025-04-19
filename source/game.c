@@ -2,9 +2,13 @@
 #include <SDL2/SDL_image.h>
 #include <stdbool.h>
 
+// filer
 #include "game.h"
 #include "car.h"
 #include "camera.h"
+#include "client.h"
+#include "network.h"
+#include "server.h"
 
 // Returnerar rektangel för rätt tile från tileset baserat på tileID
 SDL_Rect getTileSrcByID(int tileID)
@@ -86,8 +90,8 @@ void gameLoop(GameResources *pRes)
     pRes->camera2 = (Camera){0, 0, WIDTH, HEIGHT};
 
     // Initiera bilar
-    if (!initiCar(pRes->pRenderer, &pRes->car1, "resources/Cars/Black_viper.png", 300, 300, 128, 64) ||
-        !initiCar(pRes->pRenderer, &pRes->car2, "resources/Cars/Police.png", 100, 100, 128, 64))
+    if (!initCar(pRes->pRenderer, &pRes->car1, "resources/Cars/Black_viper.png", 300, 300, 128, 64) ||
+        !initCar(pRes->pRenderer, &pRes->car2, "resources/Cars/Police.png", 100, 100, 128, 64))
     {
         printf("Failed to create car texture: %s\n", SDL_GetError());
         return;
@@ -231,6 +235,33 @@ void gameLoop(GameResources *pRes)
                     SDL_Log("Change to meny-mode");
                 }
             }
+            // Hantera multiplayer
+            /*
+
+             if (event.type == SDL_MOUSEBUTTONDOWN && mode == MULTIPLAYER)
+            {
+                int x = event.button.x, y = event.button.y;
+
+                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->hostRect))
+                {
+                    SDL_Log("HOST GAME");
+                    isServer = true;
+                    mode = PLAYING;
+                }
+                else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->joinRect))
+                {
+                    SDL_Log("JOIN GAME");
+                    isServer = false;
+                    mode = PLAYING;
+                }
+                else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->backRectMultiplayer))
+                {
+                    SDL_Log("Back to menu");
+                    mode = MENU;
+                }
+            }
+
+            */
         }
 
         // Rensa renderingsytan
@@ -239,8 +270,7 @@ void gameLoop(GameResources *pRes)
         // Lägesberoende rendering
         if (mode == MENU)
         {
-            // Bakgrund
-            SDL_RenderCopy(pRes->pRenderer, pRes->pBackgroundTexture, NULL, NULL);
+            SDL_RenderCopy(pRes->pRenderer, pRes->pBackgroundTexture, NULL, NULL); // Bakgrund
 
             // Sätt färg på knappar beroende på hover
             SDL_SetTextureColorMod(pRes->pStartTexture, hoveredButton == 0 ? 200 : 255, hoveredButton == 0 ? 200 : 255, 255);
@@ -268,6 +298,50 @@ void gameLoop(GameResources *pRes)
         }
         else if (mode == PLAYING)
         {
+            /*
+             PlayerData data;
+            IPaddress clientAddress;
+            if (isServer)
+            {
+                if (server_receivePlayerData(&data, &clientAddress))
+                {
+                    // Uppdatera motståndarens bil (car2)
+                    pRes->car2.x = data.x;
+                    pRes->car2.y = data.y;
+                    pRes->car2.carRect.x = (int)data.x;
+                    pRes->car2.carRect.y = (int)data.y;
+
+                    // Skicka tillbaka car1:s position till klienten
+                    PlayerData reply = {
+                        .playerID = 0,
+                        .x = pRes->car1.x,
+                        .y = pRes->car1.y,
+                        .actionCode = 1
+
+                    };
+                    server_sendPlayerData(&reply, &clientAddress);
+                }
+                else
+                {
+                    // Skicka min bil (car1) till servern
+                    data.playerID = 1;
+                    data.x = pRes->car1.x;
+                    data.y = pRes->car1.y;
+                    data.actionCode = 1;
+                    client_sendPlayerData(&data);
+
+                    // Ta emot serverns bil (car2)
+                    if (client_receiveServerData(&data))
+                    {
+                        pRes->car2.x = data.x;
+                        pRes->car2.y = data.y;
+                        pRes->car2.carRect.x = (int)data.x;
+                        pRes->car2.carRect.y = (int)data.y;
+                    }
+                }
+
+            */
+
             // Rensa till svart, uppdatera bil och kamera
             SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255);
             SDL_RenderClear(pRes->pRenderer);
@@ -330,8 +404,7 @@ void gameLoop(GameResources *pRes)
         {
             SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerMenuTex, NULL, NULL);
         }
-
-        // Visa renderat innehåll
+        //  Visa renderat innehåll
         SDL_RenderPresent(pRes->pRenderer);
     }
 }

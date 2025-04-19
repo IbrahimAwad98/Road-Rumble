@@ -7,6 +7,7 @@
 #include <limits.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL.h>
+#include <string.h>
 
 // filer
 #include "cleanup.h"
@@ -15,6 +16,11 @@
 #include "resources.h"
 #include "test_debug.h"
 #include "camera.h"
+#include "server.h"
+#include "network.h"
+#include "client.h"
+
+bool isServer = false; // false = klient och true = server.
 
 int main(int argc, char **argv)
 {
@@ -46,7 +52,21 @@ int main(int argc, char **argv)
     if (!initSDL(&res))
     {
         printf("Failed to initialize SDL components.\n");
-        return 1; // Felkod 1 = SDL-fel
+        return true; // Felkod 1 = SDL-fel
+    }
+    if (isServer)
+    {
+        if (!initServer(SERVER_PORT))
+        {
+            return true;
+        }
+        else
+        {
+            if (!initClient("127.0.0.1", SERVER_PORT))
+            {
+                return true;
+            }
+        }
     }
 
     // Ladda texturer, bilder, ljud och fonter
@@ -54,7 +74,7 @@ int main(int argc, char **argv)
     {
         printf("Failed to load game resources.\n");
         cleanup(&res); // Rensa innan vi avslutar
-        return 1;
+        return true;
     }
 
     // Om testläge är aktiverat, kör tester först
@@ -85,5 +105,5 @@ int main(int argc, char **argv)
     // Rensa alla resurser och avsluta SDL
     cleanup(&res);
 
-    return 0; // Allt gick bra
+    return false; // Allt gick bra
 }
