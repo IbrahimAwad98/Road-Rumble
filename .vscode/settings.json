@@ -7,6 +7,11 @@
         "sdl_mixer.h": "c",
         "sdl_image.h": "c",
         "cleanup.h": "c",
-        "resources.h": "c"
+        "resources.h": "c",
+        "car.h": "c",
+        "math.h": "c",
+        "test_debug.h": "c",
+        "sdl.h": "c",
+        "camera.h": "c"
     }
 }
