@@ -58,9 +58,11 @@ typedef struct
     SDL_Rect backRect;
     SDL_Rect musicVolumeRect;
     SDL_Rect SfxRect;
+    /*
     SDL_Rect hostRect;
     SDL_Rect joinRect;
     SDL_Rect backRectMultiplayer;
+    */
 
     // Spelobjekt
     Car car1, car2;          // Två bilar
