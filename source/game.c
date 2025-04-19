@@ -2,10 +2,15 @@
 #include <SDL2/SDL_image.h>
 #include <stdbool.h>
 
+// filer
 #include "game.h"
 #include "car.h"
 #include "camera.h"
 #include "client.h"
+#include "network.h"
+#include "server.h"
+
+extern bool isServer; // då den får tillgång till isServer i main.c (nytt)
 
 // Returnerar rektangel för rätt tile från tileset baserat på tileID
 SDL_Rect getTileSrcByID(int tileID)
@@ -330,7 +335,7 @@ void gameLoop(GameResources *pRes)
         {
             SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerMenuTex, NULL, NULL);
         }
-        // kanske fixa Themes
+
         //  Visa renderat innehåll
         SDL_RenderPresent(pRes->pRenderer);
     }
