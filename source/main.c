@@ -20,6 +20,8 @@
 #include "network.h"
 #include "client.h"
 
+bool isServer = false; // false = klient och true = server.
+
 int main(int argc, char **argv)
 {
     // Omdirigera stdout och stderr till en loggfil (för test och felsökning)
@@ -30,7 +32,7 @@ int main(int argc, char **argv)
     GameResources res = {0};
 
     // Flaggor för att avgöra om spelet ska köras i test- eller debugläge
-    bool testMode = false, debugMode = false, isServer = true;
+    bool testMode = false, debugMode = false;
 
     // Kolla igenom argumenten som skickades till programmet
     for (int i = 1; i < argc; i++)
