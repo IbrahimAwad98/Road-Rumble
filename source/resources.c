@@ -191,8 +191,8 @@ bool loadResources(GameResources *pRes)
         }
     }
 
-    //  Ladda in hela tileset.png till ptilesetTexture
-    SDL_Surface *tilesetSurface = IMG_Load("resources/images/tileset.png");
+    //  Ladda in hela start till ptilesetTexture (måste justeras)
+    SDL_Surface *tilesetSurface = IMG_Load("resources/tile/decor/Start.png");
     if (!tilesetSurface)
     {
         printf("Failed to load tileset image: %s\n", IMG_GetError());
