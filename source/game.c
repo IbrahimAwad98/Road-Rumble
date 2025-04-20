@@ -23,13 +23,13 @@ SDL_Rect getTileSrcByID(int tileID)
 
 // Definierar spelvärldens tilemap med ID:n, -1 = tom eller täckt
 int tilemap[MAP_HEIGHT][MAP_WIDTH] = {
-    {-1, 2, 1, 1, 1, 1, 1, 1, 1, 4, -1},
-    {-1, 0, -1, -1, -1, -1, -1, -1, -1, 0, -1},
-    {-1, 0, -1, -1, -1, -1, -1, -1, -1, 0, -1},
-    {-1, 0, -1, -1, -1, -1, -1, -1, -1, 0, -1},
+    {-1, 2, 1, 6, -1, -1, -1, 5, 1, 4, -1},
+    {-1, 0, -1, 0, -1, -1, -1, 0, -1, 0, -1},
+    {-1, 0, -1, 0, -1, -1, -1, 0, -1, 0, -1},
+    {-1, 0, -1, 23, 1, 1, 1, 24, -1, 0, -1},
     {-1, 0, -1, -1, -1, -1, -1, -1, -1, 0, -1},
     {-1, 38, 1, 1, 1, 1, 1, 1, 1, 40, -1}};
-
+    
 // Renderar hela bakgrunden med ett gräs-tile
 void renderGrassBackground(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int grassTileID, Camera *pCamera)
 {
