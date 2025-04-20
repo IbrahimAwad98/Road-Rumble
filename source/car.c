@@ -1,21 +1,23 @@
 #include <SDL2/SDL_image.h>
 #include <math.h>
-#include "camera.h"
 #include "car.h"
 
+// Om konstanten M_PI inte redan är definierad, definiera den manuellt
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
 
+// Funktion: Laddar in bilens textur, initierar bilens position och egenskaper
 bool initCar(SDL_Renderer *pRenderer, Car *pCar, const char *pImagepath, int x, int y, int w, int h)
 {
-    // Säkerställ att SDL_image är initierad med stöd för PNG
+    // Initiera SDL_image med PNG-stöd om det inte redan är gjort
     if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG))
     {
         SDL_Log("Failed to initialize SDL_image: %s\n", IMG_GetError());
         return false;
     }
 
+    // Ladda in bilden från angiven filväg
     SDL_Surface *pSurface = IMG_Load(pImagepath);
     if (!pSurface)
     {
@@ -23,21 +25,23 @@ bool initCar(SDL_Renderer *pRenderer, Car *pCar, const char *pImagepath, int x, 
         return false;
     }
 
+    // Skapa textur från den inlästa bilden
     pCar->pCartexture = SDL_CreateTextureFromSurface(pRenderer, pSurface);
-    SDL_FreeSurface(pSurface);
+    SDL_FreeSurface(pSurface); // Frigör ytan (ej längre behövs)
 
-    // hantera felet.
     if (!pCar->pCartexture)
     {
         SDL_Log("Failed to create car texture: %s\n", SDL_GetError());
         return false;
     }
 
-    // Initiera bilens position och egenskaper
-    pCar->carRect.x = x; // Var bilen ritas horisontellt (vänster/höger)
-    pCar->carRect.y = y; // Var bilen ritas vertikalt (upp/ner)
-    pCar->carRect.w = w; // bredd
-    pCar->carRect.h = h; // höjd
+    // Initiera bilens position och storlek
+    pCar->carRect.x = x;
+    pCar->carRect.y = y;
+    pCar->carRect.w = w;
+    pCar->carRect.h = h;
+
+    // Initiera flyttalskoordinater och rörelseegenskaper
     pCar->x = (float)x;
     pCar->y = (float)y;
     pCar->angle = 0.0f;
@@ -45,26 +49,17 @@ bool initCar(SDL_Renderer *pRenderer, Car *pCar, const char *pImagepath, int x, 
 
     return true;
 }
-// bilen rörelse
+
+// Funktion:  Uppdaterar bilens rörelse, vinkel och position beroende på input
 void updateCar(Car *pCar, const Uint8 *keys)
 {
-    // Hur snabbt bilen accelererar när spelaren trycker på gas (UP).
-    // Ett högre värde gör att bilen når maxhastighet snabbare, men kan kännas ryckig.
-    const float accel = 0.2f;
+    // Konstanter för rörelse
+    const float accel = 0.2f;     // Acceleration framåt/bakåt
+    const float maxSpeed = 5.0f;  // Maxhastighet framåt
+    const float turnSpeed = 3.0f; // Hur snabbt bilen svänger
+    const float friction = 0.05f; // Friktion vid avstannande
 
-    // Den högsta hastigheten bilen får uppnå i någon riktning.
-    // Används som säkerhet för att bilen inte ska gå för snabbt.
-    const float maxSpeed = 5.0f;
-
-    // Hur snabbt bilen roterar (vinkeländring) när man trycker vänster eller höger.
-    // Ett högre värde gör bilen mer känslig vid styrning.
-    const float turnSpeed = 3.0f;
-
-    // Friktionens styrka – hur snabbt bilen bromsas naturligt när du släpper gasen.
-    // Ett högre värde gör att bilen stannar snabbare, ett lägre gör att den glider längre.
-    const float friction = 0.05f;
-
-    // Gasa
+    // Gasa (framåt)
     if (keys[SDL_SCANCODE_UP])
     {
         pCar->speed += accel;
@@ -73,6 +68,7 @@ void updateCar(Car *pCar, const Uint8 *keys)
             pCar->speed = maxSpeed;
         }
     }
+
     // Backa
     if (keys[SDL_SCANCODE_DOWN])
     {
@@ -82,17 +78,20 @@ void updateCar(Car *pCar, const Uint8 *keys)
             pCar->speed = -maxSpeed / 2;
         }
     }
+
     // Sväng vänster
     if (keys[SDL_SCANCODE_LEFT])
     {
         pCar->angle -= turnSpeed;
     }
+
     // Sväng höger
     if (keys[SDL_SCANCODE_RIGHT])
     {
         pCar->angle += turnSpeed;
     }
-    // Applicera friktion
+
+    // Applicera friktion så bilen stannar gradvis
     if (pCar->speed > 0)
     {
         pCar->speed -= friction;
@@ -106,15 +105,16 @@ void updateCar(Car *pCar, const Uint8 *keys)
             pCar->speed = 0;
     }
 
-    // Uppdatera bilens position utifrån vinkel och hastighet
-    float radians = pCar->angle * (M_PI / 180.0f);
-    pCar->x += pCar->speed * cos(radians);
-    pCar->y += pCar->speed * sin(radians);
+    // Uppdatera bilens position baserat på riktning (vinkel) och fart
+    float radians = pCar->angle * (M_PI / 180.0f); // Omvandla till radianer
+    pCar->x += pCar->speed * cos(radians);         // x-förflyttning
+    pCar->y += pCar->speed * sin(radians);         // y-förflyttning
 
+    // Uppdatera renderingsrektangeln
     pCar->carRect.x = (int)pCar->x;
     pCar->carRect.y = (int)pCar->y;
 
-    // Begränsa bilen inom skärmen
+    // Håll bilen inom skärmens gränser
     int screenWidth = 1280;
     int screenHeight = 720;
     if (pCar->x < 0)
@@ -135,22 +135,25 @@ void updateCar(Car *pCar, const Uint8 *keys)
         pCar->y = screenHeight - pCar->carRect.h;
     }
 
-    // Uppdatera rektangeln efter begränsning
+    // Justera rektangeln efter ev. begränsning
     pCar->carRect.x = (int)pCar->x;
     pCar->carRect.y = (int)pCar->y;
 }
-// Rendera bilen på skärmen i förhållande till kameran
-void renderCar(SDL_Renderer *pRenderer, Car *pCar, Camera *pCamera)
-{
-    SDL_Rect dest = {
-        pCar->carRect.x - pCamera->x, // position relativ till kameran
-        pCar->carRect.y - pCamera->y,
-        pCar->carRect.w,
-        pCar->carRect.h};
 
-    SDL_RenderCopyEx(pRenderer, pCar->pCartexture, NULL, &dest, pCar->angle, NULL, SDL_FLIP_NONE);
+// Funktion: renderCar Renderar bilen på skärmen med rotation
+void renderCar(SDL_Renderer *pRenderer, Car *pCar, void *unused)
+{
+    SDL_RenderCopyEx(
+        pRenderer,
+        pCar->pCartexture,
+        NULL,
+        &pCar->carRect,
+        pCar->angle,
+        NULL,
+        SDL_FLIP_NONE);
 }
-// städa up (för minnet)
+
+// Funktion: destroyCar från minnet
 void destroyCar(Car *pCar)
 {
     if (pCar->pCartexture)

@@ -3,22 +3,27 @@
 
 #include <SDL2/SDL.h>
 #include <stdbool.h>
-#include <math.h>
-#include "camera.h"
 
-// Struktur som definierar en bil
+// Struktur för bil
 typedef struct
 {
-    SDL_Texture *pCartexture; // Bilens textur (bild)
-    SDL_Rect carRect;         // Rektangel för renderingsposition/storlek
-    float x, y;               // Bilens exakta position i världen (float för mjuk rörelse)
-    float angle;              // Bilens riktning i grader
-    float speed;              // Nuvarande hastighet
+    SDL_Texture *pCartexture; // Pekare till bilens textur
+    SDL_Rect carRect;         // Rektangel för position och storlek
+    float x, y;               // Flyttal för exakt position
+    float angle;              // Vinkel
+    float speed;              // Hastighet
 } Car;
 
-bool initCar(SDL_Renderer *pRenderer, Car *pCar, const char *pImagepath, int x, int y, int w, int h); // Initiera bilar
-void renderCar(SDL_Renderer *pRenderer, Car *pCar, Camera *pCamera);                                   // Renderar bilen till skärmen, med hänsyn till kamerans position
-void destroyCar(Car *pCar);                                                                            // Frigör minne och textur som bilen använder
-void updateCar(Car *pCar, const Uint8 *keys);                                                          // Uppdaterar bilens position och rörelse baserat på tangentinmatning
+// Initierar bil
+bool initCar(SDL_Renderer *pRenderer, Car *pCar, const char *pImagepath, int x, int y, int w, int h);
+
+// Uppdaterar bilens rörelse
+void updateCar(Car *pCar, const Uint8 *keys);
+
+// Renderar bil (utan kamera)
+void renderCar(SDL_Renderer *pRenderer, Car *pCar, void *unused);
+
+// Frigör bilens resurser
+void destroyCar(Car *pCar);
 
 #endif
