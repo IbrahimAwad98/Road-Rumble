@@ -45,7 +45,6 @@ bool initCar(SDL_Renderer *pRenderer, Car *pCar, const char *pImagepath, int x, 
 
     return true;
 }
-
 // bilen rörelse
 void updateCar(Car *pCar, const Uint8 *keys)
 {
@@ -111,7 +110,6 @@ void updateCar(Car *pCar, const Uint8 *keys)
     float radians = pCar->angle * (M_PI / 180.0f);
     pCar->x += pCar->speed * cos(radians);
     pCar->y += pCar->speed * sin(radians);
-    
 
     pCar->carRect.x = (int)pCar->x;
     pCar->carRect.y = (int)pCar->y;
@@ -141,7 +139,6 @@ void updateCar(Car *pCar, const Uint8 *keys)
     pCar->carRect.x = (int)pCar->x;
     pCar->carRect.y = (int)pCar->y;
 }
-
 // Rendera bilen på skärmen i förhållande till kameran
 void renderCar(SDL_Renderer *pRenderer, Car *pCar, Camera *pCamera)
 {
