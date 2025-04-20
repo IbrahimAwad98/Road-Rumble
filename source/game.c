@@ -4,7 +4,6 @@
 
 #include "game.h"
 #include "car.h"
-#include "camera.h"
 #include "tilemap.h"
 #include "client.h"
 #include "server.h"
@@ -13,22 +12,19 @@
 // Spelets huvudloop: hanterar input, rendering och växling mellan spellägen
 void gameLoop(GameResources *pRes)
 {
-    // Lokala tillståndsvariabler
-    int isMuted = 0;                            // Ljud av/på
-    int musicVolumeLevel = 4;                   // Musikvolymnivå (0–4)
-    int sfxLevel = 4;                           // Ljudeffekt-nivå (0–4)
-    int musicVolumes[5] = {0, 32, 64, 96, 128}; // Volymtabell
-    int sfxVolumes[5] = {0, 32, 64, 96, 128};   // SFX-volymtabell
+    // Ljudinställningar och tillstånd
+    int isMuted = 0;                            // Flagga för ljud av/på
+    int musicVolumeLevel = 4;                   // Musikvolym (0–4)
+    int sfxLevel = 4;                           // Ljudeffektsvolym (0–4)
+    int musicVolumes[5] = {0, 32, 64, 96, 128}; // Steg för musikvolym
+    int sfxVolumes[5] = {0, 32, 64, 96, 128};   // Steg för ljudeffekter
 
-    SDL_Event event;        // SDL-händelser
-    bool isRunning = true;  // Kontroll för huvudloop
-    GameMode mode = MENU;   // Startläge: meny
-    int hoveredButton = -1; // Håller reda på vilket menyval som är under muspekaren
+    SDL_Event event;
+    bool isRunning = true;  // Om spelet ska fortsätta köras
+    GameMode mode = MENU;   // Startläge: huvudmeny
+    int hoveredButton = -1; // Vilken menyknapp som musen är över
 
-    // Initiera spelkomponenter
-    pRes->camera1 = (Camera){0, 0, WIDTH, HEIGHT};
-    pRes->camera2 = (Camera){0, 0, WIDTH, HEIGHT};
-
+    // Initiera bilar
     if (!initCar(pRes->pRenderer, &pRes->car1, "resources/Cars/Black_viper.png", 300, 300, 128, 64) ||
         !initCar(pRes->pRenderer, &pRes->car2, "resources/Cars/Police.png", 100, 100, 128, 64))
     {
@@ -36,20 +32,22 @@ void gameLoop(GameResources *pRes)
         return;
     }
 
+    // Startvärden för bil 1
     pRes->car1.angle = 0.0f;
     pRes->car1.speed = 3.0f;
 
-    // Huvudloopen körs så länge spelet är aktivt
+    // Huvudloop
     while (isRunning)
     {
-        //  Input-hantering
+        //  Händelsehantering
         while (SDL_PollEvent(&event))
         {
+            // Avsluta spel
             if (event.type == SDL_QUIT ||
                 (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE))
                 isRunning = false;
 
-            // Menyinteraktion (klick)
+            // Menyinteraktion med musen
             else if (event.type == SDL_MOUSEBUTTONDOWN && mode == MENU)
             {
                 int x = event.button.x, y = event.button.y;
@@ -68,7 +66,7 @@ void gameLoop(GameResources *pRes)
                 }
             }
 
-            // Hover-effekter i meny
+            // Visuell feedback för menyknappar
             if (event.type == SDL_MOUSEMOTION && mode == MENU)
             {
                 int x = event.motion.x, y = event.motion.y;
@@ -85,7 +83,7 @@ void gameLoop(GameResources *pRes)
                     hoveredButton = 4;
             }
 
-            // Tangentbordsgenvägar
+            // Snabbtangent-funktioner
             if (event.type == SDL_KEYDOWN)
             {
                 if (event.key.keysym.sym == SDLK_p)
@@ -94,22 +92,25 @@ void gameLoop(GameResources *pRes)
                     mode = MENU;
             }
 
-            // Klick i inställningsmenyn
+            //  Klick i inställningsmenyn
             if (event.type == SDL_MOUSEBUTTONDOWN && mode == OPTIONS)
             {
                 int x = event.button.x, y = event.button.y;
+                // Musikvolym
                 if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->musicVolumeRect))
                 {
                     int seg = (x - pRes->musicVolumeRect.x) / (pRes->musicVolumeRect.w / 5);
                     musicVolumeLevel = (seg < 0) ? 0 : (seg > 4 ? 4 : seg);
                     Mix_VolumeMusic(musicVolumes[musicVolumeLevel]);
                 }
+                // Ljudeffektvolym
                 if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->SfxRect))
                 {
                     int seg = (x - pRes->SfxRect.x) / (pRes->SfxRect.w / 5);
                     sfxLevel = (seg < 0) ? 0 : (seg > 4 ? 4 : seg);
                     Mix_VolumeMusic(sfxVolumes[sfxLevel]);
                 }
+                // Tillbaka till meny
                 if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->backRect))
                 {
                     mode = MENU;
@@ -117,14 +118,16 @@ void gameLoop(GameResources *pRes)
             }
         }
 
-        //  Rendering beroende på spelläge
+        // Rendering
         SDL_RenderClear(pRes->pRenderer);
 
-        //  MENY
+        // Huvudmenyn
         if (mode == MENU)
         {
+            // Bakgrund
             SDL_RenderCopy(pRes->pRenderer, pRes->pBackgroundTexture, NULL, NULL);
 
+            // Färgtoning för hovereffekt
             SDL_SetTextureColorMod(pRes->pStartTexture, hoveredButton == 0 ? 200 : 255, hoveredButton == 0 ? 200 : 255, 255);
             SDL_SetTextureColorMod(pRes->pMultiplayerTexture, hoveredButton == 1 ? 200 : 255, hoveredButton == 1 ? 200 : 255, 255);
             SDL_SetTextureColorMod(pRes->pOptionsTexture, hoveredButton == 2 ? 200 : 255, hoveredButton == 2 ? 200 : 255, 255);
@@ -132,6 +135,7 @@ void gameLoop(GameResources *pRes)
             SDL_SetTextureColorMod(isMuted ? pRes->pMuteTexture : pRes->pUnmuteTexture,
                                    hoveredButton == 4 ? 200 : 255, hoveredButton == 4 ? 200 : 255, 255);
 
+            // Rendera knappar
             SDL_RenderCopy(pRes->pRenderer, pRes->pStartTexture, NULL, &pRes->startRect);
             SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerTexture, NULL, &pRes->multiplayerRect);
             SDL_RenderCopy(pRes->pRenderer, pRes->pOptionsTexture, NULL, &pRes->optionsRect);
@@ -139,7 +143,7 @@ void gameLoop(GameResources *pRes)
             SDL_RenderCopy(pRes->pRenderer, isMuted ? pRes->pMuteTexture : pRes->pUnmuteTexture, NULL, &pRes->muteRect);
         }
 
-        //  SPELLÄGE: PLAYING
+        // Spelläget
         else if (mode == PLAYING)
         {
             SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255);
@@ -147,25 +151,25 @@ void gameLoop(GameResources *pRes)
 
             const Uint8 *keys = SDL_GetKeyboardState(NULL);
             updateCar(&pRes->car1, keys);
-            Camera *pCam = (pRes->localPlayerID == 0) ? &pRes->camera1 : &pRes->camera2;
-            updateCamera(pCam, &pRes->car1.carRect);
 
-            renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93, pCam);
-            renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap, pCam);
-            renderCar(pRes->pRenderer, &pRes->car1, pCam);
-            renderCar(pRes->pRenderer, &pRes->car2, pCam);
+            renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93);
+            renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap);
+            renderCar(pRes->pRenderer, &pRes->car1, NULL);
+            renderCar(pRes->pRenderer, &pRes->car2, NULL);
 
+            // Test: rendera en tile från tileset (för debug/visning)
             SDL_Rect src = getTileSrcByID(2);
             SDL_Rect dest = {400, 300, TILE_SIZE, TILE_SIZE};
             SDL_RenderCopy(pRes->pRenderer, pRes->ptilesetTexture, &src, &dest);
         }
 
-        //  OPTIONS
+        //  Inställningsmeny
         else if (mode == OPTIONS)
         {
             SDL_RenderCopy(pRes->pRenderer, pRes->pOptionsMenuTex, NULL, NULL);
             SDL_RenderCopy(pRes->pRenderer, pRes->pBackToMenuTexture, NULL, &pRes->backRect);
 
+            // Rita volymstaplar (musik)
             for (int i = 0; i < 5; i++)
             {
                 SDL_Rect block = {
@@ -177,6 +181,7 @@ void gameLoop(GameResources *pRes)
                 SDL_RenderFillRect(pRes->pRenderer, &block);
             }
 
+            // Rita volymstaplar (SFX)
             for (int i = 0; i < 5; i++)
             {
                 SDL_Rect block = {
@@ -189,13 +194,13 @@ void gameLoop(GameResources *pRes)
             }
         }
 
-        // MULTIPLAYER
+        //  Multiplayer-meny
         else if (mode == MULTIPLAYER)
         {
             SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerMenuTex, NULL, NULL);
         }
 
-        // === Presentera allt på skärmen ===
+        // Presentera det som ritats
         SDL_RenderPresent(pRes->pRenderer);
     }
 }

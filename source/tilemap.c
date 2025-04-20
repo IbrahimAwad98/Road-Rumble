@@ -1,21 +1,21 @@
 #include "game.h"
 #include "tilemap.h"
 
-// Returnerar rätt utdrag (src rect) från tileset för angiven tileID
-// Används när man ska rendera en specifik tile från tilesetbilden
+// Funktion: getTileSrcByID
+// Syfte: Returnerar rätt utdragsrektangel (src rect) från tileset-bilden
+// för att rendera en specifik tile baserat på dess ID.
 SDL_Rect getTileSrcByID(int tileID)
 {
     SDL_Rect src;
-    src.x = (tileID % TILESET_COLUMNS) * TILE_SIZE; // kolumn i tileset
-    src.y = (tileID / TILESET_COLUMNS) * TILE_SIZE; // rad i tileset
-    src.w = TILE_SIZE;
-    src.h = TILE_SIZE;
+    src.x = (tileID % TILESET_COLUMNS) * TILE_SIZE; // Kolumn i tileset-bilden
+    src.y = (tileID / TILESET_COLUMNS) * TILE_SIZE; // Rad i tileset-bilden
+    src.w = TILE_SIZE;                              // Tile-bredd
+    src.h = TILE_SIZE;                              // Tile-höjd
     return src;
 }
 
-// Själva tilemappen – 2D-array där varje värde representerar en tileID
-// -1 = tom (ingen tile)
-// Definierar spelvärldens tilemap med ID:n, -1 = tom eller täckt
+// Tilemap – Definierar själva spelvärlden med hjälp av tile-ID:n.
+// Varje heltal representerar ett tileID; -1 betyder tom yta (inget ska ritas).
 int tilemap[MAP_HEIGHT][MAP_WIDTH] = {
     {-1, 2, 1, 6, -1, -1, -1, 5, 1, 4, -1},
     {-1, 0, -1, 0, -1, -1, -1, 0, -1, 0, -1},
@@ -24,47 +24,57 @@ int tilemap[MAP_HEIGHT][MAP_WIDTH] = {
     {-1, 0, -1, -1, -1, -1, -1, -1, -1, 0, -1},
     {-1, 38, 1, 1, 1, 1, 1, 1, 1, 40, -1}};
 
-// Renderar hela bakgrunden med ett gräs-tile
-void renderGrassBackground(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int grassTileID, Camera *pCamera)
+// Funktion: renderGrassBackground
+// Syfte: Fyller hela bakgrunden med ett gräs-tile för att undvika svarta ytor.
+// Används före den riktiga tilemapen ritas ut.
+void renderGrassBackground(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int grassTileID)
 {
+    // Om texturen saknas, gör inget
     if (!pTiles[grassTileID])
-    {
         return;
-    }
+
+    // Hur många tiles behövs för att täcka hela skärmen?
     int tilesX = WIDTH / TILE_SIZE + 2;
     int tilesY = HEIGHT / TILE_SIZE + 2;
 
+    // Rita ett rutnät av grästiles
     for (int row = 0; row < tilesY; row++)
     {
         for (int col = 0; col < tilesX; col++)
         {
             SDL_Rect dest = {
-                col * TILE_SIZE - (pCamera->x % TILE_SIZE),
-                row * TILE_SIZE - (pCamera->y % TILE_SIZE),
+                col * TILE_SIZE,
+                row * TILE_SIZE,
                 TILE_SIZE, TILE_SIZE};
 
             SDL_RenderCopy(pRenderer, pTiles[grassTileID], NULL, &dest);
         }
     }
 }
-// Renderar bana + objekt enligt tilemap, hoppar över tomma tiles
-void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int tilemap[MAP_HEIGHT][MAP_WIDTH], Camera *pCamera)
+
+// Funktion: renderTrackAndObjects
+// Syfte: Renderar banan (vägar, objekt, etc.) baserat på `tilemap`-arrayen.
+// TileID -1 betyder att inget ska ritas.
+void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int tilemap[MAP_HEIGHT][MAP_WIDTH])
 {
     for (int row = 0; row < MAP_HEIGHT; row++)
     {
         for (int col = 0; col < MAP_WIDTH; col++)
         {
-            SDL_Rect dest = {col * TILE_SIZE - pCamera->x, row * TILE_SIZE - pCamera->y, TILE_SIZE, TILE_SIZE};
             int tileID = tilemap[row][col];
 
+            // Hoppa över tomma tiles (-1)
             if (tileID == -1)
-            {
-                continue; // skippar "tomma" rutor
-            }
+                continue;
 
-            // Renderar tile om ID är giltigt och textur finns
+            // Rendera bara om tileID är giltigt och motsvarande textur finns
             if (tileID >= 0 && tileID < NUM_TILES && pTiles[tileID])
             {
+                SDL_Rect dest = {
+                    col * TILE_SIZE,
+                    row * TILE_SIZE,
+                    TILE_SIZE, TILE_SIZE};
+
                 SDL_RenderCopy(pRenderer, pTiles[tileID], NULL, &dest);
             }
         }
