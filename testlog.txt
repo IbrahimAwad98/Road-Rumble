@@ -5,7 +5,29 @@ SDL_mixer initialized successfully.
 SDL_net initialized successfully.
 SDL window created successfully.
 SDL renderer created successfully.
+===============================
+         STATUSRAPPORT         
+===============================
+Debug mode is active
+Test mode is active
+===============================
+SDL is working.
+SDL font is working.
+Tileset is working.
+SDL_net is working.
+
+Tests are done
+===============================
+TEST RESULTAT: PASSED.
+Everything went fine! Test completed without errors.
+Music volume set to level 1 (32)
+Music volume set to level 3 (96)
+Music volume set to level 4 (128)
 libpng warning: iCCP: known incorrect sRGB profile
 libpng warning: iCCP: known incorrect sRGB profile
-INFO: Mute clicked
 INFO: Start the Game!
+libpng warning: iCCP: known incorrect sRGB profile
+libpng warning: iCCP: known incorrect sRGB profile
+INFO: OPTIONS clicked
+INFO: Change to meny-mode
+INFO: End the Game!
