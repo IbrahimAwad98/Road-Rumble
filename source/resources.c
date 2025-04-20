@@ -2,6 +2,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
 #include "resources.h"
+#include "tilemap.h"
 
 bool loadResources(GameResources *pRes)
 {
