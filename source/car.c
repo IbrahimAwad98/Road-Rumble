@@ -4,16 +4,25 @@
 #include "car.h"
 
 #ifndef M_PI
-#define M_PI 3.14
+#define M_PI 3.14159265358979323846
 #endif
 
 bool initCar(SDL_Renderer *pRenderer, Car *pCar, const char *pImagepath, int x, int y, int w, int h)
 {
+    // Säkerställ att SDL_image är initierad med stöd för PNG
+    if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG))
+    {
+        SDL_Log("Failed to initialize SDL_image: %s\n", IMG_GetError());
+        return false;
+    }
+
     SDL_Surface *pSurface = IMG_Load(pImagepath);
     if (!pSurface)
     {
+        SDL_Log("IMG_Load error: %s", IMG_GetError());
         return false;
     }
+
     pCar->pCartexture = SDL_CreateTextureFromSurface(pRenderer, pSurface);
     SDL_FreeSurface(pSurface);
 
@@ -37,22 +46,6 @@ bool initCar(SDL_Renderer *pRenderer, Car *pCar, const char *pImagepath, int x, 
     return true;
 }
 
-// Rendera bilen på skärmen i förhållande till kameran
-void renderCar(SDL_Renderer *pRenderer, Car *pCar, Camera *pCamera)
-{
-    SDL_Rect dest = {
-        pCar->carRect.x - pCamera->x, // position relativ till kameran
-        pCar->carRect.y - pCamera->y,
-        pCar->carRect.w,
-        pCar->carRect.h};
-
-    SDL_RenderCopy(pRenderer, pCar->pCartexture, NULL, &dest);
-}
-// städa up (för minnet)
-void destroyCar(Car *pCar)
-{
-    SDL_DestroyTexture(pCar->pCartexture);
-}
 // bilen rörelse
 void updateCar(Car *pCar, const Uint8 *keys)
 {
@@ -115,8 +108,10 @@ void updateCar(Car *pCar, const Uint8 *keys)
     }
 
     // Uppdatera bilens position utifrån vinkel och hastighet
-    pCar->x += pCar->speed * cos(pCar->angle * M_PI / 180.0f);
-    pCar->y += pCar->speed * sin(pCar->angle * M_PI / 180.0f);
+    float radians = pCar->angle * (M_PI / 180.0f);
+    pCar->x += pCar->speed * cos(radians);
+    pCar->y += pCar->speed * sin(radians);
+    
 
     pCar->carRect.x = (int)pCar->x;
     pCar->carRect.y = (int)pCar->y;
@@ -145,4 +140,24 @@ void updateCar(Car *pCar, const Uint8 *keys)
     // Uppdatera rektangeln efter begränsning
     pCar->carRect.x = (int)pCar->x;
     pCar->carRect.y = (int)pCar->y;
+}
+
+// Rendera bilen på skärmen i förhållande till kameran
+void renderCar(SDL_Renderer *pRenderer, Car *pCar, Camera *pCamera)
+{
+    SDL_Rect dest = {
+        pCar->carRect.x - pCamera->x, // position relativ till kameran
+        pCar->carRect.y - pCamera->y,
+        pCar->carRect.w,
+        pCar->carRect.h};
+
+    SDL_RenderCopyEx(pRenderer, pCar->pCartexture, NULL, &dest, pCar->angle, NULL, SDL_FLIP_NONE);
+}
+// städa up (för minnet)
+void destroyCar(Car *pCar)
+{
+    if (pCar->pCartexture)
+    {
+        SDL_DestroyTexture(pCar->pCartexture);
+    }
 }
