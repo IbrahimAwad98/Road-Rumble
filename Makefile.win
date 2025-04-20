@@ -28,7 +28,8 @@ OBJS = \
     camera.o \
     test_debug.o \
     client.o \
-    server.o
+    server.o \
+    tilemap.o     
 
 # ============================
 # Byggprogram
@@ -68,6 +69,9 @@ client.o: $(SRCDIR)/client.c
 
 server.o: $(SRCDIR)/server.c
 	$(CC) $(CFLAGS) $(SRCDIR)/server.c
+
+tilemap.o: $(SRCDIR)/tilemap.c    
+	$(CC) $(CFLAGS) $(SRCDIR)/tilemap.c
 
 # ============================
 # Rensa objekt och binär

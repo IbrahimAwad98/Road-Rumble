@@ -15,6 +15,7 @@
         "camera.h": "c",
         "string.h": "c",
         "network.h": "c",
-        "client.h": "c"
+        "client.h": "c",
+        "tilemap.h": "c"
     }
 }
