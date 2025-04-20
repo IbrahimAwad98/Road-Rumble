@@ -28,8 +28,9 @@ int tilemap[MAP_HEIGHT][MAP_WIDTH] = {
 void renderGrassBackground(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int grassTileID, Camera *pCamera)
 {
     if (!pTiles[grassTileID])
+    {
         return;
-
+    }
     int tilesX = WIDTH / TILE_SIZE + 2;
     int tilesY = HEIGHT / TILE_SIZE + 2;
 
@@ -46,7 +47,6 @@ void renderGrassBackground(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int gr
         }
     }
 }
-
 // Renderar bana + objekt enligt tilemap, hoppar över tomma tiles
 void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int tilemap[MAP_HEIGHT][MAP_WIDTH], Camera *pCamera)
 {
