@@ -51,7 +51,7 @@ void runAllTests(GameResources *pRes, bool *pTestPassed, bool debugMode)
         SDL_DestroyTexture(pLoadingTex);
     }
 
-    // === Början på faktiska tester ===
+    // Början på faktiska tester
 
     // Testar att renderer och fönster finns
     if (!pRes->pRenderer || !pRes->pWindow)
@@ -97,7 +97,7 @@ void runAllTests(GameResources *pRes, bool *pTestPassed, bool debugMode)
         printf("SDL_net is working.\n");
     }
 
-    // === Resultatvisning ===
+    // Resultatvisning
 
     SDL_Color green = {0, 255, 0};
     SDL_Color red = {255, 0, 0};
