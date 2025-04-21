@@ -1,9 +1,7 @@
 #include "game.h"
 #include "tilemap.h"
 
-// Funktion: getTileSrcByID
-// Syfte: Returnerar rätt utdragsrektangel (src rect) från tileset-bilden
-// för att rendera en specifik tile baserat på dess ID.
+// Returnerar rätt utdragsrektangel (src rect) från tileset-bilden
 SDL_Rect getTileSrcByID(int tileID)
 {
     SDL_Rect src;
@@ -24,8 +22,7 @@ int tilemap[MAP_HEIGHT][MAP_WIDTH] = {
     {-1, 0, -1, -1, -1, -1, -1, -1, -1, 0, -1},
     {-1, 38, 1, 1, 1, 1, 1, 1, 1, 40, -1}};
 
-// Funktion: renderGrassBackground
-// Syfte: Fyller hela bakgrunden med ett gräs-tile för att undvika svarta ytor.
+// Fyller hela bakgrunden med ett gräs-tile för att undvika svarta ytor.
 // Används före den riktiga tilemapen ritas ut.
 void renderGrassBackground(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int grassTileID)
 {
@@ -51,9 +48,7 @@ void renderGrassBackground(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int gr
         }
     }
 }
-
-// Funktion: renderTrackAndObjects
-// Syfte: Renderar banan (vägar, objekt, etc.) baserat på `tilemap`-arrayen.
+// Renderar banan (vägar, objekt, etc.) baserat på `tilemap`-arrayen.
 // TileID -1 betyder att inget ska ritas.
 void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int tilemap[MAP_HEIGHT][MAP_WIDTH])
 {
