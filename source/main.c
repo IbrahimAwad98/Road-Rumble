@@ -81,7 +81,7 @@ int main(int argc, char **argv)
         if (!initClient("127.0.0.1", SERVER_PORT))
         {
             printf("Failed to connect to server.\n");
-            return 1;
+            return true;
         }
     }
 
@@ -111,7 +111,7 @@ int main(int argc, char **argv)
         {
             printf("TEST RESULTAT: FAILED.\n");
             printf("One or more tests failed. Check the log above for details.\n");
-            return 1; // Avsluta om testet misslyckades
+            return true; // Avsluta om testet misslyckades
         }
     }
 
