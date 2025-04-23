@@ -20,7 +20,9 @@ void gameLoop(GameResources *pRes)
     int sfxVolumes[5] = {0, 32, 64, 96, 128};   // Steg för ljudeffekter
 
     SDL_Event event;
-    bool isRunning = true;  // Om spelet ska fortsätta köras
+    bool isRunning = true; // Om spelet ska fortsätta köras
+    bool isFullscreen = true;
+    bool escWasPressedOnce = false;
     GameMode mode = MENU;   // Startläge: huvudmeny
     int hoveredButton = -1; // Vilken menyknapp som musen är över
 
@@ -43,9 +45,30 @@ void gameLoop(GameResources *pRes)
         while (SDL_PollEvent(&event))
         {
             // Avsluta spel
-            if (event.type == SDL_QUIT ||
-                (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE))
+            if (event.type == SDL_QUIT)
+            {
                 isRunning = false;
+            }
+            else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
+            {
+                if (!escWasPressedOnce)
+                {
+                    // Första trycket – växla till windowed
+                    isFullscreen = false;
+                    SDL_SetWindowFullscreen(pRes->pWindow, 0);                                            // Avsluta fullscreen
+                    SDL_SetWindowSize(pRes->pWindow, WIDTH, HEIGHT);                                      // Återställ storlek
+                    SDL_SetWindowPosition(pRes->pWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED); // Centrera
+                    SDL_ShowWindow(pRes->pWindow);                                                        // Tvinga visning
+                    SDL_Delay(100);                                                                       // Vänta kort för att undvika buggar
+
+                    escWasPressedOnce = true;
+                }
+                else
+                {
+                    // Andra trycket – avsluta spelet
+                    isRunning = false;
+                }
+            }
 
             // Menyinteraktion med musen
             else if (event.type == SDL_MOUSEBUTTONDOWN && mode == MENU)
@@ -150,7 +173,8 @@ void gameLoop(GameResources *pRes)
             SDL_RenderClear(pRes->pRenderer);
 
             const Uint8 *keys = SDL_GetKeyboardState(NULL);
-            updateCar(&pRes->car1, keys);
+            updateCar(&pRes->car1, keys, SDL_SCANCODE_UP, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT, SDL_SCANCODE_RIGHT);
+            updateCar(&pRes->car2, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
 
             renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93);
             renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap);
