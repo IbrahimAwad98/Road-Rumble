@@ -26,6 +26,9 @@ void gameLoop(GameResources *pRes)
     GameMode mode = MENU;   // Startläge: huvudmeny
     int hoveredButton = -1; // Vilken menyknapp som musen är över
 
+    // justerar automatisk
+    SDL_RenderSetLogicalSize(pRes->pRenderer, WIDTH, HEIGHT);
+
     // Initiera bilar
     if (!initCar(pRes->pRenderer, &pRes->car1, "resources/Cars/Black_viper.png", 300, 300, 128, 64) ||
         !initCar(pRes->pRenderer, &pRes->car2, "resources/Cars/Police.png", 100, 100, 128, 64))
@@ -69,7 +72,6 @@ void gameLoop(GameResources *pRes)
                     isRunning = false;
                 }
             }
-
             // Menyinteraktion med musen
             else if (event.type == SDL_MOUSEBUTTONDOWN && mode == MENU)
             {
