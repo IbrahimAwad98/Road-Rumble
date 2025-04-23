@@ -166,15 +166,55 @@ void gameLoop(GameResources *pRes)
             SDL_RenderCopy(pRes->pRenderer, isMuted ? pRes->pMuteTexture : pRes->pUnmuteTexture, NULL, &pRes->muteRect);
         }
 
-        // Spelläget
+        // Spelläget (via nätverk)
         else if (mode == PLAYING)
         {
             SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255);
             SDL_RenderClear(pRes->pRenderer);
-
             const Uint8 *keys = SDL_GetKeyboardState(NULL);
-            updateCar(&pRes->car1, keys, SDL_SCANCODE_UP, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT, SDL_SCANCODE_RIGHT);
-            updateCar(&pRes->car2, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
+            PlayerData myData, otherData;
+            IPaddress clientAddr; // används bara på server
+
+            if (isServer)
+            {
+                updateCar(&pRes->car1, keys, SDL_SCANCODE_UP, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT, SDL_SCANCODE_RIGHT);
+
+                // ta emot klientdata
+                if (server_receivePlayerData(&otherData, &clientAddr))
+                {
+                    pRes->car2.x = otherData.x;
+                    pRes->car2.y = otherData.y;
+                }
+                // skicka till klient
+                myData.x = pRes->car1.x;
+                myData.y = pRes->car1.y;
+                myData.actionCode = 1; // valfritt
+                server_sendPlayerData(&myData, &clientAddr);
+            }
+            else
+            {
+                updateCar(&pRes->car2, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
+
+                myData.playerID = 1;
+                myData.x = pRes->car2.x;
+                myData.y = pRes->car2.y;
+                myData.actionCode = 1;
+
+                client_sendPlayerData(&myData);
+
+                if (client_receiveServerData(&otherData))
+                {
+                    // uppdatera serverns bil (car1)
+                    pRes->car1.x = otherData.x;
+                    pRes->car1.y = otherData.y;
+                }
+            }
+
+            // uppdatera renderingsrektanglar
+            pRes->car1.carRect.x = (int)pRes->car1.x;
+            pRes->car1.carRect.y = (int)pRes->car1.y;
+            pRes->car2.carRect.x = (int)pRes->car2.x;
+            pRes->car2.carRect.y = (int)pRes->car2.y;
 
             renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93);
             renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap);
