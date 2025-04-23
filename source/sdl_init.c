@@ -48,7 +48,6 @@ bool initSDL(GameResources *pRes)
 
     // Skapa fönster
     pRes->pWindow = SDL_CreateWindow("Road Rumble v1.0", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_FULLSCREEN);
-
     if (!pRes->pWindow)
     {
         printf("SDL_CreateWindow failed: %s\n", SDL_GetError());
