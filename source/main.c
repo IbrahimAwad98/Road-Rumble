@@ -46,6 +46,10 @@ int main(int argc, char **argv)
         {
             debugMode = true;
         }
+        if (strcasecmp(argv[i], "--server") == 0)
+        {
+            isServer = true;
+        }
     }
 
     // Initiera SDL, fönster, ljud, nätverk osv.
@@ -58,14 +62,26 @@ int main(int argc, char **argv)
     {
         if (!initServer(SERVER_PORT))
         {
+            printf("Failed to start server.\n");
             return true;
         }
         else
         {
+            printf("Server started.\n");
             if (!initClient("127.0.0.1", SERVER_PORT))
             {
+                printf("Server could not connect to self.\n");
                 return true;
             }
+        }
+    }
+    else
+    {
+        // Bara klient
+        if (!initClient("127.0.0.1", SERVER_PORT))
+        {
+            printf("Failed to connect to server.\n");
+            return 1;
         }
     }
 
