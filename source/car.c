@@ -141,7 +141,7 @@ void updateCar(Car *pCar, const Uint8 *keys, SDL_Scancode up, SDL_Scancode down,
 }
 
 // Funktion: renderCar Renderar bilen på skärmen med rotation
-void renderCar(SDL_Renderer *pRenderer, Car *pCar, void *unused)
+void renderCar(SDL_Renderer *pRenderer, Car *pCar)
 {
     SDL_RenderCopyEx(
         pRenderer,
