@@ -40,6 +40,9 @@ void gameLoop(GameResources *pRes)
     // Startvärden för bil 1
     pRes->car1.angle = 0.0f;
     pRes->car1.speed = 3.0f;
+    // Startvärden för bil 2
+    pRes->car2.angle = 0.0f;
+    pRes->car2.speed = 3.0f;
 
     // Huvudloop
     while (isRunning)
@@ -174,6 +177,13 @@ void gameLoop(GameResources *pRes)
             SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255);
             SDL_RenderClear(pRes->pRenderer);
             const Uint8 *keys = SDL_GetKeyboardState(NULL);
+
+            // För test: styr båda lokalt
+            /*
+            updateCar(&pRes->car1, keys, SDL_SCANCODE_UP, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT, SDL_SCANCODE_RIGHT);
+            updateCar(&pRes->car2, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
+            */
+
             PlayerData myData, otherData;
             IPaddress clientAddr; // används bara på server
 
@@ -220,8 +230,9 @@ void gameLoop(GameResources *pRes)
 
             renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93);
             renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap);
-            renderCar(pRes->pRenderer, &pRes->car1, NULL);
-            renderCar(pRes->pRenderer, &pRes->car2, NULL);
+            // ingen kamera
+            renderCar(pRes->pRenderer, &pRes->car1);
+            renderCar(pRes->pRenderer, &pRes->car2);
 
             // Test: rendera en tile från tileset (för debug/visning)
             SDL_Rect src = getTileSrcByID(2);
