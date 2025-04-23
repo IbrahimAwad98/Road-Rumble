@@ -40,7 +40,7 @@ void gameLoop(GameResources *pRes)
     // Startvärden för bil 1
     pRes->car1.angle = 0.0f;
     pRes->car1.speed = 3.0f;
-    // Startvärden för bil 2
+    // Startvärden för bil 1
     pRes->car2.angle = 0.0f;
     pRes->car2.speed = 3.0f;
 
