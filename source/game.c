@@ -18,7 +18,9 @@ void gameLoop(GameResources *pRes)
     int sfxLevel = 4;                           // Ljudeffektsvolym (0–4)
     int musicVolumes[5] = {0, 32, 64, 96, 128}; // Steg för musikvolym
     int sfxVolumes[5] = {0, 32, 64, 96, 128};   // Steg för ljudeffekter
-
+    char joinIpText[32] = "127.0.0.1";          // Joina IP
+    int selectedField = -1;                     // host=0, join=1
+    
     SDL_Event event;
     bool isRunning = true;  // Om spelet ska fortsätta köras
     GameMode mode = MENU;   // Startläge: huvudmeny
@@ -116,6 +118,28 @@ void gameLoop(GameResources *pRes)
                     mode = MENU;
                 }
             }
+
+            if (event.type == SDL_TEXTINPUT && mode == MULTIPLAYER && selectedField == 1) {
+                if (strlen(joinIpText) < sizeof(joinIpText) - 1) {
+                    strcat(joinIpText, event.text.text);
+                }
+            }
+            
+            if (event.type == SDL_KEYDOWN && mode == MULTIPLAYER && selectedField == 1) {
+                if (event.key.keysym.sym == SDLK_BACKSPACE && strlen(joinIpText) > 0) {
+                    joinIpText[strlen(joinIpText) - 1] = '\0';
+                }
+            }
+            
+            //  Klick i multiplayermenyn
+            if (event.type == SDL_MOUSEBUTTONDOWN && mode == MULTIPLAYER)
+            {
+                int x = event.button.x;
+                int y = event.button.y;
+                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->backMRect)) {
+                    mode = MENU;
+                }
+            }
         }
 
         // Rendering
@@ -137,6 +161,9 @@ void gameLoop(GameResources *pRes)
 
             // Rendera knappar
             SDL_RenderCopy(pRes->pRenderer, pRes->pStartTexture, NULL, &pRes->startRect);
+
+
+
             SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerTexture, NULL, &pRes->multiplayerRect);
             SDL_RenderCopy(pRes->pRenderer, pRes->pOptionsTexture, NULL, &pRes->optionsRect);
             SDL_RenderCopy(pRes->pRenderer, pRes->pExitTexture, NULL, &pRes->exitRect);
@@ -161,6 +188,7 @@ void gameLoop(GameResources *pRes)
             SDL_Rect src = getTileSrcByID(2);
             SDL_Rect dest = {400, 300, TILE_SIZE, TILE_SIZE};
             SDL_RenderCopy(pRes->pRenderer, pRes->ptilesetTexture, &src, &dest);
+            
         }
 
         //  Inställningsmeny
@@ -198,6 +226,20 @@ void gameLoop(GameResources *pRes)
         else if (mode == MULTIPLAYER)
         {
             SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerMenuTex, NULL, NULL);
+            SDL_RenderCopy(pRes->pRenderer, pRes->pBackToMultiTexture, NULL, &pRes->backMRect);
+            SDL_StartTextInput();
+
+
+            SDL_Color white = {255, 255, 255};
+            SDL_Surface* ipSurf = TTF_RenderText_Solid(pRes->pFont, joinIpText, white);
+            SDL_Texture* ipTex = SDL_CreateTextureFromSurface(pRes->pRenderer, ipSurf);
+
+            SDL_Rect ipRect = {550, 375, ipSurf->w, ipSurf->h};
+            SDL_RenderCopy(pRes->pRenderer, ipTex, NULL, &ipRect);
+
+            SDL_FreeSurface(ipSurf);
+            SDL_DestroyTexture(ipTex);
+
         }
 
         // Presentera det som ritats
