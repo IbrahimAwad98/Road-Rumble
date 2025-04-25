@@ -96,13 +96,17 @@ void updateCar(Car *pCar, const Uint8 *keys, SDL_Scancode up, SDL_Scancode down,
     {
         pCar->speed -= friction;
         if (pCar->speed < 0)
+        {
             pCar->speed = 0;
+        }
     }
     else if (pCar->speed < 0)
     {
         pCar->speed += friction;
         if (pCar->speed > 0)
+        {
             pCar->speed = 0;
+        }
     }
 
     // Uppdatera bilens position baserat på riktning (vinkel) och fart
