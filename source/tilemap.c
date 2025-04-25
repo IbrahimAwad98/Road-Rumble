@@ -1,5 +1,6 @@
 #include "game.h"
 #include "tilemap.h"
+#include <stdlib.h>
 
 // Returnerar rätt utdragsrektangel (src rect) från tileset-bilden
 SDL_Rect getTileSrcByID(int tileID)
@@ -28,7 +29,9 @@ void renderGrassBackground(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int gr
 {
     // Om texturen saknas, gör inget
     if (!pTiles[grassTileID])
+    {
         return;
+    }
 
     // Hur många tiles behövs för att täcka hela skärmen?
     int tilesX = WIDTH / TILE_SIZE + 2;
