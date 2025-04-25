@@ -164,7 +164,6 @@ bool loadResources(GameResources *pRes)
     pRes->hostRect = (SDL_Rect){460, 270, 220, 50};
     pRes->joinRect = (SDL_Rect){460, 345, 220, 50};
     pRes->backMRect = (SDL_Rect){350, 460, 570, 90};
-    
 
     // ladda musiken och hantera fel.
     pRes->pBgMusic = Mix_LoadMUS("resources/music/intro_Opening.mp3");
