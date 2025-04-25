@@ -51,7 +51,7 @@ bool initCar(SDL_Renderer *pRenderer, Car *pCar, const char *pImagepath, int x, 
 }
 
 // Funktion:  Uppdaterar bilens rörelse, vinkel och position beroende på input
-void updateCar(Car *pCar, const Uint8 *keys)
+void updateCar(Car *pCar, const Uint8 *keys, SDL_Scancode up, SDL_Scancode down, SDL_Scancode left, SDL_Scancode right)
 {
     // Konstanter för rörelse
     const float accel = 0.2f;     // Acceleration framåt/bakåt
@@ -60,7 +60,7 @@ void updateCar(Car *pCar, const Uint8 *keys)
     const float friction = 0.05f; // Friktion vid avstannande
 
     // Gasa (framåt)
-    if (keys[SDL_SCANCODE_UP])
+    if (keys[up])
     {
         pCar->speed += accel;
         if (pCar->speed > maxSpeed)
@@ -70,7 +70,7 @@ void updateCar(Car *pCar, const Uint8 *keys)
     }
 
     // Backa
-    if (keys[SDL_SCANCODE_DOWN])
+    if (keys[down])
     {
         pCar->speed -= accel;
         if (pCar->speed < -maxSpeed / 2)
@@ -80,13 +80,13 @@ void updateCar(Car *pCar, const Uint8 *keys)
     }
 
     // Sväng vänster
-    if (keys[SDL_SCANCODE_LEFT])
+    if (keys[left])
     {
         pCar->angle -= turnSpeed;
     }
 
     // Sväng höger
-    if (keys[SDL_SCANCODE_RIGHT])
+    if (keys[right])
     {
         pCar->angle += turnSpeed;
     }
@@ -141,7 +141,7 @@ void updateCar(Car *pCar, const Uint8 *keys)
 }
 
 // Funktion: renderCar Renderar bilen på skärmen med rotation
-void renderCar(SDL_Renderer *pRenderer, Car *pCar, void *unused)
+void renderCar(SDL_Renderer *pRenderer, Car *pCar)
 {
     SDL_RenderCopyEx(
         pRenderer,
