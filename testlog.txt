@@ -5,7 +5,10 @@ SDL_mixer initialized successfully.
 SDL_net initialized successfully.
 SDL window created successfully.
 SDL renderer created successfully.
+Multiplayer-funkti
+=======
 Server started.
+ main-struktur
 ===============================
          STATUSRAPPORT         
 ===============================
