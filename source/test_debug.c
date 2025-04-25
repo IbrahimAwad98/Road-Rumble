@@ -98,7 +98,6 @@ void runAllTests(GameResources *pRes, bool *pTestPassed, bool debugMode)
     }
 
     // Resultatvisning
-
     SDL_Color green = {0, 255, 0};
     SDL_Color red = {255, 0, 0};
     SDL_Color resultColor = green;
