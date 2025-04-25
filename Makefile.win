@@ -79,5 +79,4 @@ tilemap.o: $(SRCDIR)/tilemap.c
 RM = del /Q
 
 clean:
-	rm -f *.exe *.o
-
+	$(RM) *.exe *.o
