@@ -63,8 +63,9 @@ void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int ti
 
             // Hoppa över tomma tiles (-1)
             if (tileID == -1)
+            {
                 continue;
-
+            }
             // Rendera bara om tileID är giltigt och motsvarande textur finns
             if (tileID >= 0 && tileID < NUM_TILES && pTiles[tileID])
             {
