@@ -18,10 +18,10 @@ typedef struct
 bool initCar(SDL_Renderer *pRenderer, Car *pCar, const char *pImagepath, int x, int y, int w, int h);
 
 // Uppdaterar bilens rörelse
-void updateCar(Car *pCar, const Uint8 *keys);
+void updateCar(Car *pCar, const Uint8 *keys, SDL_Scancode up, SDL_Scancode down, SDL_Scancode left, SDL_Scancode right);
 
 // Renderar bil (utan kamera)
-void renderCar(SDL_Renderer *pRenderer, Car *pCar, void *unused);
+void renderCar(SDL_Renderer *pRenderer, Car *pCar);
 
 // Frigör bilens resurser
 void destroyCar(Car *pCar);

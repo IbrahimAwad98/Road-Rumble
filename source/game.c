@@ -22,9 +22,14 @@ void gameLoop(GameResources *pRes)
     int selectedField = -1;                     // host=0, join=1
     
     SDL_Event event;
-    bool isRunning = true;  // Om spelet ska fortsätta köras
+    bool isRunning = true; // Om spelet ska fortsätta köras
+    bool isFullscreen = true;
+    bool escWasPressedOnce = false;
     GameMode mode = MENU;   // Startläge: huvudmeny
     int hoveredButton = -1; // Vilken menyknapp som musen är över
+
+    // justerar automatisk
+    SDL_RenderSetLogicalSize(pRes->pRenderer, WIDTH, HEIGHT);
 
     // Initiera bilar
     if (!initCar(pRes->pRenderer, &pRes->car1, "resources/Cars/Black_viper.png", 300, 300, 128, 64) ||
@@ -37,6 +42,9 @@ void gameLoop(GameResources *pRes)
     // Startvärden för bil 1
     pRes->car1.angle = 0.0f;
     pRes->car1.speed = 3.0f;
+    // Startvärden för bil 1
+    pRes->car2.angle = 0.0f;
+    pRes->car2.speed = 3.0f;
 
     // Huvudloop
     while (isRunning)
@@ -45,10 +53,30 @@ void gameLoop(GameResources *pRes)
         while (SDL_PollEvent(&event))
         {
             // Avsluta spel
-            if (event.type == SDL_QUIT ||
-                (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE))
+            if (event.type == SDL_QUIT)
+            {
                 isRunning = false;
+            }
+            else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
+            {
+                if (!escWasPressedOnce)
+                {
+                    // Första trycket – växla till windowed
+                    isFullscreen = false;
+                    SDL_SetWindowFullscreen(pRes->pWindow, 0);                                            // Avsluta fullscreen
+                    SDL_SetWindowSize(pRes->pWindow, WIDTH, HEIGHT);                                      // Återställ storlek
+                    SDL_SetWindowPosition(pRes->pWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED); // Centrera
+                    SDL_ShowWindow(pRes->pWindow);                                                        // Tvinga visning
+                    SDL_Delay(100);                                                                       // Vänta kort för att undvika buggar
 
+                    escWasPressedOnce = true;
+                }
+                else
+                {
+                    // Andra trycket – avsluta spelet
+                    isRunning = false;
+                }
+            }
             // Menyinteraktion med musen
             else if (event.type == SDL_MOUSEBUTTONDOWN && mode == MENU)
             {
@@ -170,19 +198,68 @@ void gameLoop(GameResources *pRes)
             SDL_RenderCopy(pRes->pRenderer, isMuted ? pRes->pMuteTexture : pRes->pUnmuteTexture, NULL, &pRes->muteRect);
         }
 
-        // Spelläget
+        // Spelläget (via nätverk)
         else if (mode == PLAYING)
         {
             SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255);
             SDL_RenderClear(pRes->pRenderer);
-
             const Uint8 *keys = SDL_GetKeyboardState(NULL);
-            updateCar(&pRes->car1, keys);
+
+            // För test: styr båda lokalt
+            /*
+            updateCar(&pRes->car1, keys, SDL_SCANCODE_UP, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT, SDL_SCANCODE_RIGHT);
+            updateCar(&pRes->car2, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
+            */
+
+            PlayerData myData, otherData;
+            IPaddress clientAddr; // används bara på server
+
+            if (isServer)
+            {
+                updateCar(&pRes->car1, keys, SDL_SCANCODE_UP, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT, SDL_SCANCODE_RIGHT);
+
+                // ta emot klientdata
+                if (server_receivePlayerData(&otherData, &clientAddr))
+                {
+                    pRes->car2.x = otherData.x;
+                    pRes->car2.y = otherData.y;
+                }
+                // skicka till klient
+                myData.x = pRes->car1.x;
+                myData.y = pRes->car1.y;
+                myData.actionCode = 1; // valfritt
+                server_sendPlayerData(&myData, &clientAddr);
+            }
+            else
+            {
+                updateCar(&pRes->car2, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
+
+                myData.playerID = 1;
+                myData.x = pRes->car2.x;
+                myData.y = pRes->car2.y;
+                myData.actionCode = 1;
+
+                client_sendPlayerData(&myData);
+
+                if (client_receiveServerData(&otherData))
+                {
+                    // uppdatera serverns bil (car1)
+                    pRes->car1.x = otherData.x;
+                    pRes->car1.y = otherData.y;
+                }
+            }
+
+            // uppdatera renderingsrektanglar
+            pRes->car1.carRect.x = (int)pRes->car1.x;
+            pRes->car1.carRect.y = (int)pRes->car1.y;
+            pRes->car2.carRect.x = (int)pRes->car2.x;
+            pRes->car2.carRect.y = (int)pRes->car2.y;
 
             renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93);
             renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap);
-            renderCar(pRes->pRenderer, &pRes->car1, NULL);
-            renderCar(pRes->pRenderer, &pRes->car2, NULL);
+            // ingen kamera
+            renderCar(pRes->pRenderer, &pRes->car1);
+            renderCar(pRes->pRenderer, &pRes->car2);
 
             // Test: rendera en tile från tileset (för debug/visning)
             SDL_Rect src = getTileSrcByID(2);

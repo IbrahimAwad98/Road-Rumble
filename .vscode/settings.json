@@ -16,6 +16,7 @@
         "string.h": "c",
         "network.h": "c",
         "client.h": "c",
-        "tilemap.h": "c"
+        "tilemap.h": "c",
+        "cstdlib": "c"
     }
 }
