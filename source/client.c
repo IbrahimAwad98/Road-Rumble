@@ -26,7 +26,7 @@ bool initClient(const char *pIpaddress, int port)
         printf("SDL_AllocPacket error: %s\n", SDLNet_GetError());
         return false;
     }
-    // allt gich bra
+    // allt gick bra
     return true;
 }
 // sätter paketes destinationsaddress;

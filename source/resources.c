@@ -135,6 +135,23 @@ bool loadResources(GameResources *pRes)
         return false;
     }
 
+    // Skapa "back to menu" knapp...
+    SDL_Surface *pBackMSurface = IMG_Load("resources/images/backtomulti.png");
+    if (!pBackMSurface)
+    {
+        printf("Failed to load mute button image: %s\n", IMG_GetError());
+        return false;
+    }
+    // omvandla textur och fel hantering...
+    pRes->pBackToMultiTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pBackMSurface);
+    SDL_FreeSurface(pBackMSurface);
+
+    if (!pRes->pBackToMultiTexture)
+    {
+        printf("Failed to create /back to menu/ button texture: %s\n", SDL_GetError());
+        return false;
+    }
+
     // bredd x höjd "Start,Multi...."
     pRes->startRect = (SDL_Rect){830, 505, 340, 60};
     pRes->multiplayerRect = (SDL_Rect){830, 585, 340, 60};
@@ -144,11 +161,10 @@ bool loadResources(GameResources *pRes)
     pRes->musicVolumeRect = (SDL_Rect){680, 240, 220, 30};
     pRes->backRect = (SDL_Rect){340, 580, 590, 90};
     pRes->SfxRect = (SDL_Rect){680, 329, 220, 30};
-    /*
     pRes->hostRect = (SDL_Rect){460, 270, 220, 50};
     pRes->joinRect = (SDL_Rect){460, 345, 220, 50};
-    pRes->backRectMultiplayer = (SDL_Rect){460, 430, 220, 50};
-    */
+    pRes->backMRect = (SDL_Rect){350, 460, 570, 90};
+    
 
     // ladda musiken och hantera fel.
     pRes->pBgMusic = Mix_LoadMUS("resources/music/intro_Opening.mp3");

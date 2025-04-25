@@ -42,6 +42,7 @@ typedef struct
     SDL_Texture *pMuteTexture;
     SDL_Texture *pUnmuteTexture;
     SDL_Texture *pBackToMenuTexture;
+    SDL_Texture *pBackToMultiTexture;
 
     // Tiletexturer
     SDL_Texture *pTiles[NUM_TILES]; // Enskilda tile-texturer (asfalt + gräs)
@@ -60,15 +61,19 @@ typedef struct
     SDL_Rect backRect;
     SDL_Rect musicVolumeRect;
     SDL_Rect SfxRect;
+    SDL_Rect backMRect;
 
     // Multiplayer (kommenterade delar kan användas senare)
     SDL_Rect hostRect;
     SDL_Rect joinRect;
-    SDL_Rect backRectMultiplayer;
 
     // Spelobjekt
     Car car1, car2;          // Två bilar
     Camera camera1, camera2; // Två kameror för splitscreen eller nätverk
+    
+    // Nätverk
+    bool isHosting;
+    bool isClient;
 
     // Multiplayerdata
     int localPlayerID; // ID för lokala spelaren (0 eller 1)
