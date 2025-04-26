@@ -19,8 +19,10 @@ void gameLoop(GameResources *pRes)
     int sfxLevel = 4;                           // Ljudeffektsvolym (0–4)
     int musicVolumes[5] = {0, 32, 64, 96, 128}; // Steg för musikvolym
     int sfxVolumes[5] = {0, 32, 64, 96, 128};   // Steg för ljudeffekter
-    char joinIpText[32] = "127.0.0.1";          // Joina IP
-    int selectedField = -1;                     // host=0, join=1
+    char joinIpText[16]="";                     // Joina IP
+    char hostText[32]="Click Here To Host";     // Host Texten
+    int  selectedField = -1;                    // host=0, join=1
+    char availableServ[16][5];                  // alla tillgängliga/startade servrar 
 
     SDL_Event event;
     bool isRunning = true;          // Om spelet ska fortsätta köras
@@ -184,8 +186,20 @@ void gameLoop(GameResources *pRes)
                 {
                     joinIpText[strlen(joinIpText) - 1] = '\0';
                 }
+                else if (event.key.keysym.sym == SDLK_RETURN)
+                {
+                    if (initClient(joinIpText, 2000))
+                    {
+                        printf("Client connected to %s!\n", joinIpText);
+                        mode = PLAYING;
+                    }
+                    else
+                    {
+                        printf("Failed to connect to server at %s\n", joinIpText);
+                    }
+                }
             }
-
+            
             //  Klick i multiplayermenyn
             if (event.type == SDL_MOUSEBUTTONDOWN && mode == MULTIPLAYER)
             {
@@ -195,9 +209,29 @@ void gameLoop(GameResources *pRes)
                 {
                     mode = MENU;
                 }
+                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->joinRect)) {
+                    selectedField = 1;
+                    SDL_StartTextInput();
+                }
+                else {
+                    selectedField = -1;
+                    SDL_StopTextInput();
+                }
+                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->hostRect)) {
+                     if (initServer(SERVER_PORT))
+                    {
+                        printf("Server initilized \n");
+                        mode = PLAYING;
+                    }
+                    else
+                    {
+                        printf("Couldnt start the Server");
+
+                    }
+
+                }
             }
         }
-
         // Rendering
         SDL_RenderClear(pRes->pRenderer);
 
@@ -327,21 +361,49 @@ void gameLoop(GameResources *pRes)
         //  Multiplayer-meny
         else if (mode == MULTIPLAYER)
         {
+            // Rita svart box och back knapp
             SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerMenuTex, NULL, NULL);
             SDL_RenderCopy(pRes->pRenderer, pRes->pBackToMultiTexture, NULL, &pRes->backMRect);
-            SDL_StartTextInput();
-
+        
+            // rita input felt (blå)
+            SDL_SetRenderDrawColor(pRes->pRenderer, 10, 25, 45, 255); // Blue-ish
+            SDL_RenderFillRect(pRes->pRenderer, &pRes->joinRect);
+        
+            
+            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180); // Transparent black border
+            SDL_RenderDrawRect(pRes->pRenderer, &pRes->joinRect);
+        
+            // Render texten
             SDL_Color white = {255, 255, 255};
-            SDL_Surface *ipSurf = TTF_RenderText_Solid(pRes->pFont, joinIpText, white);
+            const char *displayIp = strlen(joinIpText) == 0 ? " " : joinIpText; 
+        
+            SDL_Surface *ipSurf = TTF_RenderText_Solid(pRes->pFont, displayIp, white); 
             SDL_Texture *ipTex = SDL_CreateTextureFromSurface(pRes->pRenderer, ipSurf);
 
-            SDL_Rect ipRect = {550, 375, ipSurf->w, ipSurf->h};
+            SDL_Rect ipRect = {490, 390, ipSurf->w, ipSurf->h};
             SDL_RenderCopy(pRes->pRenderer, ipTex, NULL, &ipRect);
 
             SDL_FreeSurface(ipSurf);
             SDL_DestroyTexture(ipTex);
-        }
 
+
+            // rita input host felt (blå)
+            SDL_SetRenderDrawColor(pRes->pRenderer, 10, 25, 45, 255); // Blue-ish
+            SDL_RenderFillRect(pRes->pRenderer, &pRes->hostRect);
+        
+            
+            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180); // Transparent black border
+            SDL_RenderDrawRect(pRes->pRenderer, &pRes->hostRect);
+
+            SDL_Surface *hostSurf = TTF_RenderText_Solid(pRes->pFont, hostText, white); 
+            SDL_Texture *hostTex = SDL_CreateTextureFromSurface(pRes->pRenderer, hostSurf);
+
+            SDL_Rect hostTextRect = {460, 290, hostSurf->w, hostSurf->h};
+            SDL_RenderCopy(pRes->pRenderer, hostTex, NULL, &hostTextRect);
+
+            SDL_FreeSurface(hostSurf);
+            SDL_DestroyTexture(hostTex);
+        }
         // Presentera det som ritats
         SDL_RenderPresent(pRes->pRenderer);
     }
