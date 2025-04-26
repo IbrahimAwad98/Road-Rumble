@@ -5,7 +5,6 @@ SDL_mixer initialized successfully.
 SDL_net initialized successfully.
 SDL window created successfully.
 SDL renderer created successfully.
-Server started.
 ===============================
          STATUSRAPPORT         
 ===============================
@@ -21,6 +20,7 @@ Tests are done
 ===============================
 TEST RESULTAT: PASSED.
 Everything went fine! Test completed without errors.
+Server initilized 
 libpng warning: iCCP: known incorrect sRGB profile
 libpng warning: iCCP: known incorrect sRGB profile
 libpng warning: iCCP: known incorrect sRGB profile
