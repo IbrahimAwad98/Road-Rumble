@@ -221,6 +221,7 @@ void gameLoop(GameResources *pRes)
                      if (initServer(SERVER_PORT))
                     {
                         printf("Server initilized \n");
+                        isServer = true;
                         mode = PLAYING;
                     }
                     else
