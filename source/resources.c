@@ -161,8 +161,8 @@ bool loadResources(GameResources *pRes)
     pRes->musicVolumeRect = (SDL_Rect){680, 240, 220, 30};
     pRes->backRect = (SDL_Rect){340, 580, 590, 90};
     pRes->SfxRect = (SDL_Rect){680, 329, 220, 30};
-    pRes->hostRect = (SDL_Rect){460, 270, 220, 50};
-    pRes->joinRect = (SDL_Rect){460, 345, 220, 50};
+    pRes->hostRect = (SDL_Rect){450, 270, 640, 80};
+    pRes->joinRect = (SDL_Rect){450, 367, 625, 80};
     pRes->backMRect = (SDL_Rect){350, 460, 570, 90};
 
     // ladda musiken och hantera fel.
