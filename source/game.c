@@ -20,7 +20,7 @@ void gameLoop(GameResources *pRes)
     int musicVolumes[5] = {0, 32, 64, 96, 128}; // Steg för musikvolym
     int sfxVolumes[5] = {0, 32, 64, 96, 128};   // Steg för ljudeffekter
     char joinIpText[16] = "";                   // Joina IP
-    char hostText[32] = "Click Here To Host";   // Host Texten
+    char hostText[32] = " 213.112.243.158";     // Host Texten
     int selectedField = -1;                     // host=0, join=1
     char availableServ[16][5];                  // alla tillgängliga/startade servrar
 
@@ -273,7 +273,9 @@ void gameLoop(GameResources *pRes)
             updateCar(&pRes->car2, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
             */
 
-            PlayerData myData, otherData;
+            // Multiplayerdata
+            PlayerData myData = {0};
+            PlayerData opponentData = {0};
             IPaddress clientAddr; // används bara på server
 
             if (isServer)
@@ -281,33 +283,38 @@ void gameLoop(GameResources *pRes)
                 updateCar(&pRes->car1, keys, SDL_SCANCODE_UP, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT, SDL_SCANCODE_RIGHT);
 
                 // ta emot klientdata
-                if (server_receivePlayerData(&otherData, &clientAddr))
+                if (server_receivePlayerData(&opponentData, &clientAddr))
                 {
-                    pRes->car2.x = otherData.x;
-                    pRes->car2.y = otherData.y;
+                    pRes->car2.x = opponentData.x;
+                    pRes->car2.y = opponentData.y;
+                    pRes->car2.angle = opponentData.angle;
                 }
                 // skicka till klient
                 myData.x = pRes->car1.x;
                 myData.y = pRes->car1.y;
-                myData.actionCode = 1; // valfritt
+                myData.angle = pRes->car1.angle;
+                // speed måstehanteras
+                // myData.actionCode = 1; // valfritt
                 server_sendPlayerData(&myData, &clientAddr);
             }
             else
             {
                 updateCar(&pRes->car2, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
 
-                myData.playerID = 1;
+                // myData.playerID = 1;
                 myData.x = pRes->car2.x;
                 myData.y = pRes->car2.y;
-                myData.actionCode = 1;
+                myData.angle = pRes->car2.angle;
+                // myData.actionCode = 1;
 
                 client_sendPlayerData(&myData);
 
-                if (client_receiveServerData(&otherData))
+                if (client_receiveServerData(&opponentData))
                 {
                     // uppdatera serverns bil (car1)
-                    pRes->car1.x = otherData.x;
-                    pRes->car1.y = otherData.y;
+                    pRes->car1.x = opponentData.x;
+                    pRes->car1.y = opponentData.y;
+                    pRes->car1.angle = opponentData.angle;
                 }
             }
 
@@ -319,7 +326,7 @@ void gameLoop(GameResources *pRes)
 
             renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93);
             renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap);
-            // ingen kamera
+            // ingen kamera utan bara bilar
             renderCar(pRes->pRenderer, &pRes->car1);
             renderCar(pRes->pRenderer, &pRes->car2);
 
@@ -405,5 +412,6 @@ void gameLoop(GameResources *pRes)
         }
         // Presentera det som ritats
         SDL_RenderPresent(pRes->pRenderer);
+        SDL_Delay(16); // cirka 60 FPS
     }
 }
