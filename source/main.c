@@ -22,9 +22,10 @@
 #define IPLENGTH 64
 
 // globala variabler (gäller nätverk).
-bool isServer = false;                 // false = klient och true = server.
-char serverIP[IPLENGTH] = "127.0.0.1"; // Standart-Ip för lockalhost (samma dator)
-// publik ip-address online 213.112.243.158 för test
+bool isServer = false;        // false = klient och true = server.
+char serverIP[IPLENGTH] = ""; // Standart-Ip för lockalhost (samma dator)
+// annars 127.0.0.1 lokalt
+//  publik ip-address online 213.112.243.158 för test
 
 int main(int argc, char **argv)
 {

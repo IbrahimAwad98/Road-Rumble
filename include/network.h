@@ -12,6 +12,7 @@ typedef struct
 {
     int playerID;   // ID
     float x, y;     // position
+    float angle;    // vridning
     int actionCode; // kommando ex: 0 = idle, 1 = move...
 } PlayerData;
 
