@@ -19,8 +19,12 @@
 #include "server.h"
 #include "network.h"
 #include "client.h"
+#define IPLENGTH 64
 
-bool isServer = false; // false = klient och true = server.
+// globala variabler (gäller nätverk).
+bool isServer = false;                 // false = klient och true = server.
+char serverIP[IPLENGTH] = "127.0.0.1"; // Standart-Ip för lockalhost (samma dator)
+// publik ip-address online 213.112.243.158 för test
 
 int main(int argc, char **argv)
 {
@@ -42,13 +46,19 @@ int main(int argc, char **argv)
         {
             testMode = true;
         }
-        if (strcasecmp(argv[i], "--debug") == 0)
+        else if (strcasecmp(argv[i], "--debug") == 0)
         {
             debugMode = true;
         }
-        if (strcasecmp(argv[i], "--server") == 0)
+        else if (strcasecmp(argv[i], "--server") == 0)
         {
             isServer = true;
+        }
+        else if (strcasecmp(argv[i], "--ip") == 0 && (i + 1) < argc)
+        {
+            strncpy(serverIP, argv[i + 1], sizeof(serverIP) - 1);
+            serverIP[sizeof(serverIP) - 1] = '\0';
+            i++; // hoppa över nästa argument (IP-adressen)
         }
     }
 
@@ -68,7 +78,7 @@ int main(int argc, char **argv)
         else
         {
             printf("Server started.\n");
-            if (!initClient("127.0.0.1", SERVER_PORT))
+            if (!initClient(serverIP, SERVER_PORT))
             {
                 printf("Server could not connect to self.\n");
                 return true;
