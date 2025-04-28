@@ -14,7 +14,7 @@ bool initClient(const char *pIpaddress, int port)
         printf("Resolve error: %s\n", SDLNet_GetError());
         return false;
     }
-    
+
     sock = SDLNet_UDP_Open(0); // valfri port
     if (!sock)
     {
