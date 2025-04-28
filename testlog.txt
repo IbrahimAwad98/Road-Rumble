@@ -21,39 +21,9 @@ Tests are done
 ===============================
 TEST RESULTAT: PASSED.
 Everything went fine! Test completed without errors.
-SDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
-Couldnt start the Serverlibpng warning: iCCP: known incorrect sRGB profile
+libpng warning: iCCP: known incorrect sRGB profile
+libpng warning: iCCP: known incorrect sRGB profile
+libpng warning: iCCP: known incorrect sRGB profile
 libpng warning: iCCP: known incorrect sRGB profile
 libpng warning: iCCP: known incorrect sRGB profile
 libpng warning: iCCP: known incorrect sRGB profile
