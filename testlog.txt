@@ -5,6 +5,7 @@ SDL_mixer initialized successfully.
 SDL_net initialized successfully.
 SDL window created successfully.
 SDL renderer created successfully.
+Server started.
 ===============================
          STATUSRAPPORT         
 ===============================
@@ -20,8 +21,39 @@ Tests are done
 ===============================
 TEST RESULTAT: PASSED.
 Everything went fine! Test completed without errors.
-Server initilized 
-libpng warning: iCCP: known incorrect sRGB profile
+SDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the ServerSDLNet_UDP_Open error: Couldn't bind to local port
+Couldnt start the Serverlibpng warning: iCCP: known incorrect sRGB profile
 libpng warning: iCCP: known incorrect sRGB profile
 libpng warning: iCCP: known incorrect sRGB profile
 libpng warning: iCCP: known incorrect sRGB profile
