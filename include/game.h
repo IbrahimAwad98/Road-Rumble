@@ -70,7 +70,7 @@ typedef struct
     // Spelobjekt
     Car car1, car2;          // Två bilar
     Camera camera1, camera2; // Två kameror för splitscreen eller nätverk
-    
+
     // Nätverk
     bool isHosting;
     bool isClient;
