@@ -253,11 +253,10 @@ void gameLoop(GameResources *pRes, int localPlayerID)
         // Spelläget (via nätverk)
         else if (mode == PLAYING)
         {
-            // resna skärmen
-            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255);
+            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255); // resna skärmen
             SDL_RenderClear(pRes->pRenderer);
-            // läs tangent
-            const Uint8 *keys = SDL_GetKeyboardState(NULL);
+            const Uint8 *keys = SDL_GetKeyboardState(NULL); // läs tangent
+
             if (localPlayerID == 0)
             {
                 updateCar(&pRes->car1, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
