@@ -58,6 +58,7 @@ int main(int argc, char **argv)
         }
         else if (strcasecmp(argv[i], "--id") == 0 && (i + 1) < argc)
         {
+            // test via id
             playerID = atoi(argv[i + 1]);
             if (playerID < 0 || playerID > 1)
             {
