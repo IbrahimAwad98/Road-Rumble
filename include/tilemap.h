@@ -19,5 +19,7 @@ extern int tilemap[MAP_HEIGHT][MAP_WIDTH];
 SDL_Rect getTileSrcByID(int tileID);
 void renderGrassBackground(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int grassTileID);
 void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int tilemap[MAP_HEIGHT][MAP_WIDTH]);
+bool isTileAllowed(float x, float y);
+
 
 #endif
