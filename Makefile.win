@@ -11,14 +11,16 @@ MYINCLUDES = -Iinclude
 # Flaggar
 # ============================
 CFLAGS = -I$(INCLUDEDIR) $(MYINCLUDES) -c
-LDFLAGS = -L$(LIBDIR) -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_net -lSDL2_mixer -mwindows
+LDFLAGS_CLIENT = -L$(LIBDIR) -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_net -lSDL2_mixer -mwindows
+LDFLAGS_SERVER = -L$(LIBDIR) -lmingw32 -lSDL2main -lSDL2 -lSDL2_net -mconsole
 
 # ============================
 # Mål & objektfiler
 # ============================
-TARGET = Game
+TARGET_CLIENT = Game
+TARGET_SERVER = server
 
-OBJS = \
+OBJS_CLIENT = \
     main.o \
     sdl_init.o \
     game.o \
@@ -31,11 +33,20 @@ OBJS = \
     server.o \
     tilemap.o     
 
+OBJS_SERVER = \
+    server_main.o \
+    server.o
+
 # ============================
 # Byggprogram
 # ============================
-$(TARGET): $(OBJS)
-	$(CC) $(OBJS) -o $(TARGET).exe $(LDFLAGS)
+all: $(TARGET_CLIENT) $(TARGET_SERVER)
+
+$(TARGET_CLIENT): $(OBJS_CLIENT)
+	$(CC) $(OBJS_CLIENT) -o $(TARGET_CLIENT).exe $(LDFLAGS_CLIENT)
+
+$(TARGET_SERVER): $(OBJS_SERVER)
+	$(CC) $(OBJS_SERVER) -o $(TARGET_SERVER).exe $(LDFLAGS_SERVER)
 
 # ============================
 # Objektfiler
@@ -72,6 +83,9 @@ server.o: $(SRCDIR)/server.c
 
 tilemap.o: $(SRCDIR)/tilemap.c    
 	$(CC) $(CFLAGS) $(SRCDIR)/tilemap.c
+
+server_main.o: $(SRCDIR)/server_main.c
+	$(CC) $(CFLAGS) $(SRCDIR)/server_main.c
 
 # ============================
 # Rensa objekt och binär

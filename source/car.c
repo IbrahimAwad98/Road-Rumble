@@ -1,6 +1,7 @@
 #include <SDL2/SDL_image.h>
 #include <math.h>
 #include "car.h"
+#include "tilemap.h"
 
 // Om konstanten M_PI inte redan är definierad, definiera den manuellt
 #ifndef M_PI
@@ -117,6 +118,22 @@ void updateCar(Car *pCar, const Uint8 *pKeys, SDL_Scancode up, SDL_Scancode down
     // Uppdatera renderingsrektangeln
     pCar->carRect.x = (int)pCar->x;
     pCar->carRect.y = (int)pCar->y;
+
+    float nextX = pCar->x + pCar->speed * cos(radians);
+    float nextY = pCar->y + pCar->speed * sin(radians);
+
+    float checkX = nextX + pCar->carRect.w / 2;
+    float checkY = nextY + pCar->carRect.h / 2;
+
+    if (isTileAllowed(checkX, checkY))
+    {
+        pCar->x = nextX;
+        pCar->y = nextY;
+    }
+    else
+    {
+        pCar->speed = 0;
+    }
 
     // Håll bilen inom skärmens gränser
     int screenWidth = 1280;

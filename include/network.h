@@ -3,9 +3,8 @@
 
 #include <SDL2/SDL_net.h>
 
-#define SERVER_PORT 3000 // dynamisk port (vi måste testa)
+#define SERVER_PORT 2000 // dynamisk port (vi måste testa)
 #define MAX_CLIENTS 4
-#define MAX_SERVERS 5
 
 // strukten skickar data till server.
 typedef struct
