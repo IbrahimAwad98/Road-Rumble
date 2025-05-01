@@ -81,9 +81,6 @@ typedef struct
 } GameResources;
 
 // Funktionsdeklaration
-void gameLoop(GameResources *pRes);
-
-// Gör variabel tillgänglig i andra moduler
-extern bool isServer;
+void gameLoop(GameResources *pRes, int localPlayerID);
 
 #endif // GAME_H

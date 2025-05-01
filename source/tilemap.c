@@ -79,3 +79,14 @@ void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int ti
         }
     }
 }
+// kollisionkontroll
+bool isTileAllowed(float x, float y)
+{
+    int col = (int)(x / TILE_SIZE);
+    int row = (int)(y / TILE_SIZE);
+
+    if (row < 0 || row >= MAP_HEIGHT || col < 0 || col >= MAP_WIDTH)
+        return false;
+
+    return tilemap[row][col] != -1;
+}

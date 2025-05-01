@@ -11,7 +11,7 @@
 #include "network.h"
 
 // Spelets huvudloop: hanterar input, rendering och växling mellan spellägen
-void gameLoop(GameResources *pRes)
+void gameLoop(GameResources *pRes, int localPlayerID)
 {
     // Ljudinställningar och tillstånd
     int isMuted = 0;                            // Flagga för ljud av/på
@@ -221,16 +221,7 @@ void gameLoop(GameResources *pRes)
                 }
                 if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->hostRect))
                 {
-                    if (initServer(SERVER_PORT))
-                    {
-                        printf("Server initilized \n");
-                        isServer = true;
-                        mode = PLAYING;
-                    }
-                    else
-                    {
-                        printf("Couldnt start the Server");
-                    }
+                    printf("Please start the server.exe manually.\n");
                 }
             }
         }
@@ -253,7 +244,6 @@ void gameLoop(GameResources *pRes)
 
             // Rendera knappar
             SDL_RenderCopy(pRes->pRenderer, pRes->pStartTexture, NULL, &pRes->startRect);
-
             SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerTexture, NULL, &pRes->multiplayerRect);
             SDL_RenderCopy(pRes->pRenderer, pRes->pOptionsTexture, NULL, &pRes->optionsRect);
             SDL_RenderCopy(pRes->pRenderer, pRes->pExitTexture, NULL, &pRes->exitRect);
@@ -263,61 +253,63 @@ void gameLoop(GameResources *pRes)
         // Spelläget (via nätverk)
         else if (mode == PLAYING)
         {
+            // resna skärmen
             SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255);
             SDL_RenderClear(pRes->pRenderer);
+            // läs tangent
             const Uint8 *keys = SDL_GetKeyboardState(NULL);
-
-            // För test: styr båda lokalt
-            /*
-            updateCar(&pRes->car1, keys, SDL_SCANCODE_UP, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT, SDL_SCANCODE_RIGHT);
-            updateCar(&pRes->car2, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
-            */
+            if (localPlayerID == 0)
+            {
+                updateCar(&pRes->car1, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
+            }
+            else // localPlayerID == 1
+            {
+                updateCar(&pRes->car2, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
+            }
 
             // Multiplayerdata
             PlayerData myData = {0};
-            PlayerData opponentData = {0};
-            IPaddress clientAddr; // används bara på server
-
-            if (isServer)
+            myData.playerID = localPlayerID;
+            if (localPlayerID == 0)
             {
-                updateCar(&pRes->car1, keys, SDL_SCANCODE_UP, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT, SDL_SCANCODE_RIGHT);
-
-                // ta emot klientdata
-                if (server_receivePlayerData(&opponentData, &clientAddr))
-                {
-                    pRes->car2.x = opponentData.x;
-                    pRes->car2.y = opponentData.y;
-                    pRes->car2.angle = opponentData.angle;
-                }
-                // skicka till klient
                 myData.x = pRes->car1.x;
                 myData.y = pRes->car1.y;
                 myData.angle = pRes->car1.angle;
-                // speed måstehanteras
-                // myData.actionCode = 1; // valfritt
-                server_sendPlayerData(&myData, &clientAddr);
             }
             else
             {
-                updateCar(&pRes->car2, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
-
-                // myData.playerID = 1;
                 myData.x = pRes->car2.x;
                 myData.y = pRes->car2.y;
                 myData.angle = pRes->car2.angle;
-                // myData.actionCode = 1;
+            }
+            client_sendPlayerData(&myData);
 
-                client_sendPlayerData(&myData);
+            // Det här en buffer för att inte tappa paketet
+            static PlayerData lastOpponent = {0}; // Behåll senaste datan
 
-                if (client_receiveServerData(&opponentData))
+            // Ta emot motståndarens bil
+            PlayerData opponentData = {0};
+            if (client_receiveServerData(&opponentData))
+            {
+
+                if (opponentData.playerID != localPlayerID)
                 {
-                    // uppdatera serverns bil (car1)
-                    pRes->car1.x = opponentData.x;
-                    pRes->car1.y = opponentData.y;
-                    pRes->car1.angle = opponentData.angle;
+                    lastOpponent = opponentData;
+                }
+
+                if (localPlayerID == 0)
+                {
+                    pRes->car2.x = lastOpponent.x;
+                    pRes->car2.y = lastOpponent.y;
+                    pRes->car2.angle = lastOpponent.angle;
+                }
+                else
+                {
+                    pRes->car1.x = lastOpponent.x;
+                    pRes->car1.y = lastOpponent.y;
+                    pRes->car1.angle = lastOpponent.angle;
                 }
             }
-
             // uppdatera renderingsrektanglar
             pRes->car1.carRect.x = (int)pRes->car1.x;
             pRes->car1.carRect.y = (int)pRes->car1.y;
@@ -326,14 +318,9 @@ void gameLoop(GameResources *pRes)
 
             renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93);
             renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap);
-            // ingen kamera utan bara bilar
+
             renderCar(pRes->pRenderer, &pRes->car1);
             renderCar(pRes->pRenderer, &pRes->car2);
-
-            // Test: rendera en tile från tileset (för debug/visning)
-            SDL_Rect src = getTileSrcByID(2);
-            SDL_Rect dest = {400, 300, TILE_SIZE, TILE_SIZE};
-            SDL_RenderCopy(pRes->pRenderer, pRes->ptilesetTexture, &src, &dest);
         }
 
         //  Inställningsmeny
