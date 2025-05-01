@@ -77,17 +77,19 @@ int main(int argc, char **argv)
                 }
             }
 
-            // 💾 Spara mottagen data och bestäm ID
+            // Spara mottagen data och bestäm ID
             if (clientIndex != -1)
             {
                 players[clientIndex].data = receivedData;
                 players[clientIndex].data.playerID = clientIndex; // servern bestämmer ID
+                players[clientIndex].address = clientAddr;
 
-                // 👥 Hitta motståndaren (andra spelaren)
+                // Hitta motståndaren (andra spelaren)
                 int opponentIndex = (clientIndex == 0) ? 1 : 0;
 
                 if (players[opponentIndex].active)
                 {
+
                     // Skicka motståndarens data till klienten
                     server_sendPlayerData(&players[opponentIndex].data, &clientAddr);
                 }
