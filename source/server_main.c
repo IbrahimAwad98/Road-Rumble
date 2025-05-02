@@ -106,7 +106,7 @@ int main(int argc, char **argv)
         SDL_Delay(1);
     }
 
-    // (Nås aldrig, men korrekt avslutningsrutin om while-loopen bryts)
+    // om while loopen bryts då detta gäller.
     closeServer();
     SDLNet_Quit();
     return false;
