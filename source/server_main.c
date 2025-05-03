@@ -76,6 +76,16 @@ int main(int argc, char **argv)
                         break;
                     }
                 }
+                // kontollera om server är upptagen
+                if (clientIndex == -1)
+                {
+                    printf("Server full. Rejecting client %u:%u\n", clientAddress.host, clientAddress.port);
+
+                    PlayerData rejectData = {0};
+                    rejectData.playerID = -1;
+                    server_sendPlayerData(&rejectData, &clientAddress);
+                    continue; // hoppa resten
+                }
             }
 
             // Spara mottagen data och bestäm ID
