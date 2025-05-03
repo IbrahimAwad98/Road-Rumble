@@ -344,13 +344,8 @@ void gameLoop(GameResources *pRes, int localPlayerID)
                 if (opponentData.playerID != localPlayerID)
                 {
                     lastOpponent = opponentData;
-                    opponentConnected = true;
-                    printf("RECV: ID=%d  x=%.1f  y=%.1f  angle=%.1f  timestamp=%u\n",
-                           opponentData.playerID,
-                           opponentData.x,
-                           opponentData.y,
-                           opponentData.angle,
-                           opponentData.timestamp);
+                    opponentConnected = true;                 
+                    
                 }
 
                 if (localPlayerID == 0)
