@@ -41,7 +41,7 @@ int main(int argc, char **argv)
     // Kolla igenom argumenten som skickades till programmet
     for (int i = 1; i < argc; i++)
     {
-        // Tillåt både stora och små bokstäver, ex: --Test, --DEBUG
+        // flera argumenter för terminal-testing
         if (strcasecmp(argv[i], "--test") == 0)
         {
             testMode = true;
