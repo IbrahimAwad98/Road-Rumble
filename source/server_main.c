@@ -6,7 +6,7 @@
 #include "server.h"
 #include "network.h"
 
-#define NROFPLAYERS 2   // Max två spelare för denna version
+#define NROFPLAYERS 4   // Minst 4 spelare för denna version
 #define TIMEOUT_MS 5000 // 5 sekunder
 // Struktur för att hålla varje ansluten spelares data
 typedef struct
@@ -96,20 +96,13 @@ int main(int argc, char **argv)
                 players[clientIndex].data.playerID = clientIndex; // servern bestämmer ID
                 players[clientIndex].address = clientAddress;
 
-                // Hitta motståndaren (andra spelaren)
-                int opponentIndex = (clientIndex == 0) ? 1 : 0;
-
-                if (players[opponentIndex].active)
+                // säkrar att bara 4 spelare
+                for (int i = 0; i < NROFPLAYERS; i++)
                 {
-
-                    // Skicka motståndarens data till klienten
-                    server_sendPlayerData(&players[opponentIndex].data, &clientAddress);
-                }
-                else
-                {
-                    // Motståndare inte ansluten – skicka tom data
-                    PlayerData empty = {0};
-                    server_sendPlayerData(&empty, &clientAddress);
+                    if (i != clientIndex && players[i].active)
+                    {
+                        server_sendPlayerData(&players[i].data, &clientAddress);
+                    }
                 }
             }
         }
