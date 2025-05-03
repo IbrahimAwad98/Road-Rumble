@@ -11,9 +11,10 @@
 // Struktur för att hålla varje ansluten spelares data
 typedef struct
 {
-    IPaddress address; // Klientens IP och port
-    PlayerData data;   // Senaste mottagna PlayerData
-    bool active;       // Om spelaren är ansluten
+    IPaddress address;     // Klientens IP och port
+    PlayerData data;       // Senaste mottagna PlayerData
+    bool active;           // Om spelaren är ansluten
+    Uint32 lastActiveTime; // senaste data togs emot
 } Player;
 
 int main(int argc, char **argv)
@@ -37,15 +38,15 @@ int main(int argc, char **argv)
 
     // Initiera spelarlista (max 2 spelare)
     Player players[NROFPLAYERS] = {0};
+    PlayerData playerData;
+    IPaddress clientAddress;
 
     // Huvudloop: tar emot data och skickar svar
     while (true)
     {
-        PlayerData receivedData;
-        IPaddress clientAddr;
 
         // Vänta på data från en klient
-        if (server_receivePlayerData(&receivedData, &clientAddr))
+        if (server_receivePlayerData(&playerData, &clientAddress))
         {
             int clientIndex = -1;
 
@@ -53,8 +54,8 @@ int main(int argc, char **argv)
             for (int i = 0; i < NROFPLAYERS; i++)
             {
                 if (players[i].active &&
-                    players[i].address.host == clientAddr.host &&
-                    players[i].address.port == clientAddr.port)
+                    players[i].address.host == clientAddress.host &&
+                    players[i].address.port == clientAddress.port)
                 {
                     clientIndex = i;
                     break;
@@ -68,7 +69,7 @@ int main(int argc, char **argv)
                 {
                     if (!players[i].active)
                     {
-                        players[i].address = clientAddr;
+                        players[i].address = clientAddress;
                         players[i].active = true;
                         clientIndex = i;
                         printf("New player connected: slot %d\n", i);
@@ -80,9 +81,10 @@ int main(int argc, char **argv)
             // Spara mottagen data och bestäm ID
             if (clientIndex != -1)
             {
-                players[clientIndex].data = receivedData;
+                players[clientIndex].data = playerData;
+                players[clientIndex].lastActiveTime = SDL_Geticks();
                 players[clientIndex].data.playerID = clientIndex; // servern bestämmer ID
-                players[clientIndex].address = clientAddr;
+                players[clientIndex].address = clientAddress;
 
                 // Hitta motståndaren (andra spelaren)
                 int opponentIndex = (clientIndex == 0) ? 1 : 0;
@@ -91,13 +93,13 @@ int main(int argc, char **argv)
                 {
 
                     // Skicka motståndarens data till klienten
-                    server_sendPlayerData(&players[opponentIndex].data, &clientAddr);
+                    server_sendPlayerData(&players[opponentIndex].data, &clientAddress);
                 }
                 else
                 {
                     // Motståndare inte ansluten – skicka tom data
                     PlayerData empty = {0};
-                    server_sendPlayerData(&empty, &clientAddr);
+                    server_sendPlayerData(&empty, &clientAddress);
                 }
             }
         }
