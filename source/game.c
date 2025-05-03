@@ -20,23 +20,18 @@ void gameLoop(GameResources *pRes, int localPlayerID)
     int musicVolumes[5] = {0, 32, 64, 96, 128}; // Steg för musikvolym
     int sfxVolumes[5] = {0, 32, 64, 96, 128};   // Steg för ljudeffekter
     char joinIpText[16] = "";                   // Joina IP
-
-    char playerIdText[4] ="";
-    int selectedField = -1;                     // host=0, join=1, player = 2
-    char portText[8] = "55000";
-
-    char hostText[32] = " 127.0.0.1";           // Host Texten (lokalt)
-    int selectedField = -1;                     // host=0, join=1
-    char availableServ[16][5];                  // alla tillgängliga/startade servrar
-    char portText[8] = "55000";                 // för att visa i multiplayer meny
-
-
+    char playerIdText[4] = "";
+    char hostText[32] = " 127.0.0.1"; // Host Texten (lokalt)
+    int selectedField = -1;           // host=0, join=1
+    char availableServ[16][5];        // alla tillgängliga/startade servrar
+    char portText[8] = "55000";       // för att visa i multiplayer meny
     SDL_Event event;
     bool isRunning = true;          // Om spelet ska fortsätta köras
     bool isFullscreen = true;       // flagga
     bool escWasPressedOnce = false; // flagga
     GameMode mode = MENU;           // Startläge: huvudmeny
     int hoveredButton = -1;         // Vilken menyknapp som musen är över
+    Uint32 ping = 0;                // ping-mätning
 
     // justerar automatisk
     SDL_RenderSetLogicalSize(pRes->pRenderer, WIDTH, HEIGHT);
@@ -178,7 +173,7 @@ void gameLoop(GameResources *pRes, int localPlayerID)
                     mode = MENU;
                 }
             }
-            
+
             // trycka på join felt eller player felt
             if (event.type == SDL_TEXTINPUT && mode == MULTIPLAYER)
             {
@@ -191,7 +186,6 @@ void gameLoop(GameResources *pRes, int localPlayerID)
                     strcat(playerIdText, event.text.text);
                 }
             }
-
 
             // trycker på enter när man är klar med ip add....
             if (event.type == SDL_KEYDOWN && mode == MULTIPLAYER && selectedField == 1)
@@ -215,14 +209,14 @@ void gameLoop(GameResources *pRes, int localPlayerID)
             }
 
             // klick på Player felt...
-            
+
             if (event.type == SDL_KEYDOWN && mode == MULTIPLAYER && selectedField == 2)
             {
                 if (event.key.keysym.sym == SDLK_BACKSPACE && strlen(playerIdText) > 0)
                 {
                     playerIdText[strlen(playerIdText) - 1] = '\0';
                 }
-            }    
+            }
 
             //  Klick i multiplayermenyn
             if (event.type == SDL_MOUSEBUTTONDOWN && mode == MULTIPLAYER)
@@ -273,7 +267,6 @@ void gameLoop(GameResources *pRes, int localPlayerID)
                     SDL_StopTextInput();
                 }
             }
-
         }
         // Rendering
         SDL_RenderClear(pRes->pRenderer);
@@ -338,12 +331,26 @@ void gameLoop(GameResources *pRes, int localPlayerID)
 
             // Ta emot motståndarens bil
             PlayerData opponentData = {0};
+            bool opponentConnected = false;
             if (client_receiveServerData(&opponentData))
             {
+                // beräkning av ping
+                Uint32 now = SDL_GetTicks();
+                if (opponentData.timestamp > 0)
+                {
+                    ping = now - opponentData.timestamp;
+                }
 
                 if (opponentData.playerID != localPlayerID)
                 {
                     lastOpponent = opponentData;
+                    opponentConnected = true;
+                    printf("RECV: ID=%d  x=%.1f  y=%.1f  angle=%.1f  timestamp=%u\n",
+                           opponentData.playerID,
+                           opponentData.x,
+                           opponentData.y,
+                           opponentData.angle,
+                           opponentData.timestamp);
                 }
 
                 if (localPlayerID == 0)
@@ -370,6 +377,17 @@ void gameLoop(GameResources *pRes, int localPlayerID)
 
             renderCar(pRes->pRenderer, &pRes->car1);
             renderCar(pRes->pRenderer, &pRes->car2);
+
+            // Rita ping
+            char pingText[64];
+            sprintf(pingText, "Ping: %d ms", ping);
+            SDL_Color white = {255, 255, 255};
+            SDL_Surface *pingSurface = TTF_RenderText_Solid(pRes->pFont, pingText, white);
+            SDL_Texture *pingTex = SDL_CreateTextureFromSurface(pRes->pRenderer, pingSurface);
+            SDL_Rect pingRect = {20, 20, pingSurface->w, pingSurface->h};
+            SDL_RenderCopy(pRes->pRenderer, pingTex, NULL, &pingRect);
+            SDL_FreeSurface(pingSurface);
+            SDL_DestroyTexture(pingTex);
         }
 
         //  Inställningsmeny
@@ -415,7 +433,6 @@ void gameLoop(GameResources *pRes, int localPlayerID)
             SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180); // Transparent black border
             SDL_RenderDrawRect(pRes->pRenderer, &pRes->enterRect);
 
-
             // rita input felt (blå)
             SDL_SetRenderDrawColor(pRes->pRenderer, 10, 25, 45, 255); // Blue-ish
             SDL_RenderFillRect(pRes->pRenderer, &pRes->joinRect);
@@ -452,14 +469,14 @@ void gameLoop(GameResources *pRes, int localPlayerID)
             SDL_FreeSurface(hostSurf);
             SDL_DestroyTexture(hostTex);
 
-            //rita Player Id box
+            // rita Player Id box
             SDL_SetRenderDrawColor(pRes->pRenderer, 10, 25, 45, 255); // Blue-ish
             SDL_RenderFillRect(pRes->pRenderer, &pRes->playerIdRect);
 
             SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180); // Transparent black border
             SDL_RenderDrawRect(pRes->pRenderer, &pRes->playerIdRect);
 
-            //rendera player Id texten
+            // rendera player Id texten
             const char *displayId = strlen(playerIdText) == 0 ? " " : playerIdText;
 
             SDL_Surface *idSurf = TTF_RenderText_Solid(pRes->pFont, displayId, white);
@@ -471,6 +488,7 @@ void gameLoop(GameResources *pRes, int localPlayerID)
             SDL_FreeSurface(idSurf);
             SDL_DestroyTexture(idTex);
         }
+
         // Presentera det som ritats
         SDL_RenderPresent(pRes->pRenderer);
         SDL_Delay(16); // cirka 60 FPS

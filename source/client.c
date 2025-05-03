@@ -33,6 +33,7 @@ bool initClient(const char *pIpaddress, int port)
 // sätter paketes destinationsaddress;
 bool client_sendPlayerData(PlayerData *pData)
 {
+    pData->timestamp = SDL_GetTicks();
     memcpy(pPacket->data, pData, sizeof(PlayerData)); // kopierar strukten till pekare
     pPacket->len = sizeof(PlayerData);                // antal bytes
     pPacket->address = serverAddress;                 // destination
