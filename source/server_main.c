@@ -6,8 +6,8 @@
 #include "server.h"
 #include "network.h"
 
-#define NROFPLAYERS 2 // Max två spelare för denna version
-
+#define NROFPLAYERS 2   // Max två spelare för denna version
+#define TIMEOUT_MS 5000 // 5 sekunder
 // Struktur för att hålla varje ansluten spelares data
 typedef struct
 {
@@ -82,7 +82,7 @@ int main(int argc, char **argv)
             if (clientIndex != -1)
             {
                 players[clientIndex].data = playerData;
-                players[clientIndex].lastActiveTime = SDL_Geticks();
+                players[clientIndex].lastActiveTime = SDL_GetTicks();
                 players[clientIndex].data.playerID = clientIndex; // servern bestämmer ID
                 players[clientIndex].address = clientAddress;
 
@@ -101,6 +101,16 @@ int main(int argc, char **argv)
                     PlayerData empty = {0};
                     server_sendPlayerData(&empty, &clientAddress);
                 }
+            }
+        }
+        // kontorllera timeouts
+        Uint32 now = SDL_GetTicks();
+        for (int i = 0; i < NROFPLAYERS; i++)
+        {
+            if (players[i].active && (now - players[i].lastActiveTime > TIMEOUT_MS))
+            {
+                printf("Timeout: Player %d disconnected.\n", i);
+                players[i].active = false;
             }
         }
 

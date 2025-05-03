@@ -5,6 +5,76 @@ SDL_mixer initialized successfully.
 SDL_net initialized successfully.
 SDL window created successfully.
 SDL renderer created successfully.
-Connected to 127.0.0.1 successfully!
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
+RECV: ID=0  x=0.0  y=0.0  angle=0.0  timestamp=0
 libpng warning: iCCP: known incorrect sRGB profile
 libpng warning: iCCP: known incorrect sRGB profile
