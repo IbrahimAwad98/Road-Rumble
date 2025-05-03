@@ -152,6 +152,24 @@ bool loadResources(GameResources *pRes)
         return false;
     }
 
+    // skapa enter textur
+    SDL_Surface *pEnterSurface = IMG_Load("resources/images/entertomulti.png");
+    if (!pEnterSurface)
+    {
+        printf("Failed to load mute button image: %s\n", IMG_GetError());
+        return false;
+    }
+    // omvandla textur och fel hantering...
+    pRes->pEnterGameTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pEnterSurface);
+    SDL_FreeSurface(pEnterSurface);
+
+    if (!pRes->pEnterGameTexture)
+    {
+        printf("Failed to create /back to menu/ button texture: %s\n", SDL_GetError());
+        return false;
+    }
+
+
     // bredd x höjd "Start,Multi...."
     pRes->startRect = (SDL_Rect){830, 505, 340, 60};
     pRes->multiplayerRect = (SDL_Rect){830, 585, 340, 60};
@@ -161,9 +179,13 @@ bool loadResources(GameResources *pRes)
     pRes->musicVolumeRect = (SDL_Rect){680, 240, 220, 30};
     pRes->backRect = (SDL_Rect){340, 580, 590, 90};
     pRes->SfxRect = (SDL_Rect){680, 329, 220, 30};
-    pRes->hostRect = (SDL_Rect){450, 270, 640, 80};
-    pRes->joinRect = (SDL_Rect){450, 367, 625, 80};
-    pRes->backMRect = (SDL_Rect){350, 460, 570, 90};
+
+    pRes->portRect = (SDL_Rect){465, 230, 646, 85};
+    pRes->joinRect = (SDL_Rect){465, 325, 646, 89};
+    pRes->playerIdRect = (SDL_Rect){465, 430, 646, 85};
+
+    pRes->backMRect = (SDL_Rect){240, 540, 370, 75};
+    pRes->enterRect = (SDL_Rect){720, 540, 370, 75};
 
     // ladda musiken och hantera fel.
     pRes->pBgMusic = Mix_LoadMUS("resources/music/intro_Opening.mp3");
