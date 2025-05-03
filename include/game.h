@@ -63,7 +63,6 @@ typedef struct
     SDL_Rect backRect;
     SDL_Rect musicVolumeRect;
     SDL_Rect SfxRect;
-    
 
     // Multiplayer (kommenterade delar kan användas senare)
     SDL_Rect portRect;
@@ -84,6 +83,7 @@ typedef struct
     int localPlayerID; // ID för lokala spelaren (0 eller 1)
 
 } GameResources;
+
 
 // Funktionsdeklaration
 void gameLoop(GameResources *pRes, int localPlayerID);
