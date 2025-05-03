@@ -20,9 +20,16 @@ void gameLoop(GameResources *pRes, int localPlayerID)
     int musicVolumes[5] = {0, 32, 64, 96, 128}; // Steg för musikvolym
     int sfxVolumes[5] = {0, 32, 64, 96, 128};   // Steg för ljudeffekter
     char joinIpText[16] = "";                   // Joina IP
+
     char playerIdText[4] ="";
     int selectedField = -1;                     // host=0, join=1, player = 2
     char portText[8] = "55000";
+
+    char hostText[32] = " 127.0.0.1";           // Host Texten (lokalt)
+    int selectedField = -1;                     // host=0, join=1
+    char availableServ[16][5];                  // alla tillgängliga/startade servrar
+    char portText[8] = "55000";                 // för att visa i multiplayer meny
+
 
     SDL_Event event;
     bool isRunning = true;          // Om spelet ska fortsätta köras

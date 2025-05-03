@@ -21,5 +21,4 @@ void renderGrassBackground(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int gr
 void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int tilemap[MAP_HEIGHT][MAP_WIDTH]);
 bool isTileAllowed(float x, float y);
 
-
 #endif
