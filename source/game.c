@@ -20,9 +20,8 @@ void gameLoop(GameResources *pRes, int localPlayerID)
     int musicVolumes[5] = {0, 32, 64, 96, 128}; // Steg för musikvolym
     int sfxVolumes[5] = {0, 32, 64, 96, 128};   // Steg för ljudeffekter
     char joinIpText[16] = "";                   // Joina IP
-    char hostText[32] = " 127.0.0.1";           // Host Texten (lokalt)
-    int selectedField = -1;                     // host=0, join=1
-    char availableServ[16][5];                  // alla tillgängliga/startade servrar
+    char playerIdText[4] ="";
+    int selectedField = -1;                     // host=0, join=1, player = 2
     char portText[8] = "55000";
 
     SDL_Event event;
@@ -172,15 +171,22 @@ void gameLoop(GameResources *pRes, int localPlayerID)
                     mode = MENU;
                 }
             }
-
-            if (event.type == SDL_TEXTINPUT && mode == MULTIPLAYER && selectedField == 1)
+            
+            // trycka på join felt eller player felt
+            if (event.type == SDL_TEXTINPUT && mode == MULTIPLAYER)
             {
-                if (strlen(joinIpText) < sizeof(joinIpText) - 1)
+                if (selectedField == 1 && strlen(joinIpText) < sizeof(joinIpText) - 1)
                 {
                     strcat(joinIpText, event.text.text);
                 }
+                else if (selectedField == 2 && strlen(playerIdText) < sizeof(playerIdText) - 1)
+                {
+                    strcat(playerIdText, event.text.text);
+                }
             }
 
+
+            // trycker på enter när man är klar med ip add....
             if (event.type == SDL_KEYDOWN && mode == MULTIPLAYER && selectedField == 1)
             {
                 if (event.key.keysym.sym == SDLK_BACKSPACE && strlen(joinIpText) > 0)
@@ -189,7 +195,7 @@ void gameLoop(GameResources *pRes, int localPlayerID)
                 }
                 else if (event.key.keysym.sym == SDLK_RETURN)
                 {
-                    if (initClient(joinIpText, 2000))
+                    if (initClient(joinIpText, SERVER_PORT))
                     {
                         printf("Client connected to %s!\n", joinIpText);
                         mode = PLAYING;
@@ -201,30 +207,66 @@ void gameLoop(GameResources *pRes, int localPlayerID)
                 }
             }
 
+            // klick på Player felt...
+            
+            if (event.type == SDL_KEYDOWN && mode == MULTIPLAYER && selectedField == 2)
+            {
+                if (event.key.keysym.sym == SDLK_BACKSPACE && strlen(playerIdText) > 0)
+                {
+                    playerIdText[strlen(playerIdText) - 1] = '\0';
+                }
+            }    
+
             //  Klick i multiplayermenyn
             if (event.type == SDL_MOUSEBUTTONDOWN && mode == MULTIPLAYER)
             {
                 int x = event.button.x;
                 int y = event.button.y;
+
                 if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->backMRect))
                 {
                     mode = MENU;
+                    selectedField = -1;
+                    SDL_StopTextInput();
+                    joinIpText[0] = '\0';
+                    playerIdText[0] = '\0';
                 }
-                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->joinRect))
+                else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->joinRect))
                 {
                     selectedField = 1;
                     SDL_StartTextInput();
+                }
+                else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->playerIdRect))
+                {
+                    selectedField = 2;
+                    SDL_StartTextInput();
+                }
+                else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->enterRect))
+                {
+                    if (strlen(joinIpText) > 0)
+                    {
+                        if (initClient(joinIpText, SERVER_PORT))
+                        {
+                            printf("Connected to %s successfully!\n", joinIpText);
+                            mode = PLAYING;
+                        }
+                        else
+                        {
+                            printf("Failed to connect to server at %s\n", joinIpText);
+                        }
+                    }
+                    else
+                    {
+                        printf("Please fill IP address and Player ID!\n");
+                    }
                 }
                 else
                 {
                     selectedField = -1;
                     SDL_StopTextInput();
                 }
-                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->hostRect))
-                {
-                    printf("Please start the server.exe manually.\n");
-                }
             }
+
         }
         // Rendering
         SDL_RenderClear(pRes->pRenderer);
@@ -360,6 +402,12 @@ void gameLoop(GameResources *pRes, int localPlayerID)
             // Rita svart box och back knapp
             SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerMenuTex, NULL, NULL);
             SDL_RenderCopy(pRes->pRenderer, pRes->pBackToMultiTexture, NULL, &pRes->backMRect);
+            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180); // Transparent black border
+            SDL_RenderDrawRect(pRes->pRenderer, &pRes->backMRect);
+            SDL_RenderCopy(pRes->pRenderer, pRes->pEnterGameTexture, NULL, &pRes->enterRect);
+            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180); // Transparent black border
+            SDL_RenderDrawRect(pRes->pRenderer, &pRes->enterRect);
+
 
             // rita input felt (blå)
             SDL_SetRenderDrawColor(pRes->pRenderer, 10, 25, 45, 255); // Blue-ish
@@ -368,14 +416,14 @@ void gameLoop(GameResources *pRes, int localPlayerID)
             SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180); // Transparent black border
             SDL_RenderDrawRect(pRes->pRenderer, &pRes->joinRect);
 
-            // Render texten
+            // Render join ip texten
             SDL_Color white = {255, 255, 255};
             const char *displayIp = strlen(joinIpText) == 0 ? " " : joinIpText;
 
             SDL_Surface *ipSurf = TTF_RenderText_Solid(pRes->pFont, displayIp, white);
             SDL_Texture *ipTex = SDL_CreateTextureFromSurface(pRes->pRenderer, ipSurf);
 
-            SDL_Rect ipRect = {490, 390, ipSurf->w, ipSurf->h};
+            SDL_Rect ipRect = {520, 350, ipSurf->w, ipSurf->h};
             SDL_RenderCopy(pRes->pRenderer, ipTex, NULL, &ipRect);
 
             SDL_FreeSurface(ipSurf);
@@ -383,19 +431,38 @@ void gameLoop(GameResources *pRes, int localPlayerID)
 
             // rita input host felt (blå)
             SDL_SetRenderDrawColor(pRes->pRenderer, 10, 25, 45, 255); // Blue-ish
-            SDL_RenderFillRect(pRes->pRenderer, &pRes->hostRect);
+            SDL_RenderFillRect(pRes->pRenderer, &pRes->portRect);
 
             SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180); // Transparent black border
-            SDL_RenderDrawRect(pRes->pRenderer, &pRes->hostRect);
+            SDL_RenderDrawRect(pRes->pRenderer, &pRes->portRect);
 
-            SDL_Surface *hostSurf = TTF_RenderText_Solid(pRes->pFont, hostText, white);
+            SDL_Surface *hostSurf = TTF_RenderText_Solid(pRes->pFont, portText, white);
             SDL_Texture *hostTex = SDL_CreateTextureFromSurface(pRes->pRenderer, hostSurf);
 
-            SDL_Rect hostTextRect = {460, 290, hostSurf->w, hostSurf->h};
+            SDL_Rect hostTextRect = {720, 250, hostSurf->w, hostSurf->h};
             SDL_RenderCopy(pRes->pRenderer, hostTex, NULL, &hostTextRect);
 
             SDL_FreeSurface(hostSurf);
             SDL_DestroyTexture(hostTex);
+
+            //rita Player Id box
+            SDL_SetRenderDrawColor(pRes->pRenderer, 10, 25, 45, 255); // Blue-ish
+            SDL_RenderFillRect(pRes->pRenderer, &pRes->playerIdRect);
+
+            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180); // Transparent black border
+            SDL_RenderDrawRect(pRes->pRenderer, &pRes->playerIdRect);
+
+            //rendera player Id texten
+            const char *displayId = strlen(playerIdText) == 0 ? " " : playerIdText;
+
+            SDL_Surface *idSurf = TTF_RenderText_Solid(pRes->pFont, displayId, white);
+            SDL_Texture *idTex = SDL_CreateTextureFromSurface(pRes->pRenderer, idSurf);
+
+            SDL_Rect idRect = {750, 450, idSurf->w, idSurf->h};
+            SDL_RenderCopy(pRes->pRenderer, idTex, NULL, &idRect);
+
+            SDL_FreeSurface(idSurf);
+            SDL_DestroyTexture(idTex);
         }
         // Presentera det som ritats
         SDL_RenderPresent(pRes->pRenderer);
