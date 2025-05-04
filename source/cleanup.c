@@ -11,8 +11,8 @@
 void cleanup(GameResources *pRes)
 {
     // rensa bilar
-    destroyCar(&pRes->car1);
-    destroyCar(&pRes->car2);
+    destroyCar(pRes->car1);
+    destroyCar(pRes->car2);
 
     // Frigör alla resurser i omvänd ordning
     SDL_DestroyTexture(pRes->pStartTexture);

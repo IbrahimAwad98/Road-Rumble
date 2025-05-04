@@ -68,7 +68,7 @@ typedef struct
     SDL_Rect joinRect;
 
     // Spelobjekt
-    Car car1, car2;          // Två bilar
+    Car *car1, *car2;          // Två bilar
     Camera camera1, camera2; // Två kameror för splitscreen eller nätverk
 
     // Nätverk
