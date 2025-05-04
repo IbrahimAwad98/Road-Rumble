@@ -35,20 +35,20 @@ void gameLoop(GameResources *pRes, int localPlayerID)
     // justerar automatisk
     SDL_RenderSetLogicalSize(pRes->pRenderer, WIDTH, HEIGHT);
 
-    // Initiera bilar
-    if (!initCar(pRes->pRenderer, &pRes->car1, "resources/Cars/Black_viper.png", 300, 300, 128, 64) ||
-        !initCar(pRes->pRenderer, &pRes->car2, "resources/Cars/Police.png", 100, 100, 128, 64))
-    {
-        printf("Failed to create car texture: %s\n", SDL_GetError());
+     // Skapa bilarna EN gång för att undivika att skapa varje frame
+    // nummerna = pixlar horisontellt, vertikalt och storlek: bredd x höjd
+    pRes->car1 = createCar(pRes->pRenderer, "resources/Cars/Black_viper.png", 300, 300, 128, 64, WIDTH, HEIGHT);
+    pRes->car2 = createCar(pRes->pRenderer, "resources/Cars/Police.png", 100, 100, 128, 64, WIDTH, HEIGHT);
+   if (!pRes->car1 || !pRes->car2) {
+        SDL_Log("Failed to create car(s).");
         return;
     }
 
-    // Startvärden för bil 1
-    pRes->car1.angle = 0.0f;
-    pRes->car1.speed = 3.0f;
-    // Startvärden för bil 1
-    pRes->car2.angle = 0.0f;
-    pRes->car2.speed = 3.0f;
+    setCarAngle(pRes->car1, 0.0f);
+    setCarSpeed(pRes->car1, 3.0f);
+    setCarAngle(pRes->car2, 0.0f);
+    setCarSpeed(pRes->car2, 3.0f);
+
 
     // Huvudloop
     while (isRunning)
@@ -260,11 +260,11 @@ void gameLoop(GameResources *pRes, int localPlayerID)
 
             if (localPlayerID == 0)
             {
-                updateCar(&pRes->car1, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
+                updateCar(pRes->car1, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
             }
             else // localPlayerID == 1
             {
-                updateCar(&pRes->car2, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
+                updateCar(pRes->car2, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
             }
 
             // Multiplayerdata
@@ -272,15 +272,15 @@ void gameLoop(GameResources *pRes, int localPlayerID)
             myData.playerID = localPlayerID;
             if (localPlayerID == 0)
             {
-                myData.x = pRes->car1.x;
-                myData.y = pRes->car1.y;
-                myData.angle = pRes->car1.angle;
+                myData.x = getCarX(pRes->car1);
+                myData.y = getCarY(pRes->car1);
+                myData.angle = getCarAngle(pRes->car1);
             }
             else
             {
-                myData.x = pRes->car2.x;
-                myData.y = pRes->car2.y;
-                myData.angle = pRes->car2.angle;
+                myData.x = getCarX(pRes->car2);
+                myData.y = getCarY(pRes->car2);
+                myData.angle = getCarAngle(pRes->car2);
             }
             client_sendPlayerData(&myData);
 
@@ -299,28 +299,35 @@ void gameLoop(GameResources *pRes, int localPlayerID)
 
                 if (localPlayerID == 0)
                 {
-                    pRes->car2.x = lastOpponent.x;
-                    pRes->car2.y = lastOpponent.y;
-                    pRes->car2.angle = lastOpponent.angle;
+                    setCarX(pRes->car2, lastOpponent.x);
+                    setCarY(pRes->car2, lastOpponent.y);
+                    setCarAngle(pRes->car2, lastOpponent.angle);
                 }
                 else
                 {
-                    pRes->car1.x = lastOpponent.x;
-                    pRes->car1.y = lastOpponent.y;
-                    pRes->car1.angle = lastOpponent.angle;
+                    setCarX(pRes->car1, lastOpponent.x);
+                    setCarY(pRes->car1, lastOpponent.y);
+                    setCarAngle(pRes->car1, lastOpponent.angle);
                 }
             }
             // uppdatera renderingsrektanglar
-            pRes->car1.carRect.x = (int)pRes->car1.x;
-            pRes->car1.carRect.y = (int)pRes->car1.y;
-            pRes->car2.carRect.x = (int)pRes->car2.x;
-            pRes->car2.carRect.y = (int)pRes->car2.y;
+            SDL_Rect rect1 = getCarRect(pRes->car1);
+            rect1.x = (int)getCarX(pRes->car1);
+            rect1.y = (int)getCarY(pRes->car1);
+            setCarRect(pRes->car1, rect1);
+
+            SDL_Rect rect2 = getCarRect(pRes->car2);
+            rect2.x = (int)getCarX(pRes->car2);
+            rect2.y = (int)getCarY(pRes->car2);
+            setCarRect(pRes->car2, rect2);
+
+
 
             renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93);
             renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap);
 
-            renderCar(pRes->pRenderer, &pRes->car1);
-            renderCar(pRes->pRenderer, &pRes->car2);
+            renderCar(pRes->pRenderer, pRes->car1);
+            renderCar(pRes->pRenderer, pRes->car2);
         }
 
         //  Inställningsmeny
@@ -401,4 +408,8 @@ void gameLoop(GameResources *pRes, int localPlayerID)
         SDL_RenderPresent(pRes->pRenderer);
         SDL_Delay(16); // cirka 60 FPS
     }
+
+    destroyCar(pRes->car1);
+    destroyCar(pRes->car2);
+
 }
