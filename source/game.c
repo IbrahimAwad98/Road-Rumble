@@ -37,8 +37,8 @@ void gameLoop(GameResources *pRes, int localPlayerID)
     SDL_RenderSetLogicalSize(pRes->pRenderer, WIDTH, HEIGHT);
 
     // Initiera bilar
-    if (!initCar(pRes->pRenderer, &pRes->car1, "resources/Cars/Black_viper.png", 300, 300, 128, 64) ||
-        !initCar(pRes->pRenderer, &pRes->car2, "resources/Cars/Police.png", 100, 100, 128, 64))
+    if (!initCar(pRes->pRenderer, &pRes->car1, "resources/Cars/Black_viper.png", 128, 640, 128, 64) ||
+        !initCar(pRes->pRenderer, &pRes->car2, "resources/Cars/Police.png", 1024, 640, 128, 64))
     {
         printf("Failed to create car texture: %s\n", SDL_GetError());
         return;
@@ -344,8 +344,7 @@ void gameLoop(GameResources *pRes, int localPlayerID)
                 if (opponentData.playerID != localPlayerID)
                 {
                     lastOpponent = opponentData;
-                    opponentConnected = true;                 
-                    
+                    opponentConnected = true;
                 }
 
                 if (localPlayerID == 0)
