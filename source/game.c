@@ -241,30 +241,29 @@ void gameLoop(GameResources *pRes, int localPlayerID)
                 {
                     selectedField = 2;
                     SDL_StartTextInput();
-                    
                 }
                 else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->enterRect))
                 {
                     if (strlen(joinIpText) > 0 && strlen(playerIdText) > 0)
                     {
                         localPlayerID = atoi(playerIdText); // <- Set playerID globally!
-                        
+
                         if (initClient(joinIpText, SERVER_PORT))
                         {
-                            printf("Connected to %s successfully as Player %d!\n", joinIpText,localPlayerID);
+                            printf("Connected to %s successfully as Player %d!\n", joinIpText, localPlayerID);
                             mode = PLAYING;
                         }
                         else
                         {
                             printf("Failed to connect to server at %s\n", joinIpText);
                         }
-                    }    
+                    }
                     else
                     {
                         printf("Please fill IP address and Player ID!\n");
                     }
                 }
-                
+
                 else
                 {
                     selectedField = -1;
