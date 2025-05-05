@@ -1,0 +1,34 @@
+# Projekt: Road-Rumble
+# Undvik att spåra tillfälliga filer, loggar och systemfiler
+
+# Körbara filer och byggartefakter
+*.exe
+*.o
+*.out
+*.a
+*.so
+*.dll
+Game
+
+# Testlogg
+testlog.txt
+
+# Editor-backups
+*~
+*.swp
+*.swo
+
+# Makefile-dependency
+*.d
+
+# OS-specifika filer
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Visual Studio Code
+.vscode/
+
+# Test- eller debug-skript 
+test_debug.bat
+test_debug.sh

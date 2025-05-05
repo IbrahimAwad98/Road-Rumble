@@ -1,0 +1,442 @@
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
+#include <stdbool.h>
+
+// filer
+#include "game.h"
+#include "car.h"
+#include "tilemap.h"
+#include "client.h"
+#include "server.h"
+#include "network.h"
+
+// Spelets huvudloop: hanterar input, rendering och växling mellan spellägen
+void gameLoop(GameResources *pRes)
+{
+    // Ljudinställningar och tillstånd
+    int isMuted = 0;                            // Flagga för ljud av/på
+    int musicVolumeLevel = 4;                   // Musikvolym (0–4)
+    int sfxLevel = 4;                           // Ljudeffektsvolym (0–4)
+    int musicVolumes[5] = {0, 32, 64, 96, 128}; // Steg för musikvolym
+    int sfxVolumes[5] = {0, 32, 64, 96, 128};   // Steg för ljudeffekter
+    char joinIpText[16] = "";                   // Joina IP
+    char hostText[32] = "Click Here To Host";   // Host Texten
+    int selectedField = -1;                     // host=0, join=1
+    char availableServ[16][5];                  // alla tillgängliga/startade servrar
+
+    SDL_Event event;
+    bool isRunning = true;          // Om spelet ska fortsätta köras
+    bool isFullscreen = true;       // flagga
+    bool escWasPressedOnce = false; // flagga
+    GameMode mode = MENU;           // Startläge: huvudmeny
+    int hoveredButton = -1;         // Vilken menyknapp som musen är över
+
+    // justerar automatisk
+    SDL_RenderSetLogicalSize(pRes->pRenderer, WIDTH, HEIGHT);
+
+    // Tile bakom 41 är tilemap[4][0]
+    float tileRow = 4.7f;  // Ändrad till 4.5 för att placera bilarna mellan rad 4 och 5
+    int tileCol = 1;  // Behåller samma kolumn
+
+    int startX = tileCol * TILE_SIZE;
+    int startY = (int)(tileRow * TILE_SIZE);  // Konvertera till int för startY
+
+    int carWidth = 64;  // Minskad från 128
+    int carHeight = 32; // Minskad från 64
+
+    // Centrera bilen i mitten av tilen
+    int car1X = (startX + (TILE_SIZE - carWidth) / 2);
+    int car1Y = startY + (TILE_SIZE - carHeight) / 2;
+
+    // Bil 2 bredvid bil 1 med mindre utrymme
+    int car2X = car1X + carWidth - 35;
+    int car2Y = car1Y;
+
+    // Bil 3 och 4 ovanför bil 1 och 2
+    int car3X = car1X;
+    int car3Y = car1Y - carHeight - 2;
+    int car4X = car2X;
+    int car4Y = car2Y - carHeight - 2;
+
+    if (!initCar(pRes->pRenderer, &pRes->car1, "resources/Cars/Black_viper.png", car1X, car1Y, carWidth, carHeight) ||
+        !initCar(pRes->pRenderer, &pRes->car2, "resources/Cars/Police.png", car2X, car2Y, carWidth, carHeight) ||
+        !initCar(pRes->pRenderer, &pRes->car3, "resources/Cars/Ambulance.png", car3X, car3Y, carWidth, carHeight) ||
+        !initCar(pRes->pRenderer, &pRes->car4, "resources/Cars/Taxi.png", car4X, car4Y, carWidth, carHeight))
+    {
+        printf("Failed to create car texture: %s\n", SDL_GetError());
+        return;
+    }
+
+    // Startvärden för bil 1
+    pRes->car1.angle = 270.0f;
+    pRes->car1.speed = 0.0f;
+    // Startvärden för bil 2
+    pRes->car2.angle = 270.0f;
+    pRes->car2.speed = 0.0f;
+    // Startvärden för bil 3
+    pRes->car3.angle = 270.0f;
+    pRes->car3.speed = 0.0f;
+    // Startvärden för bil 4
+    pRes->car4.angle = 270.0f;
+    pRes->car4.speed = 0.0f;
+
+    // Huvudloop
+    while (isRunning)
+    {
+        //  Händelsehantering
+        while (SDL_PollEvent(&event))
+        {
+            // Avsluta spel
+            if (event.type == SDL_QUIT)
+            {
+                isRunning = false;
+            }
+            else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
+            {
+                if (!escWasPressedOnce)
+                {
+                    // Första trycket – växla till windowed
+                    isFullscreen = false;
+                    SDL_SetWindowFullscreen(pRes->pWindow, 0);                                            // Avsluta fullscreen
+                    SDL_SetWindowSize(pRes->pWindow, WIDTH, HEIGHT);                                      // Återställ storlek
+                    SDL_SetWindowPosition(pRes->pWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED); // Centrera
+                    SDL_ShowWindow(pRes->pWindow);                                                        // Tvinga visning
+                    SDL_Delay(100);                                                                       // Vänta kort för att undvika buggar
+
+                    escWasPressedOnce = true;
+                }
+                else
+                {
+                    // Andra trycket – avsluta spelet
+                    isRunning = false;
+                }
+            }
+            // Menyinteraktion med musen
+            else if (event.type == SDL_MOUSEBUTTONDOWN && mode == MENU)
+            {
+                int x = event.button.x, y = event.button.y;
+                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->startRect))
+                {
+                    mode = PLAYING;
+                }
+                else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->exitRect))
+                {
+                    isRunning = false;
+                }
+                else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->multiplayerRect))
+                {
+                    mode = MULTIPLAYER;
+                }
+                else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->optionsRect))
+                {
+                    mode = OPTIONS;
+                }
+                else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->muteRect))
+                {
+                    isMuted = !isMuted;
+                    Mix_VolumeMusic(isMuted ? 0 : MIX_MAX_VOLUME);
+                }
+            }
+
+            // Visuell feedback för menyknappar
+            if (event.type == SDL_MOUSEMOTION && mode == MENU)
+            {
+                int x = event.motion.x, y = event.motion.y;
+                hoveredButton = -1;
+                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->startRect))
+                {
+                    hoveredButton = 0;
+                }
+                else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->multiplayerRect))
+                {
+                    hoveredButton = 1;
+                }
+
+                else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->optionsRect))
+                {
+                    hoveredButton = 2;
+                }
+                else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->exitRect))
+                {
+                    hoveredButton = 3;
+                }
+                else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->muteRect))
+                {
+                    hoveredButton = 4;
+                }
+            }
+
+            // Snabbtangent-funktioner
+            if (event.type == SDL_KEYDOWN)
+            {
+                if (event.key.keysym.sym == SDLK_p)
+                {
+                    mode = PLAYING;
+                }
+                else if (event.key.keysym.sym == SDLK_m)
+                {
+                    mode = MENU;
+                }
+            }
+            //  Klick i inställningsmenyn
+            if (event.type == SDL_MOUSEBUTTONDOWN && mode == OPTIONS)
+            {
+                int x = event.button.x, y = event.button.y;
+                // Musikvolym
+                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->musicVolumeRect))
+                {
+                    int seg = (x - pRes->musicVolumeRect.x) / (pRes->musicVolumeRect.w / 5);
+                    musicVolumeLevel = (seg < 0) ? 0 : (seg > 4 ? 4 : seg);
+                    Mix_VolumeMusic(musicVolumes[musicVolumeLevel]);
+                }
+                // Ljudeffektvolym
+                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->SfxRect))
+                {
+                    int seg = (x - pRes->SfxRect.x) / (pRes->SfxRect.w / 5);
+                    sfxLevel = (seg < 0) ? 0 : (seg > 4 ? 4 : seg);
+                    Mix_VolumeMusic(sfxVolumes[sfxLevel]);
+                }
+                // Tillbaka till meny
+                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->backRect))
+                {
+                    mode = MENU;
+                }
+            }
+
+            if (event.type == SDL_TEXTINPUT && mode == MULTIPLAYER && selectedField == 1)
+            {
+                if (strlen(joinIpText) < sizeof(joinIpText) - 1)
+                {
+                    strcat(joinIpText, event.text.text);
+                }
+            }
+
+            if (event.type == SDL_KEYDOWN && mode == MULTIPLAYER && selectedField == 1)
+            {
+                if (event.key.keysym.sym == SDLK_BACKSPACE && strlen(joinIpText) > 0)
+                {
+                    joinIpText[strlen(joinIpText) - 1] = '\0';
+                }
+                else if (event.key.keysym.sym == SDLK_RETURN)
+                {
+                    if (initClient(joinIpText, 2000))
+                    {
+                        printf("Client connected to %s!\n", joinIpText);
+                        mode = PLAYING;
+                    }
+                    else
+                    {
+                        printf("Failed to connect to server at %s\n", joinIpText);
+                    }
+                }
+            }
+
+            //  Klick i multiplayermenyn
+            if (event.type == SDL_MOUSEBUTTONDOWN && mode == MULTIPLAYER)
+            {
+                int x = event.button.x;
+                int y = event.button.y;
+                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->backMRect))
+                {
+                    mode = MENU;
+                }
+                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->joinRect))
+                {
+                    selectedField = 1;
+                    SDL_StartTextInput();
+                }
+                else
+                {
+                    selectedField = -1;
+                    SDL_StopTextInput();
+                }
+                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->hostRect))
+                {
+                    if (initServer(SERVER_PORT))
+                    {
+                        printf("Server initilized \n");
+                        isServer = true;
+                        mode = PLAYING;
+                    }
+                    else
+                    {
+                        printf("Couldnt start the Server");
+                    }
+                }
+            }
+        }
+        // Rendering
+        SDL_RenderClear(pRes->pRenderer);
+
+        // Huvudmenyn
+        if (mode == MENU)
+        {
+            // Bakgrund
+            SDL_RenderCopy(pRes->pRenderer, pRes->pBackgroundTexture, NULL, NULL);
+
+            // Färgtoning för hovereffekt
+            SDL_SetTextureColorMod(pRes->pStartTexture, hoveredButton == 0 ? 200 : 255, hoveredButton == 0 ? 200 : 255, 255);
+            SDL_SetTextureColorMod(pRes->pMultiplayerTexture, hoveredButton == 1 ? 200 : 255, hoveredButton == 1 ? 200 : 255, 255);
+            SDL_SetTextureColorMod(pRes->pOptionsTexture, hoveredButton == 2 ? 200 : 255, hoveredButton == 2 ? 200 : 255, 255);
+            SDL_SetTextureColorMod(pRes->pExitTexture, hoveredButton == 3 ? 200 : 255, hoveredButton == 3 ? 200 : 255, 255);
+            SDL_SetTextureColorMod(isMuted ? pRes->pMuteTexture : pRes->pUnmuteTexture,
+                                   hoveredButton == 4 ? 200 : 255, hoveredButton == 4 ? 200 : 255, 255);
+
+            // Rendera knappar
+            SDL_RenderCopy(pRes->pRenderer, pRes->pStartTexture, NULL, &pRes->startRect);
+
+            SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerTexture, NULL, &pRes->multiplayerRect);
+            SDL_RenderCopy(pRes->pRenderer, pRes->pOptionsTexture, NULL, &pRes->optionsRect);
+            SDL_RenderCopy(pRes->pRenderer, pRes->pExitTexture, NULL, &pRes->exitRect);
+            SDL_RenderCopy(pRes->pRenderer, isMuted ? pRes->pMuteTexture : pRes->pUnmuteTexture, NULL, &pRes->muteRect);
+        }
+
+        // Spelläget (via nätverk)
+        else if (mode == PLAYING)
+        {
+            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255);
+            SDL_RenderClear(pRes->pRenderer);
+            const Uint8 *keys = SDL_GetKeyboardState(NULL);
+
+            // För test: styr båda lokalt
+            /*
+            updateCar(&pRes->car1, keys, SDL_SCANCODE_UP, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT, SDL_SCANCODE_RIGHT);
+            updateCar(&pRes->car2, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
+            */
+
+            PlayerData myData, otherData;
+            IPaddress clientAddr; // används bara på server
+
+            if (isServer)
+            {
+                updateCar(&pRes->car1, keys, SDL_SCANCODE_UP, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT, SDL_SCANCODE_RIGHT);
+
+                // ta emot klientdata
+                if (server_receivePlayerData(&otherData, &clientAddr))
+                {
+                    pRes->car2.x = otherData.x;
+                    pRes->car2.y = otherData.y;
+                }
+                // skicka till klient
+                myData.x = pRes->car1.x;
+                myData.y = pRes->car1.y;
+                myData.actionCode = 1; // valfritt
+                server_sendPlayerData(&myData, &clientAddr);
+            }
+            else
+            {
+                updateCar(&pRes->car2, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
+
+                myData.playerID = 1;
+                myData.x = pRes->car2.x;
+                myData.y = pRes->car2.y;
+                myData.actionCode = 1;
+
+                client_sendPlayerData(&myData);
+
+                if (client_receiveServerData(&otherData))
+                {
+                    // uppdatera serverns bil (car1)
+                    pRes->car1.x = otherData.x;
+                    pRes->car1.y = otherData.y;
+                }
+            }
+
+            // uppdatera renderingsrektanglar
+            pRes->car1.carRect.x = (int)pRes->car1.x;
+            pRes->car1.carRect.y = (int)pRes->car1.y;
+            pRes->car2.carRect.x = (int)pRes->car2.x;
+            pRes->car2.carRect.y = (int)pRes->car2.y;
+
+            renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93);
+            renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap);
+            // ingen kamera
+            renderCar(pRes->pRenderer, &pRes->car1);
+            renderCar(pRes->pRenderer, &pRes->car2);
+            renderCar(pRes->pRenderer, &pRes->car3);
+            renderCar(pRes->pRenderer, &pRes->car4);
+
+            // Test: rendera en tile från tileset (för debug/visning)
+            SDL_Rect src = getTileSrcByID(2);
+            SDL_Rect dest = {400, 300, TILE_SIZE, TILE_SIZE};
+            SDL_RenderCopy(pRes->pRenderer, pRes->ptilesetTexture, &src, &dest);
+        }
+
+        //  Inställningsmeny
+        else if (mode == OPTIONS)
+        {
+            SDL_RenderCopy(pRes->pRenderer, pRes->pOptionsMenuTex, NULL, NULL);
+            SDL_RenderCopy(pRes->pRenderer, pRes->pBackToMenuTexture, NULL, &pRes->backRect);
+
+            // Rita volymstaplar (musik)
+            for (int i = 0; i < 5; i++)
+            {
+                SDL_Rect block = {
+                    pRes->musicVolumeRect.x + i * (pRes->musicVolumeRect.w / 5),
+                    pRes->musicVolumeRect.y,
+                    (pRes->musicVolumeRect.w / 5) - 4,
+                    pRes->musicVolumeRect.h};
+                SDL_SetRenderDrawColor(pRes->pRenderer, (i <= musicVolumeLevel) ? 255 : 30, 128, 0, 255);
+                SDL_RenderFillRect(pRes->pRenderer, &block);
+            }
+
+            // Rita volymstaplar (SFX)
+            for (int i = 0; i < 5; i++)
+            {
+                SDL_Rect block = {
+                    pRes->SfxRect.x + i * (pRes->SfxRect.w / 5),
+                    pRes->SfxRect.y,
+                    (pRes->SfxRect.w / 5) - 4,
+                    pRes->SfxRect.h};
+                SDL_SetRenderDrawColor(pRes->pRenderer, (i <= sfxLevel) ? 255 : 30, 128, 0, 255);
+                SDL_RenderFillRect(pRes->pRenderer, &block);
+            }
+        }
+
+        //  Multiplayer-meny
+        else if (mode == MULTIPLAYER)
+        {
+            // Rita svart box och back knapp
+            SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerMenuTex, NULL, NULL);
+            SDL_RenderCopy(pRes->pRenderer, pRes->pBackToMultiTexture, NULL, &pRes->backMRect);
+
+            // rita input felt (blå)
+            SDL_SetRenderDrawColor(pRes->pRenderer, 10, 25, 45, 255); // Blue-ish
+            SDL_RenderFillRect(pRes->pRenderer, &pRes->joinRect);
+
+            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180); // Transparent black border
+            SDL_RenderDrawRect(pRes->pRenderer, &pRes->joinRect);
+
+            // Render texten
+            SDL_Color white = {255, 255, 255};
+            const char *displayIp = strlen(joinIpText) == 0 ? " " : joinIpText;
+
+            SDL_Surface *ipSurf = TTF_RenderText_Solid(pRes->pFont, displayIp, white);
+            SDL_Texture *ipTex = SDL_CreateTextureFromSurface(pRes->pRenderer, ipSurf);
+
+            SDL_Rect ipRect = {490, 390, ipSurf->w, ipSurf->h};
+            SDL_RenderCopy(pRes->pRenderer, ipTex, NULL, &ipRect);
+
+            SDL_FreeSurface(ipSurf);
+            SDL_DestroyTexture(ipTex);
+
+            // rita input host felt (blå)
+            SDL_SetRenderDrawColor(pRes->pRenderer, 10, 25, 45, 255); // Blue-ish
+            SDL_RenderFillRect(pRes->pRenderer, &pRes->hostRect);
+
+            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180); // Transparent black border
+            SDL_RenderDrawRect(pRes->pRenderer, &pRes->hostRect);
+
+            SDL_Surface *hostSurf = TTF_RenderText_Solid(pRes->pFont, hostText, white);
+            SDL_Texture *hostTex = SDL_CreateTextureFromSurface(pRes->pRenderer, hostSurf);
+
+            SDL_Rect hostTextRect = {460, 290, hostSurf->w, hostSurf->h};
+            SDL_RenderCopy(pRes->pRenderer, hostTex, NULL, &hostTextRect);
+
+            SDL_FreeSurface(hostSurf);
+            SDL_DestroyTexture(hostTex);
+        }
+        // Presentera det som ritats
+        SDL_RenderPresent(pRes->pRenderer);
+    }
+}
