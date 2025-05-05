@@ -164,7 +164,9 @@ void destroyCar(Car *pCar)
     if (pCar)
     {
         if (pCar->pCartexture)
+        {
             SDL_DestroyTexture(pCar->pCartexture);
+        }
         free(pCar);
     }
 }

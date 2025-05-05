@@ -13,18 +13,18 @@
 // Spelets huvudloop: hanterar input, rendering och växling mellan spellägen
 void gameLoop(GameResources *pRes, int localPlayerID)
 {
-    // Ljudinställningar och tillstånd
+    // tillstånd variabeler
     int isMuted = 0;                            // Flagga för ljud av/på
     int musicVolumeLevel = 4;                   // Musikvolym (0–4)
     int sfxLevel = 4;                           // Ljudeffektsvolym (0–4)
     int musicVolumes[5] = {0, 32, 64, 96, 128}; // Steg för musikvolym
     int sfxVolumes[5] = {0, 32, 64, 96, 128};   // Steg för ljudeffekter
     char joinIpText[16] = "";                   // Joina IP
-    char playerIdText[4] = "";
-    char hostText[32] = " 127.0.0.1"; // Host Texten (lokalt)
-    int selectedField = -1;           // host=0, join=1
-    char availableServ[16][5];        // alla tillgängliga/startade servrar
-    char portText[8] = "2000";        // för att visa i multiplayer meny
+    char playerIdText[4] = "";                  // playerID
+    char hostText[32] = " 127.0.0.1";           // Host Texten (lokalt)
+    int selectedField = -1;                     // host=0, join=1
+    char availableServ[16][5];                  // alla tillgängliga/startade servrar
+    char portText[8] = "2000";                  // för att visa i multiplayer meny
     SDL_Event event;
     bool isRunning = true;          // Om spelet ska fortsätta köras
     bool isFullscreen = true;       // flagga
@@ -68,7 +68,6 @@ void gameLoop(GameResources *pRes, int localPlayerID)
                     SDL_SetWindowPosition(pRes->pWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED); // Centrera
                     SDL_ShowWindow(pRes->pWindow);                                                        // Tvinga visning
                     SDL_Delay(100);                                                                       // Vänta kort för att undvika buggar
-
                     escWasPressedOnce = true;
                 }
                 else
@@ -103,7 +102,6 @@ void gameLoop(GameResources *pRes, int localPlayerID)
                     Mix_VolumeMusic(isMuted ? 0 : MIX_MAX_VOLUME);
                 }
             }
-
             // Visuell feedback för menyknappar
             if (event.type == SDL_MOUSEMOTION && mode == MENU)
             {
@@ -131,7 +129,6 @@ void gameLoop(GameResources *pRes, int localPlayerID)
                     hoveredButton = 4;
                 }
             }
-
             // Snabbtangent-funktioner
             if (event.type == SDL_KEYDOWN)
             {
@@ -168,7 +165,6 @@ void gameLoop(GameResources *pRes, int localPlayerID)
                     mode = MENU;
                 }
             }
-
             // trycka på join felt eller player felt
             if (event.type == SDL_TEXTINPUT && mode == MULTIPLAYER)
             {
@@ -181,7 +177,6 @@ void gameLoop(GameResources *pRes, int localPlayerID)
                     strcat(playerIdText, event.text.text);
                 }
             }
-
             // trycker på enter när man är klar med ip add....
             if (event.type == SDL_KEYDOWN && mode == MULTIPLAYER && selectedField == 1)
             {
@@ -202,9 +197,7 @@ void gameLoop(GameResources *pRes, int localPlayerID)
                     }
                 }
             }
-
             // klick på Player felt...
-
             if (event.type == SDL_KEYDOWN && mode == MULTIPLAYER && selectedField == 2)
             {
                 if (event.key.keysym.sym == SDLK_BACKSPACE && strlen(playerIdText) > 0)
@@ -212,7 +205,6 @@ void gameLoop(GameResources *pRes, int localPlayerID)
                     playerIdText[strlen(playerIdText) - 1] = '\0';
                 }
             }
-
             //  Klick i multiplayermenyn
             if (event.type == SDL_MOUSEBUTTONDOWN && mode == MULTIPLAYER)
             {
@@ -258,7 +250,6 @@ void gameLoop(GameResources *pRes, int localPlayerID)
                         printf("Please fill IP address and Player ID!\n");
                     }
                 }
-
                 else
                 {
                     selectedField = -1;
