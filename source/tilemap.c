@@ -16,12 +16,12 @@ SDL_Rect getTileSrcByID(int tileID)
 // Tilemap – Definierar själva spelvärlden med hjälp av tile-ID:n.
 // Varje heltal representerar ett tileID; -1 betyder tom yta (inget ska ritas).
 int tilemap[MAP_HEIGHT][MAP_WIDTH] = {
-    {-1, 2, 1, 6, -1, -1, -1, 5, 1, 4, -1},
-    {-1, 0, -1, 0, -1, -1, -1, 0, -1, 0, -1},
-    {-1, 0, -1, 0, -1, -1, -1, 0, -1, 0, -1},
-    {-1, 0, -1, 23, 1, 1, 1, 24, -1, 0, -1},
-    {-1, 0, -1, -1, -1, -1, -1, -1, -1, 0, -1},
-    {-1, 38, 1, 1, 1, 1, 1, 1, 1, 40, -1}};
+    {105, 2, 1, 6, 104, -1, 104, 5, 1, 4, 105},
+    {-1, 0, 115, 0, -1, -1, -1, 0, 115, 0, -1},
+    {-1, 0, -1, 0, 104, 112, 104, 0, -1, 0, -1},
+    {-1, 0, 115, 23, 1, 1, 1, 24, 115, 0, -1},
+    {-1, 41, 113, -1, -1, -1, -1, -1, 113, 0, -1},
+    {104, 38, 1, 1, 1, 1, 1, 1, 1, 40, 104}};
 
 // Fyller hela bakgrunden med ett gräs-tile för att undvika svarta ytor.
 // Används före den riktiga tilemapen ritas ut.
@@ -88,5 +88,25 @@ bool isTileAllowed(float x, float y)
     if (row < 0 || row >= MAP_HEIGHT || col < 0 || col >= MAP_WIDTH)
         return false;
 
-    return tilemap[row][col] != -1;
+    int tileID = tilemap[row][col];
+
+    // Tillåt bara specifika vägtiles
+    switch (tileID)
+    {
+        case 0:
+        case 1:
+        case 2:
+        case 4:
+        case 5:
+        case 6:
+        case 23:
+        case 24:
+        case 38:
+        case 40:
+        case 41:
+            return true;
+        default:
+            return false;
+    }
 }
+
