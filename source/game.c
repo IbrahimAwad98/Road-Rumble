@@ -24,7 +24,7 @@ void gameLoop(GameResources *pRes, int localPlayerID)
     char hostText[32] = " 127.0.0.1"; // Host Texten (lokalt)
     int selectedField = -1;           // host=0, join=1
     char availableServ[16][5];        // alla tillgängliga/startade servrar
-    char portText[8] = "55000";       // för att visa i multiplayer meny
+    char portText[8] = "2000";        // för att visa i multiplayer meny
     SDL_Event event;
     bool isRunning = true;          // Om spelet ska fortsätta köras
     bool isFullscreen = true;       // flagga
@@ -37,19 +37,14 @@ void gameLoop(GameResources *pRes, int localPlayerID)
     SDL_RenderSetLogicalSize(pRes->pRenderer, WIDTH, HEIGHT);
 
     // Initiera bilar
-    if (!initCar(pRes->pRenderer, &pRes->car1, "resources/Cars/Black_viper.png", 128, 640, 128, 64) ||
-        !initCar(pRes->pRenderer, &pRes->car2, "resources/Cars/Police.png", 1024, 640, 128, 64))
+    pRes->pCar1 = createCar(pRes->pRenderer, "resources/Cars/Black_viper.png", 128, 640, 128, 64);
+    pRes->pCar2 = createCar(pRes->pRenderer, "resources/Cars/Police.png", 1024, 640, 128, 64);
+
+    if (!pRes->pCar1 || !pRes->pCar2)
     {
         printf("Failed to create car texture: %s\n", SDL_GetError());
         return;
     }
-
-    // Startvärden för bil 1
-    pRes->car1.angle = 0.0f;
-    pRes->car1.speed = 3.0f;
-    // Startvärden för bil 1
-    pRes->car2.angle = 0.0f;
-    pRes->car2.speed = 3.0f;
 
     // Huvudloop
     while (isRunning)
@@ -305,11 +300,11 @@ void gameLoop(GameResources *pRes, int localPlayerID)
 
             if (localPlayerID == 0)
             {
-                updateCar(&pRes->car1, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
+                updateCar(pRes->pCar1, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
             }
             else // localPlayerID == 1
             {
-                updateCar(&pRes->car2, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
+                updateCar(pRes->pCar2, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
             }
 
             // Multiplayerdata
@@ -317,15 +312,15 @@ void gameLoop(GameResources *pRes, int localPlayerID)
             myData.playerID = localPlayerID;
             if (localPlayerID == 0)
             {
-                myData.x = pRes->car1.x;
-                myData.y = pRes->car1.y;
-                myData.angle = pRes->car1.angle;
+                myData.x = getCarX(pRes->pCar1);
+                myData.y = getCarY(pRes->pCar1);
+                myData.angle = getCarAngle(pRes->pCar1);
             }
             else
             {
-                myData.x = pRes->car2.x;
-                myData.y = pRes->car2.y;
-                myData.angle = pRes->car2.angle;
+                myData.x = getCarX(pRes->pCar2);
+                myData.y = getCarY(pRes->pCar2);
+                myData.angle = getCarAngle(pRes->pCar2);
             }
             client_sendPlayerData(&myData);
 
@@ -352,28 +347,18 @@ void gameLoop(GameResources *pRes, int localPlayerID)
 
                 if (localPlayerID == 0)
                 {
-                    pRes->car2.x = lastOpponent.x;
-                    pRes->car2.y = lastOpponent.y;
-                    pRes->car2.angle = lastOpponent.angle;
+                    setCarPosition(pRes->pCar2, lastOpponent.x, lastOpponent.y, lastOpponent.angle);
                 }
                 else
                 {
-                    pRes->car1.x = lastOpponent.x;
-                    pRes->car1.y = lastOpponent.y;
-                    pRes->car1.angle = lastOpponent.angle;
+                    setCarPosition(pRes->pCar1, lastOpponent.x, lastOpponent.y, lastOpponent.angle);
                 }
             }
-            // uppdatera renderingsrektanglar
-            pRes->car1.carRect.x = (int)pRes->car1.x;
-            pRes->car1.carRect.y = (int)pRes->car1.y;
-            pRes->car2.carRect.x = (int)pRes->car2.x;
-            pRes->car2.carRect.y = (int)pRes->car2.y;
-
             renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93);
             renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap);
 
-            renderCar(pRes->pRenderer, &pRes->car1);
-            renderCar(pRes->pRenderer, &pRes->car2);
+            renderCar(pRes->pRenderer, pRes->pCar1);
+            renderCar(pRes->pRenderer, pRes->pCar2);
 
             // Rita ping
             char pingText[64];
