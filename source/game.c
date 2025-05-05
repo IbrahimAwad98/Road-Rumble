@@ -34,13 +34,31 @@ void gameLoop(GameResources *pRes)
     // justerar automatisk
     SDL_RenderSetLogicalSize(pRes->pRenderer, WIDTH, HEIGHT);
 
-    // Initiera bilar
-    if (!initCar(pRes->pRenderer, &pRes->car1, "resources/Cars/Black_viper.png", 300, 300, 128, 64) ||
-        !initCar(pRes->pRenderer, &pRes->car2, "resources/Cars/Police.png", 100, 100, 128, 64))
+    // Tile bakom 41 är tilemap[4][0]
+    int tileRow = 4;
+    int tileCol = 0; // kolumnen bakom
+
+    int startX = tileCol * TILE_SIZE;
+    int startY = tileRow * TILE_SIZE;
+
+    int carWidth = 128;
+    int carHeight = 64;
+
+    // Centrera bilen i mitten av tilen
+    int car1X = (startX + (TILE_SIZE - carWidth) / 2);
+    int car1Y = startY + (TILE_SIZE - carHeight) / 2;
+
+    // Bil 2 bredvid bil 1
+    int car2X = car1X + carWidth + 5;
+    int car2Y = car1Y;
+
+    if (!initCar(pRes->pRenderer, &pRes->car1, "resources/Cars/Black_viper.png", car1X, car1Y, carWidth, carHeight) ||
+        !initCar(pRes->pRenderer, &pRes->car2, "resources/Cars/Police.png", car2X, car2Y, carWidth, carHeight))
     {
         printf("Failed to create car texture: %s\n", SDL_GetError());
         return;
     }
+
 
     // Startvärden för bil 1
     pRes->car1.angle = 0.0f;

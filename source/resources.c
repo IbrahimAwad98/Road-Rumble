@@ -271,5 +271,33 @@ bool loadResources(GameResources *pRes)
         printf("Failed to create texture for multiplayer menu : %s\n", SDL_GetError());
         return false;
     }
+
+        // Ladda decor-tiles: index 104–116
+    const char *decorFilenames[NUM_DECOR_TILES] = {
+        "Bush_01.png", "Bush_02.png", "Decor_Building_01.png", "Decor_Building_02.png",
+        "Finish.png", "Pavilion_01.png", "Pavilion_02.png", "Racing_Lights.png", "Rock_01.png",
+        "Rock_02.png", "Start.png", "Tree_01.png", "Tree_02.png"
+    };
+
+    for (int i = 0; i < NUM_DECOR_TILES; i++)
+    {
+        snprintf(path, sizeof(path), "resources/tile/decor/%s", decorFilenames[i]);
+        SDL_Surface *surface = IMG_Load(path);
+        if (!surface)
+        {
+            printf("Failed to load decor tile %s: %s\n", decorFilenames[i], IMG_GetError());
+            return false;
+        }
+
+        pRes->pTiles[TILE_OFFSET_DECOR + i] = SDL_CreateTextureFromSurface(pRes->pRenderer, surface);
+        SDL_FreeSurface(surface);
+
+        if (!pRes->pTiles[TILE_OFFSET_DECOR + i])
+        {
+            printf("Failed to create texture for decor tile %s: %s\n", decorFilenames[i], SDL_GetError());
+            return false;
+        }
+    }
+
     return true;
 }
