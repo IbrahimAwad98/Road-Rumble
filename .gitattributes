@@ -1,0 +1,17 @@
+# Ange standardbeteende för textfiler
+* text=auto
+
+# Tvinga LF-radslut för skriptfiler
+*.sh text eol=lf
+*.bash text eol=lf
+*.zsh text eol=lf
+
+# Tvinga CRLF-radslut för Windows-specifika skript
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Ange binära filer som inte ska konverteras
+*.png binary
+*.jpg binary
+*.exe binary
+*.dll binary
