@@ -19,12 +19,12 @@
 #include "server.h"
 #include "network.h"
 #include "client.h"
+
 #define IPLENGTH 64
 
-// globala variabler (gäller nätverk).
-bool isServer = false;                 // false = klient och true = server.
-char serverIP[IPLENGTH] = "127.0.0.1"; // Standart-Ip för lockalhost (samma dator)
-// publik ip-address online 213.112.243.158 för test
+// Globala variabler
+char serverIP[IPLENGTH] = "127.0.0.1"; // Default IP = localhost
+int playerID = 0;                      // default
 
 int main(int argc, char **argv)
 {
@@ -41,7 +41,7 @@ int main(int argc, char **argv)
     // Kolla igenom argumenten som skickades till programmet
     for (int i = 1; i < argc; i++)
     {
-        // Tillåt både stora och små bokstäver, ex: --Test, --DEBUG
+        // flera argumenter för terminal-testing
         if (strcasecmp(argv[i], "--test") == 0)
         {
             testMode = true;
@@ -50,15 +50,22 @@ int main(int argc, char **argv)
         {
             debugMode = true;
         }
-        else if (strcasecmp(argv[i], "--server") == 0)
-        {
-            isServer = true;
-        }
         else if (strcasecmp(argv[i], "--ip") == 0 && (i + 1) < argc)
         {
             strncpy(serverIP, argv[i + 1], sizeof(serverIP) - 1);
             serverIP[sizeof(serverIP) - 1] = '\0';
             i++; // hoppa över nästa argument (IP-adressen)
+        }
+        else if (strcasecmp(argv[i], "--id") == 0 && (i + 1) < argc)
+        {
+            // test via id
+            playerID = atoi(argv[i + 1]);
+            if (playerID < 0 || playerID > 1)
+            {
+                printf("Wrong ID. Use --id 0 or --id 1.\n");
+                return true;
+            }
+            i++;
         }
     }
 
@@ -68,31 +75,10 @@ int main(int argc, char **argv)
         printf("Failed to initialize SDL components.\n");
         return true; // Felkod 1 = SDL-fel
     }
-    if (isServer)
+    if (!initClient(serverIP, SERVER_PORT))
     {
-        if (!initServer(SERVER_PORT))
-        {
-            printf("Failed to start server.\n");
-            return true;
-        }
-        else
-        {
-            printf("Server started.\n");
-            if (!initClient(serverIP, SERVER_PORT))
-            {
-                printf("Server could not connect to self.\n");
-                return true;
-            }
-        }
-    }
-    else
-    {
-        // Bara klient
-        if (!initClient("127.0.0.1", SERVER_PORT))
-        {
-            printf("Failed to connect to server.\n");
-            return true;
-        }
+        printf("Failed to connect to server at: %s.\n", serverIP);
+        return true;
     }
 
     // Ladda texturer, bilder, ljud och fonter
@@ -115,7 +101,7 @@ int main(int argc, char **argv)
         {
             printf("TEST RESULTAT: PASSED.\n");
             printf("Everything went fine! Test completed without errors.\n");
-            gameLoop(&res); // Om testerna gick bra, starta spelet
+            gameLoop(&res, playerID); // Om testerna gick bra, starta spelet
         }
         else
         {
@@ -126,7 +112,7 @@ int main(int argc, char **argv)
     }
 
     // Om inte testläge, starta spelet direkt
-    gameLoop(&res);
+    gameLoop(&res, playerID);
 
     // Rensa alla resurser och avsluta SDL
     cleanup(&res);
