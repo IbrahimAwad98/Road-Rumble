@@ -1,3 +1,4 @@
+
     #include <SDL2/SDL.h>
     #include <SDL2/SDL_mixer.h>
     #include <stdbool.h>
@@ -10,32 +11,34 @@
     #include "server.h"
     #include "network.h"
 
-    // Spelets huvudloop: hanterar input, rendering och växling mellan spellägen
-    void gameLoop(GameResources *pRes, int localPlayerID)
-    {
-        // tillstånd variabeler
-        int isMuted = 0;                            // Flagga för ljud av/på
-        int musicVolumeLevel = 4;                   // Musikvolym (0–4)
-        int sfxLevel = 4;                           // Ljudeffektsvolym (0–4)
-        int musicVolumes[5] = {0, 32, 64, 96, 128}; // Steg för musikvolym
-        int sfxVolumes[5] = {0, 32, 64, 96, 128};   // Steg för ljudeffekter
-        char joinIpText[16] = "";                   // Joina IP
-        char playerIdText[4] = "";                  // playerID
-        char hostText[32] = " 127.0.0.1";           // Host Texten (lokalt)
-        int selectedField = -1;                     // host=0, join=1
-        char availableServ[16][5];                  // alla tillgängliga/startade servrar
-        char portText[8] = "2000";                  // för att visa i multiplayer meny
-        SDL_Event event;
-        bool isRunning = true;          // Om spelet ska fortsätta köras
-        bool isFullscreen = true;       // flagga
-        bool escWasPressedOnce = false; // flagga
-        GameMode mode = MENU;           // Startläge: huvudmeny
-        int hoveredButton = -1;         // Vilken menyknapp som musen är över
-        Uint32 ping = 0;                // ping-mätning
 
-        // justerar automatisk
-        SDL_RenderSetLogicalSize(pRes->pRenderer, WIDTH, HEIGHT);
+// Spelets huvudloop: hanterar input, rendering och växling mellan spellägen
+void gameLoop(GameResources *pRes, int localPlayerID)
+{
+    // tillstånd variabeler
+    int isMuted = 0;                            // Flagga för ljud av/på
+    int musicVolumeLevel = 4;                   // Musikvolym (0–4)
+    int sfxLevel = 4;                           // Ljudeffektsvolym (0–4)
+    int musicVolumes[5] = {0, 32, 64, 96, 128}; // Steg för musikvolym
+    int sfxVolumes[5] = {0, 32, 64, 96, 128};   // Steg för ljudeffekter
+    char joinIpText[16] = "";                   // Joina IP
+    char playerIdText[4] = "";                  // playerID
+    char hostText[32] = " 127.0.0.1";           // Host Texten (lokalt)
+    int selectedField = -1;                     // host=0, join=1
+    char availableServ[16][5];                  // alla tillgängliga/startade servrar
+    char portText[8] = "55000";                 // för att visa i multiplayer meny
+    SDL_Event event;
+    bool isRunning = true;          // Om spelet ska fortsätta köras
+    bool isFullscreen = true;       // flagga
+    bool escWasPressedOnce = false; // flagga
+    GameMode mode = MENU;           // Startläge: huvudmeny
+    int hoveredButton = -1;         // Vilken menyknapp som musen är över
+    Uint32 ping = 0;                // ping-mätning
 
+    // justerar automatisk
+    SDL_RenderSetLogicalSize(pRes->pRenderer, WIDTH, HEIGHT);
+
+  
         // Tile bakom 41 är tilemap[4][0]
         float tileRow = 4.7f;  // Ändrad till 4.5 för att placera bilarna mellan rad 4 och 5 BANAN
         int tileCol = 1;  // Behåller samma kolumn
@@ -59,14 +62,18 @@
         int car3Y = car1Y - carHeight - 2;
         int car4X = car2X;
         int car4Y = car2Y - carHeight - 2;
+  
+
+
+    
+       
 
         // Initiera bilar
         pRes->pCar1 = createCar(pRes->pRenderer, "resources/Cars/Black_viper.png", car1X, car1Y, carWidth, carHeight);
         pRes->pCar2 = createCar(pRes->pRenderer, "resources/Cars/Police.png", car2X, car2Y, carWidth, carHeight);
         pRes->pCar3 = createCar(pRes->pRenderer, "resources/Cars/Audi.png", car3X, car3Y, carWidth, carHeight);
         pRes->pCar4 = createCar(pRes->pRenderer, "resources/Cars/car.png", car4X, car4Y, carWidth, carHeight);
-    //bil 3
-    //bil 4
+
         if (!pRes->pCar1 || !pRes->pCar2 || !pRes->pCar3 || !pRes->pCar4)
         {
             printf("Failed to create car textures: %s\n", SDL_GetError());
