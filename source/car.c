@@ -156,7 +156,7 @@ void updateCar(Car *pCar, const Uint8 *pKeys, SDL_Scancode up, SDL_Scancode down
 // Rendera
 void renderCar(SDL_Renderer *pRenderer, Car *pCar)
 {
-    SDL_RenderCopyEx(pRenderer, pCar->pCartexture, NULL, &pCar->carRect, pCar->angle, NULL, SDL_FLIP_NONE);
+    SDL_RenderCopyEx(pRenderer, pCar->pCartexture, NULL, &pCar->carRect, pCar->angle + 90.0f, NULL, SDL_FLIP_NONE);
 }
 // Rensa minnet
 void destroyCar(Car *pCar)
@@ -185,4 +185,16 @@ void setCarPosition(Car *car, float x, float y, float angle)
     car->angle = angle;
     car->carRect.x = (int)x;
     car->carRect.y = (int)y;
+}
+
+void setCarAngle(Car *pCar, float angle)
+{
+    if (pCar)
+        pCar->angle = angle;
+}
+
+void setCarSpeed(Car *pCar, float speed)
+{
+    if (pCar)
+        pCar->speed = speed;
 }
