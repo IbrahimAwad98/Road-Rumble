@@ -27,5 +27,7 @@ SDL_Rect getCarRect(const Car *pCar);
 
 // fixa postioner
 void setCarPosition(Car *car, float x, float y, float angle);
+void setCarAngle(Car *pCar, float angle);
+void setCarSpeed(Car *pCar, float speed);
 
 #endif
