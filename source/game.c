@@ -35,11 +35,11 @@ void gameLoop(GameResources *pRes)
     SDL_RenderSetLogicalSize(pRes->pRenderer, WIDTH, HEIGHT);
 
     // Tile bakom 41 är tilemap[4][0]
-    float tileRow = 4.7f;  // Ändrad till 4.5 för att placera bilarna mellan rad 4 och 5
+    float tileRow = 4.7f;  // Ändrad till 4.5 för att placera bilarna mellan rad 4 och 5 BANAN
     int tileCol = 1;  // Behåller samma kolumn
 
     int startX = tileCol * TILE_SIZE;
-    int startY = (int)(tileRow * TILE_SIZE);  // Konvertera till int för startY
+    int startY = (int)(tileRow * TILE_SIZE);  // Konverterar från tile-position till pixel-position.
 
     int carWidth = 64;  // Minskad från 128
     int carHeight = 32; // Minskad från 64
@@ -348,8 +348,8 @@ void gameLoop(GameResources *pRes)
             pRes->car2.carRect.x = (int)pRes->car2.x;
             pRes->car2.carRect.y = (int)pRes->car2.y;
 
-            renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93);
-            renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap);
+            renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93); // här skapas den gröna bakgrunden gräset BANAN
+            renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap); // Här ritas själva banan
             // ingen kamera
             renderCar(pRes->pRenderer, &pRes->car1);
             renderCar(pRes->pRenderer, &pRes->car2);

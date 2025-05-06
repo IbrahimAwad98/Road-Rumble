@@ -184,7 +184,7 @@ bool loadResources(GameResources *pRes)
         return false;
     }
 
-    //  Ladda in asfalt-tiles (road_asphalt01.png → road_asphalt90.png)
+    //  Ladda in asfalt-tiles (road_asphalt01.png → road_asphalt90.png) BANAN
     char path[100];
     for (int i = 0; i < NUM_ASPHALT_TILES; i++)
     {
@@ -223,21 +223,25 @@ bool loadResources(GameResources *pRes)
         return false;
     }
 
-    // Ladda grass-bilderna: land_grass01.png → land_grass14.png
+    // Ladda grass-bilderna: land_grass01.png → land_grass14.png BANAN
     for (int i = 0; i < 14; i++)
     {
-        snprintf(path, sizeof(path), "resources/tile/grass/land_grass%02d.png", i + 1); // 01 → 14
+        // Skapar en filväg som t.ex. "resources/tile/grass/land_grass01.png", "land_grass02.png" osv
+        snprintf(path, sizeof(path), "resources/tile/grass/land_grass%02d.png", i + 1); 
         SDL_Surface *surface = IMG_Load(path);
         if (!surface)
         {
             printf("Failed to load grass tile %d: %s\n", i + 1, IMG_GetError());
-            return false;
+            return false; // Om bilden inte kunde laddas – avbryt funktionen
         }
-
+        
+        // Gör om bilden till en SDL_Texture som kan ritas ut, och spara i plats 90+i i pTiles[]
+        // Ex: land_grass01.png sparas i pTiles[90], land_grass02.png i pTiles[91] osv
         pRes->pTiles[90 + i] = SDL_CreateTextureFromSurface(pRes->pRenderer, surface);
-        SDL_FreeSurface(surface);
 
-        if (!pRes->pTiles[90 + i])
+        SDL_FreeSurface(surface); // Bilden i RAM behövs inte längre – radera den
+
+        if (!pRes->pTiles[90 + i]) // Om texturen inte kunde skapas, visa felmeddelande och avbryt
         {
             printf("Failed to create texture for grass tile %d: %s\n", i + 1, SDL_GetError());
             return false;
@@ -272,7 +276,7 @@ bool loadResources(GameResources *pRes)
         return false;
     }
 
-        // Ladda decor-tiles: index 104–116
+        // Ladda decor-tiles: index 104–116 BANAN
     const char *decorFilenames[NUM_DECOR_TILES] = {
         "Bush_01.png", "Bush_02.png", "Decor_Building_01.png", "Decor_Building_02.png",
         "Finish.png", "Pavilion_01.png", "Pavilion_02.png", "Racing_Lights.png", "Rock_01.png",
