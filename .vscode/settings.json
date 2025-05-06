@@ -17,6 +17,13 @@
         "network.h": "c",
         "client.h": "c",
         "tilemap.h": "c",
-        "cstdlib": "c"
+        "cstdlib": "c",
+        "internet": "c",
+        "array": "c",
+        "string": "c",
+        "buffer": "c",
+        "socket": "c",
+        "string_view": "c",
+        "span": "c"
     }
 }
