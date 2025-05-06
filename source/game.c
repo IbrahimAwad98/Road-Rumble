@@ -11,28 +11,31 @@
 #include "network.h"
 
 // Spelets huvudloop: hanterar input, rendering och växling mellan spellägen
-void gameLoop(GameResources *pRes)
+void gameLoop(GameResources *pRes, int localPlayerID)
 {
-    // Ljudinställningar och tillstånd
+    // tillstånd variabeler
     int isMuted = 0;                            // Flagga för ljud av/på
     int musicVolumeLevel = 4;                   // Musikvolym (0–4)
     int sfxLevel = 4;                           // Ljudeffektsvolym (0–4)
     int musicVolumes[5] = {0, 32, 64, 96, 128}; // Steg för musikvolym
     int sfxVolumes[5] = {0, 32, 64, 96, 128};   // Steg för ljudeffekter
     char joinIpText[16] = "";                   // Joina IP
-    char hostText[32] = "Click Here To Host";   // Host Texten
+    char playerIdText[4] = "";                  // playerID
+    char hostText[32] = " 127.0.0.1";           // Host Texten (lokalt)
     int selectedField = -1;                     // host=0, join=1
     char availableServ[16][5];                  // alla tillgängliga/startade servrar
-
+    char portText[8] = "55000";                 // för att visa i multiplayer meny
     SDL_Event event;
     bool isRunning = true;          // Om spelet ska fortsätta köras
     bool isFullscreen = true;       // flagga
     bool escWasPressedOnce = false; // flagga
     GameMode mode = MENU;           // Startläge: huvudmeny
     int hoveredButton = -1;         // Vilken menyknapp som musen är över
+    Uint32 ping = 0;                // ping-mätning
 
     // justerar automatisk
     SDL_RenderSetLogicalSize(pRes->pRenderer, WIDTH, HEIGHT);
+
 
     // Tile bakom 41 är tilemap[4][0]
     int tileRow = 4;
@@ -54,10 +57,18 @@ void gameLoop(GameResources *pRes)
 
     if (!initCar(pRes->pRenderer, &pRes->car1, "resources/Cars/Black_viper.png", car1X, car1Y, carWidth, carHeight) ||
         !initCar(pRes->pRenderer, &pRes->car2, "resources/Cars/Police.png", car2X, car2Y, carWidth, carHeight))
+
+    // Initiera bilar
+    pRes->pCar1 = createCar(pRes->pRenderer, "resources/Cars/Black_viper.png", 128, 640, 128, 64);
+    pRes->pCar2 = createCar(pRes->pRenderer, "resources/Cars/Police.png", 1024, 640, 128, 64);
+
+    if (!pRes->pCar1 || !pRes->pCar2)
+
     {
         printf("Failed to create car texture: %s\n", SDL_GetError());
         return;
     }
+
 
 
     // Startvärden för bil 1
@@ -66,6 +77,7 @@ void gameLoop(GameResources *pRes)
     // Startvärden för bil 1
     pRes->car2.angle = 0.0f;
     pRes->car2.speed = 3.0f;
+
 
     // Huvudloop
     while (isRunning)
@@ -89,7 +101,6 @@ void gameLoop(GameResources *pRes)
                     SDL_SetWindowPosition(pRes->pWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED); // Centrera
                     SDL_ShowWindow(pRes->pWindow);                                                        // Tvinga visning
                     SDL_Delay(100);                                                                       // Vänta kort för att undvika buggar
-
                     escWasPressedOnce = true;
                 }
                 else
@@ -124,7 +135,6 @@ void gameLoop(GameResources *pRes)
                     Mix_VolumeMusic(isMuted ? 0 : MIX_MAX_VOLUME);
                 }
             }
-
             // Visuell feedback för menyknappar
             if (event.type == SDL_MOUSEMOTION && mode == MENU)
             {
@@ -152,7 +162,6 @@ void gameLoop(GameResources *pRes)
                     hoveredButton = 4;
                 }
             }
-
             // Snabbtangent-funktioner
             if (event.type == SDL_KEYDOWN)
             {
@@ -189,15 +198,19 @@ void gameLoop(GameResources *pRes)
                     mode = MENU;
                 }
             }
-
-            if (event.type == SDL_TEXTINPUT && mode == MULTIPLAYER && selectedField == 1)
+            // trycka på join felt eller player felt
+            if (event.type == SDL_TEXTINPUT && mode == MULTIPLAYER)
             {
-                if (strlen(joinIpText) < sizeof(joinIpText) - 1)
+                if (selectedField == 1 && strlen(joinIpText) < sizeof(joinIpText) - 1)
                 {
                     strcat(joinIpText, event.text.text);
                 }
+                else if (selectedField == 2 && strlen(playerIdText) < sizeof(playerIdText) - 1)
+                {
+                    strcat(playerIdText, event.text.text);
+                }
             }
-
+            // trycker på enter när man är klar med ip add....
             if (event.type == SDL_KEYDOWN && mode == MULTIPLAYER && selectedField == 1)
             {
                 if (event.key.keysym.sym == SDLK_BACKSPACE && strlen(joinIpText) > 0)
@@ -206,7 +219,7 @@ void gameLoop(GameResources *pRes)
                 }
                 else if (event.key.keysym.sym == SDLK_RETURN)
                 {
-                    if (initClient(joinIpText, 2000))
+                    if (initClient(joinIpText, SERVER_PORT))
                     {
                         printf("Client connected to %s!\n", joinIpText);
                         mode = PLAYING;
@@ -217,38 +230,63 @@ void gameLoop(GameResources *pRes)
                     }
                 }
             }
-
+            // klick på Player felt...
+            if (event.type == SDL_KEYDOWN && mode == MULTIPLAYER && selectedField == 2)
+            {
+                if (event.key.keysym.sym == SDLK_BACKSPACE && strlen(playerIdText) > 0)
+                {
+                    playerIdText[strlen(playerIdText) - 1] = '\0';
+                }
+            }
             //  Klick i multiplayermenyn
             if (event.type == SDL_MOUSEBUTTONDOWN && mode == MULTIPLAYER)
             {
                 int x = event.button.x;
                 int y = event.button.y;
+
                 if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->backMRect))
                 {
                     mode = MENU;
+                    selectedField = -1;
+                    SDL_StopTextInput();
+                    joinIpText[0] = '\0';
+                    playerIdText[0] = '\0';
                 }
-                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->joinRect))
+                else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->joinRect))
                 {
                     selectedField = 1;
                     SDL_StartTextInput();
+                }
+                else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->playerIdRect))
+                {
+                    selectedField = 2;
+                    SDL_StartTextInput();
+                }
+                else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->enterRect))
+                {
+                    if (strlen(joinIpText) > 0 && strlen(playerIdText) > 0)
+                    {
+                        localPlayerID = atoi(playerIdText); // <- Set playerID globally!
+
+                        if (initClient(joinIpText, SERVER_PORT))
+                        {
+                            printf("Connected to %s successfully as Player %d!\n", joinIpText, localPlayerID);
+                            mode = PLAYING;
+                        }
+                        else
+                        {
+                            printf("Failed to connect to server at %s\n", joinIpText);
+                        }
+                    }
+                    else
+                    {
+                        printf("Please fill IP address and Player ID!\n");
+                    }
                 }
                 else
                 {
                     selectedField = -1;
                     SDL_StopTextInput();
-                }
-                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->hostRect))
-                {
-                    if (initServer(SERVER_PORT))
-                    {
-                        printf("Server initilized \n");
-                        isServer = true;
-                        mode = PLAYING;
-                    }
-                    else
-                    {
-                        printf("Couldnt start the Server");
-                    }
                 }
             }
         }
@@ -271,7 +309,6 @@ void gameLoop(GameResources *pRes)
 
             // Rendera knappar
             SDL_RenderCopy(pRes->pRenderer, pRes->pStartTexture, NULL, &pRes->startRect);
-
             SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerTexture, NULL, &pRes->multiplayerRect);
             SDL_RenderCopy(pRes->pRenderer, pRes->pOptionsTexture, NULL, &pRes->optionsRect);
             SDL_RenderCopy(pRes->pRenderer, pRes->pExitTexture, NULL, &pRes->exitRect);
@@ -281,70 +318,82 @@ void gameLoop(GameResources *pRes)
         // Spelläget (via nätverk)
         else if (mode == PLAYING)
         {
-            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255);
+            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255); // resna skärmen
             SDL_RenderClear(pRes->pRenderer);
-            const Uint8 *keys = SDL_GetKeyboardState(NULL);
+            const Uint8 *keys = SDL_GetKeyboardState(NULL); // läs tangent
 
-            // För test: styr båda lokalt
-            /*
-            updateCar(&pRes->car1, keys, SDL_SCANCODE_UP, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT, SDL_SCANCODE_RIGHT);
-            updateCar(&pRes->car2, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
-            */
-
-            PlayerData myData, otherData;
-            IPaddress clientAddr; // används bara på server
-
-            if (isServer)
+            if (localPlayerID == 0)
             {
-                updateCar(&pRes->car1, keys, SDL_SCANCODE_UP, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT, SDL_SCANCODE_RIGHT);
+                updateCar(pRes->pCar1, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
+            }
+            else // localPlayerID == 1
+            {
+                updateCar(pRes->pCar2, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
+            }
 
-                // ta emot klientdata
-                if (server_receivePlayerData(&otherData, &clientAddr))
-                {
-                    pRes->car2.x = otherData.x;
-                    pRes->car2.y = otherData.y;
-                }
-                // skicka till klient
-                myData.x = pRes->car1.x;
-                myData.y = pRes->car1.y;
-                myData.actionCode = 1; // valfritt
-                server_sendPlayerData(&myData, &clientAddr);
+            // Multiplayerdata
+            PlayerData myData = {0};
+            myData.playerID = localPlayerID;
+            if (localPlayerID == 0)
+            {
+                myData.x = getCarX(pRes->pCar1);
+                myData.y = getCarY(pRes->pCar1);
+                myData.angle = getCarAngle(pRes->pCar1);
             }
             else
             {
-                updateCar(&pRes->car2, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
+                myData.x = getCarX(pRes->pCar2);
+                myData.y = getCarY(pRes->pCar2);
+                myData.angle = getCarAngle(pRes->pCar2);
+            }
+            client_sendPlayerData(&myData);
 
-                myData.playerID = 1;
-                myData.x = pRes->car2.x;
-                myData.y = pRes->car2.y;
-                myData.actionCode = 1;
+            // Det här en buffer för att inte tappa paketet
+            static PlayerData lastOpponent = {0}; // Behåll senaste datan
 
-                client_sendPlayerData(&myData);
-
-                if (client_receiveServerData(&otherData))
+            // Ta emot motståndarens bil
+            PlayerData opponentData = {0};
+            bool opponentConnected = false;
+            if (client_receiveServerData(&opponentData))
+            {
+                // beräkning av ping
+                Uint32 now = SDL_GetTicks();
+                if (opponentData.timestamp > 0)
                 {
-                    // uppdatera serverns bil (car1)
-                    pRes->car1.x = otherData.x;
-                    pRes->car1.y = otherData.y;
+                    ping = now - opponentData.timestamp;
+                }
+
+                if (opponentData.playerID != localPlayerID)
+                {
+                    lastOpponent = opponentData;
+                    opponentConnected = true;
+                }
+
+                if (localPlayerID == 0)
+                {
+                    setCarPosition(pRes->pCar2, lastOpponent.x, lastOpponent.y, lastOpponent.angle);
+                }
+                else
+                {
+                    setCarPosition(pRes->pCar1, lastOpponent.x, lastOpponent.y, lastOpponent.angle);
                 }
             }
-
-            // uppdatera renderingsrektanglar
-            pRes->car1.carRect.x = (int)pRes->car1.x;
-            pRes->car1.carRect.y = (int)pRes->car1.y;
-            pRes->car2.carRect.x = (int)pRes->car2.x;
-            pRes->car2.carRect.y = (int)pRes->car2.y;
-
             renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93);
             renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap);
-            // ingen kamera
-            renderCar(pRes->pRenderer, &pRes->car1);
-            renderCar(pRes->pRenderer, &pRes->car2);
 
-            // Test: rendera en tile från tileset (för debug/visning)
-            SDL_Rect src = getTileSrcByID(2);
-            SDL_Rect dest = {400, 300, TILE_SIZE, TILE_SIZE};
-            SDL_RenderCopy(pRes->pRenderer, pRes->ptilesetTexture, &src, &dest);
+            renderCar(pRes->pRenderer, pRes->pCar1);
+            renderCar(pRes->pRenderer, pRes->pCar2);
+
+            // Rita ping
+            char pingText[64];
+            sprintf(pingText, "Ping: %d ms", ping);
+            SDL_Color white = {255, 255, 255};
+            SDL_Surface *pingSurface = TTF_RenderText_Solid(pRes->pFont, pingText, white);
+            SDL_Texture *pingTex = SDL_CreateTextureFromSurface(pRes->pRenderer, pingSurface);
+            SDL_Rect pingRect = {20, 20, pingSurface->w, pingSurface->h};
+            SDL_RenderCopy(pRes->pRenderer, pingTex, NULL, &pingRect);
+            SDL_FreeSurface(pingSurface);
+            SDL_DestroyTexture(pingTex);
         }
 
         //  Inställningsmeny
@@ -384,6 +433,11 @@ void gameLoop(GameResources *pRes)
             // Rita svart box och back knapp
             SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerMenuTex, NULL, NULL);
             SDL_RenderCopy(pRes->pRenderer, pRes->pBackToMultiTexture, NULL, &pRes->backMRect);
+            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180); // Transparent black border
+            SDL_RenderDrawRect(pRes->pRenderer, &pRes->backMRect);
+            SDL_RenderCopy(pRes->pRenderer, pRes->pEnterGameTexture, NULL, &pRes->enterRect);
+            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180); // Transparent black border
+            SDL_RenderDrawRect(pRes->pRenderer, &pRes->enterRect);
 
             // rita input felt (blå)
             SDL_SetRenderDrawColor(pRes->pRenderer, 10, 25, 45, 255); // Blue-ish
@@ -392,14 +446,14 @@ void gameLoop(GameResources *pRes)
             SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180); // Transparent black border
             SDL_RenderDrawRect(pRes->pRenderer, &pRes->joinRect);
 
-            // Render texten
+            // Render join ip texten
             SDL_Color white = {255, 255, 255};
             const char *displayIp = strlen(joinIpText) == 0 ? " " : joinIpText;
 
             SDL_Surface *ipSurf = TTF_RenderText_Solid(pRes->pFont, displayIp, white);
             SDL_Texture *ipTex = SDL_CreateTextureFromSurface(pRes->pRenderer, ipSurf);
 
-            SDL_Rect ipRect = {490, 390, ipSurf->w, ipSurf->h};
+            SDL_Rect ipRect = {520, 350, ipSurf->w, ipSurf->h};
             SDL_RenderCopy(pRes->pRenderer, ipTex, NULL, &ipRect);
 
             SDL_FreeSurface(ipSurf);
@@ -407,21 +461,42 @@ void gameLoop(GameResources *pRes)
 
             // rita input host felt (blå)
             SDL_SetRenderDrawColor(pRes->pRenderer, 10, 25, 45, 255); // Blue-ish
-            SDL_RenderFillRect(pRes->pRenderer, &pRes->hostRect);
+            SDL_RenderFillRect(pRes->pRenderer, &pRes->portRect);
 
             SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180); // Transparent black border
-            SDL_RenderDrawRect(pRes->pRenderer, &pRes->hostRect);
+            SDL_RenderDrawRect(pRes->pRenderer, &pRes->portRect);
 
-            SDL_Surface *hostSurf = TTF_RenderText_Solid(pRes->pFont, hostText, white);
+            SDL_Surface *hostSurf = TTF_RenderText_Solid(pRes->pFont, portText, white);
             SDL_Texture *hostTex = SDL_CreateTextureFromSurface(pRes->pRenderer, hostSurf);
 
-            SDL_Rect hostTextRect = {460, 290, hostSurf->w, hostSurf->h};
+            SDL_Rect hostTextRect = {720, 250, hostSurf->w, hostSurf->h};
             SDL_RenderCopy(pRes->pRenderer, hostTex, NULL, &hostTextRect);
 
             SDL_FreeSurface(hostSurf);
             SDL_DestroyTexture(hostTex);
+
+            // rita Player Id box
+            SDL_SetRenderDrawColor(pRes->pRenderer, 10, 25, 45, 255); // Blue-ish
+            SDL_RenderFillRect(pRes->pRenderer, &pRes->playerIdRect);
+
+            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180); // Transparent black border
+            SDL_RenderDrawRect(pRes->pRenderer, &pRes->playerIdRect);
+
+            // rendera player Id texten
+            const char *displayId = strlen(playerIdText) == 0 ? " " : playerIdText;
+
+            SDL_Surface *idSurf = TTF_RenderText_Solid(pRes->pFont, displayId, white);
+            SDL_Texture *idTex = SDL_CreateTextureFromSurface(pRes->pRenderer, idSurf);
+
+            SDL_Rect idRect = {750, 450, idSurf->w, idSurf->h};
+            SDL_RenderCopy(pRes->pRenderer, idTex, NULL, &idRect);
+
+            SDL_FreeSurface(idSurf);
+            SDL_DestroyTexture(idTex);
         }
+
         // Presentera det som ritats
         SDL_RenderPresent(pRes->pRenderer);
+        SDL_Delay(16); // cirka 60 FPS
     }
 }
