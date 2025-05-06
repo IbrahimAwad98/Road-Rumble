@@ -72,8 +72,8 @@ typedef struct
     SDL_Rect enterRect;
 
     // Spelobjekt
-    Car *pCar1, *pCar2, *pCar3, *pCar4;      // två bilar
-    Camera camera1, camera2; // Två kameror för splitscreen eller nätverk
+    Car *pCar1, *pCar2, *pCar3, *pCar4; // 4 bilar
+    Camera camera1, camera2;            // Två kameror för splitscreen eller nätverk
 
     // Nätverk
     bool isHosting;
