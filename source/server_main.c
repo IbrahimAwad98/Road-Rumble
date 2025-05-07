@@ -1,20 +1,22 @@
 #include <SDL2/SDL_net.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 
 // Egna headers
 #include "server.h"
 #include "network.h"
 
-#define NROFPLAYERS 4   // Minst 4 spelare för denna version
-#define TIMEOUT_MS 5000 // 5 sekunder
-// Struktur för att hålla varje ansluten spelares data
+#define NROFPLAYERS 4   // Max 4 spelare
+#define TIMEOUT_MS 5000 // Timeout efter 5 sekunder
+
+// Struktur för varje ansluten spelare
 typedef struct
 {
-    IPaddress address;     // Klientens IP och port
-    PlayerData data;       // Senaste mottagna PlayerData
-    bool active;           // Om spelaren är ansluten
-    Uint32 lastActiveTime; // senaste data togs emot
+    IPaddress address;     // Spelarens IP och port
+    PlayerData data;       // Senast mottagna PlayerData
+    bool active;           // Är spelaren aktiv/ansluten?
+    Uint32 lastActiveTime; // När senast tog emot data
 } Player;
 
 int main(int argc, char **argv)
@@ -23,34 +25,33 @@ int main(int argc, char **argv)
     if (SDLNet_Init() < 0)
     {
         printf("SDLNet_Init error: %s\n", SDLNet_GetError());
-        return true;
+        return 1;
     }
 
-    // Öppna en UDP-socket på fördefinierad port
+    // Öppna en UDP-socket
     if (!initServer(SERVER_PORT))
     {
         printf("Failed to start server.\n");
         SDLNet_Quit();
-        return true;
+        return 1;
     }
 
     printf("Server is running on port: %d.\n", SERVER_PORT);
 
-    // Initiera spelarlista (max 2 spelare)
-    Player players[NROFPLAYERS] = {0};
+    Player players[NROFPLAYERS] = {0}; // Nollställ alla spelare
+
     PlayerData playerData;
     IPaddress clientAddress;
 
-    // Huvudloop: tar emot data och skickar svar
+    // Huvudloop
     while (true)
     {
-
-        // Vänta på data från en klient
+        // Vänta på data från klient
         if (server_receivePlayerData(&playerData, &clientAddress))
         {
             int clientIndex = -1;
 
-            // Kolla om klienten redan finns i listan
+            // Finn om klienten redan finns
             for (int i = 0; i < NROFPLAYERS; i++)
             {
                 if (players[i].active &&
@@ -62,7 +63,7 @@ int main(int argc, char **argv)
                 }
             }
 
-            // Om ny klient – registrera den
+            // Om ny klient, registrera
             if (clientIndex == -1)
             {
                 for (int i = 0; i < NROFPLAYERS; i++)
@@ -72,57 +73,55 @@ int main(int argc, char **argv)
                         players[i].address = clientAddress;
                         players[i].active = true;
                         clientIndex = i;
-                        printf("New player connected: slot %d\n", i);
+                        printf("New player connected: slot %d\n",playerData.playerID + 1);
                         break;
                     }
                 }
-                // kontollera om server är upptagen
+
+                // Server full
                 if (clientIndex == -1)
                 {
                     printf("Server full. Rejecting client %u:%u\n", clientAddress.host, clientAddress.port);
-
                     PlayerData rejectData = {0};
-                    rejectData.playerID = -1;
+                    rejectData.playerID = -1; // signalerar avvisad
                     server_sendPlayerData(&rejectData, &clientAddress);
-                    continue; // hoppa resten
+                    continue;
                 }
             }
 
-            // Spara mottagen data och bestäm ID
+            // Uppdatera spelarens data
             if (clientIndex != -1)
             {
                 players[clientIndex].data = playerData;
                 players[clientIndex].lastActiveTime = SDL_GetTicks();
-                players[clientIndex].data.playerID = clientIndex; // servern bestämmer ID
                 players[clientIndex].address = clientAddress;
 
-                // säkrar att bara 4 spelare
+                // Skicka den NYA datan till alla andra spelare
                 for (int i = 0; i < NROFPLAYERS; i++)
                 {
                     if (i != clientIndex && players[i].active)
                     {
-                        server_sendPlayerData(&players[i].data, &clientAddress);
+                        server_sendPlayerData(&players[clientIndex].data, &players[i].address);
                     }
                 }
             }
         }
-        // kontorllera timeouts
+        // Kolla timeouts
         Uint32 now = SDL_GetTicks();
         for (int i = 0; i < NROFPLAYERS; i++)
         {
             if (players[i].active && (now - players[i].lastActiveTime > TIMEOUT_MS))
             {
-                printf("Timeout: Player %d disconnected.\n", i);
+                printf("Timeout: Player %d disconnected.\n", players[i].data.playerID +  1);
                 players[i].active = false;
             }
         }
 
-        // Vänta lite för att spara CPU
-        SDL_Delay(1);
+        SDL_Delay(1); // Spara CPU
     }
 
-    // om while loopen bryts då detta gäller.
+    // Om loop bryts
     closeServer();
     SDLNet_Quit();
-    return false;
+    return 0;
 }

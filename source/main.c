@@ -19,12 +19,14 @@
 #include "server.h"
 #include "network.h"
 #include "client.h"
+#include "globals.h"
 
-#define IPLENGTH 64
+
 
 // Globala variabler
+
 char serverIP[IPLENGTH] = "127.0.0.1"; // Default IP = localhost
-int playerID = 0;                      // default
+int PlayerID = 0; 
 
 int main(int argc, char **argv)
 {
@@ -59,8 +61,8 @@ int main(int argc, char **argv)
         else if (strcasecmp(argv[i], "--id") == 0 && (i + 1) < argc)
         {
             // test via id
-            playerID = atoi(argv[i + 1]);
-            if (playerID < 0 || playerID > 1)
+            PlayerID = atoi(argv[i + 1]);
+            if (PlayerID < 0 || PlayerID > 3)
             {
                 printf("Wrong ID. Use --id 0 or --id 1.\n");
                 return true;
@@ -101,7 +103,7 @@ int main(int argc, char **argv)
         {
             printf("TEST RESULTAT: PASSED.\n");
             printf("Everything went fine! Test completed without errors.\n");
-            gameLoop(&res, playerID); // Om testerna gick bra, starta spelet
+            gameLoop(&res); // Om testerna gick bra, starta spelet
         }
         else
         {
@@ -112,7 +114,7 @@ int main(int argc, char **argv)
     }
 
     // Om inte testläge, starta spelet direkt
-    gameLoop(&res, playerID);
+    gameLoop(&res);
 
     // Rensa alla resurser och avsluta SDL
     cleanup(&res);
