@@ -17,6 +17,8 @@ struct Car
     float x, y;               // Exakt position i världen (flyttal för smidigare rörelse)
     float angle;              // Vinkel i grader (rotation)
     float speed;              // Nuvarande fart
+    int width;
+    int height;
 };
 
 // Ny version: skapar och returnerar en pekare
@@ -54,6 +56,9 @@ Car *createCar(SDL_Renderer *pRenderer, const char *pImagepath, int x, int y, in
 
     // Initiera bilens rektangel för rendering
     pCar->carRect = (SDL_Rect){x, y, w, h};
+
+    pCar->width = w;
+    pCar->height = h;
 
     // Initiera bilens inre position och rörelse
     pCar->x = (float)x;
@@ -186,15 +191,61 @@ void setCarPosition(Car *car, float x, float y, float angle)
     car->carRect.x = (int)x;
     car->carRect.y = (int)y;
 }
-
 void setCarAngle(Car *pCar, float angle)
 {
     if (pCar)
         pCar->angle = angle;
 }
-
 void setCarSpeed(Car *pCar, float speed)
 {
     if (pCar)
         pCar->speed = speed;
+}
+void resolveCollision(Car *pA, Car *pB)
+{
+    float ax = pA->x + pA->carRect.w / 2;
+    float ay = pA->y + pA->carRect.h / 2;
+    float bx = pB->x + pB->carRect.w / 2;
+    float by = pB->y + pB->carRect.h / 2;
+
+    float dx = ax - bx;
+    float dy = ay - by;
+    float distance = SDL_sqrtf(dx * dx + dy * dy);
+
+    float minDistance = 29.0f; // Justera detta: bilarnas visuella närhet
+
+    if (distance >= minDistance)
+        return; // För långt ifrån, ingen krock
+
+    float overlap = minDistance - distance;
+    if (distance == 0.0f)
+        distance = 1.0f;
+
+    dx /= distance;
+    dy /= distance;
+
+    float push = overlap / 2.0f;
+
+    float newAx = pA->x + dx * push;
+    float newAy = pA->y + dy * push;
+    float newBx = pB->x - dx * push;
+    float newBy = pB->y - dy * push;
+
+    // Kolla att båda bilarna får stå kvar på banan
+    if (isTileAllowed(newAx + pA->carRect.w / 2, newAy + pA->carRect.h / 2) &&
+        isTileAllowed(newBx + pB->carRect.w / 2, newBy + pB->carRect.h / 2))
+    {
+        pA->x = newAx;
+        pA->y = newAy;
+        pB->x = newBx;
+        pB->y = newBy;
+
+        pA->carRect.x = (int)pA->x;
+        pA->carRect.y = (int)pA->y;
+        pB->carRect.x = (int)pB->x;
+        pB->carRect.y = (int)pB->y;
+
+        pA->speed *= 0.7f;
+        pB->speed *= 0.7f;
+    }
 }
