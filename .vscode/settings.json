@@ -24,6 +24,7 @@
         "buffer": "c",
         "socket": "c",
         "string_view": "c",
-        "span": "c"
+        "span": "c",
+        "stdlib.h": "c"
     }
 }
