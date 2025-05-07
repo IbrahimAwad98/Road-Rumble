@@ -8,17 +8,13 @@ end tell'
 # Väntar 2 sekunder så att servern hinner starta
 sleep 2
 
-# Startar första klienten i nytt Terminal-fönster med etikett "CLIENT 0"
-osascript -e 'tell app "Terminal"
-    do script "echo CLIENT 0; ./Game --ip 127.0.0.1 --id 0"
-end tell'
-
-# Väntar 1 sekund till
-sleep 1
-
-# Startar andra klienten i nytt Terminal-fönster med etikett "CLIENT 1"
-osascript -e 'tell app "Terminal"
-    do script "echo CLIENT 1; ./Game --ip 127.0.0.1 --id 1"
-end tell'
+# Startar klienterna 1–4 i var sitt Terminal-fönster med etiketter "CLIENT 1" till "CLIENT 4"
+for id in {1..4}; do
+    osascript -e "tell app \"Terminal\"
+        do script \"echo CLIENT $id; ./Game --ip 127.0.0.1 --id $id\"
+    end tell"
+    # Väntar 1 sekund så att varje klient hinner koppla upp sig
+    sleep 1
+done
 
 echo "All programs started. You can now play!"
