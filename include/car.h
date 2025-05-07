@@ -29,5 +29,7 @@ SDL_Rect getCarRect(const Car *pCar);
 void setCarPosition(Car *car, float x, float y, float angle);
 void setCarAngle(Car *pCar, float angle);
 void setCarSpeed(Car *pCar, float speed);
+// fixa krock
+void resolveCollision(Car *pA, Car *pB);
 
 #endif

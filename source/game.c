@@ -328,6 +328,14 @@ void gameLoop(GameResources *pRes)
             SDL_RenderCopy(pRes->pRenderer, pRes->pExitTexture, NULL, &pRes->exitRect);
             SDL_RenderCopy(pRes->pRenderer, isMuted ? pRes->pMuteTexture : pRes->pUnmuteTexture, NULL, &pRes->muteRect);
         }
+
+        resolveCollision(pRes->pCar1, pRes->pCar2);
+        resolveCollision(pRes->pCar1, pRes->pCar3);
+        resolveCollision(pRes->pCar1, pRes->pCar4);
+        resolveCollision(pRes->pCar2, pRes->pCar3);
+        resolveCollision(pRes->pCar2, pRes->pCar4);
+        resolveCollision(pRes->pCar3, pRes->pCar4);
+
         // Spelläget (via nätverk)
         Car *cars[4] = {pRes->pCar1, pRes->pCar2, pRes->pCar3, pRes->pCar4};
 
