@@ -198,15 +198,6 @@ void gameLoop(GameResources *pRes)
                     sfxLevel = (seg < 0) ? 0 : (seg > 4 ? 4 : seg);
                     Mix_VolumeMusic(sfxVolumes[sfxLevel]);
                 }
-                /*if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->classicRect))
-                {
-                    menuMode = DARK;
-                }
-                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->darkRect))
-                {
-                    menuMode = CLASSIC;
-                }*/
-
                 // Tillbaka till meny
                 if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->backRect))
                 {
