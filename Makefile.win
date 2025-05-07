@@ -90,7 +90,7 @@ server_main.o: $(SRCDIR)/server_main.c
 # ============================
 # Rensa objekt och binär
 # ============================
-RM = rm -rf
+RM = del /Q
 
 clean:
 	$(RM) *.exe *.o
