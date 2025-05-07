@@ -85,6 +85,6 @@ typedef struct
 } GameResources;
 
 // Funktionsdeklaration
-void gameLoop(GameResources *pRes, int localPlayerID);
+void gameLoop(GameResources *pRes);
 
 #endif // GAME_H

@@ -9,9 +9,10 @@
     #include "client.h"
     #include "server.h"
     #include "network.h"
+    #include "globals.h"
 
     // Spelets huvudloop: hanterar input, rendering och växling mellan spellägen
-    void gameLoop(GameResources *pRes, int localPlayerID)
+    void gameLoop(GameResources *pRes)
     {
         // tillstånd variabeler
         int isMuted = 0;                            // Flagga för ljud av/på
@@ -274,11 +275,11 @@
                     {
                         if (strlen(joinIpText) > 0 && strlen(playerIdText) > 0)
                         {
-                            localPlayerID = atoi(playerIdText); // <- Set playerID globally!
+                            PlayerID = atoi(playerIdText)-1; // <- Set playerID globally!
 
                             if (initClient(joinIpText, SERVER_PORT))
                             {
-                                printf("Connected to %s successfully as Player %d!\n", joinIpText, localPlayerID);
+                                printf("Connected to %s successfully as Player %d!\n", joinIpText, PlayerID);
                                 mode = PLAYING;
                             }
                             else
@@ -324,90 +325,62 @@
             }
 
             // Spelläget (via nätverk)
-            else if (mode == PLAYING)
+            Car *cars[4] = {pRes->pCar1, pRes->pCar2, pRes->pCar3, pRes->pCar4};
+
+            if (mode == PLAYING)
             {
-                SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255); // resna skärmen
+                SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255); // rensa skärmen
                 SDL_RenderClear(pRes->pRenderer);
-                const Uint8 *keys = SDL_GetKeyboardState(NULL); // läs tangent
+                const Uint8 *keys = SDL_GetKeyboardState(NULL); // läs tangentbord
 
-                if (localPlayerID == 0)
+                // === Uppdatera min egen bil ===
+                if (PlayerID >= 0 && PlayerID < 4)
                 {
-                    updateCar(pRes->pCar1, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
-                }
-                else // localPlayerID == 1
-                {
-                    updateCar(pRes->pCar2, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
+                    updateCar(cars[PlayerID], keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
                 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-                // Multiplayerdata
+                // === Skicka min position ===
                 PlayerData myData = {0};
-                myData.playerID = localPlayerID;
-                if (localPlayerID == 0)
+                myData.playerID = PlayerID;
+
+                if (PlayerID >= 0 && PlayerID < 4)
                 {
-                    myData.x = getCarX(pRes->pCar1);
-                    myData.y = getCarY(pRes->pCar1);
-                    myData.angle = getCarAngle(pRes->pCar1);
+                    myData.x = getCarX(cars[PlayerID]);
+                    myData.y = getCarY(cars[PlayerID]);
+                    myData.angle = getCarAngle(cars[PlayerID]);
                 }
-                else
-                {
-                    myData.x = getCarX(pRes->pCar2);
-                    myData.y = getCarY(pRes->pCar2);
-                    myData.angle = getCarAngle(pRes->pCar2);
-                }
+
                 client_sendPlayerData(&myData);
 
-                // Det här en buffer för att inte tappa paketet
-                static PlayerData lastOpponent = {0}; // Behåll senaste datan
-
-                // Ta emot motståndarens bil
+                // === Ta emot andra spelares positioner ===
                 PlayerData opponentData = {0};
-                bool opponentConnected = false;
-                if (client_receiveServerData(&opponentData))
+
+                while (client_receiveServerData(&opponentData))
                 {
-                    // beräkning av ping
+                    if (opponentData.playerID == PlayerID)
+                        continue; // hoppa min egen data
+
                     Uint32 now = SDL_GetTicks();
                     if (opponentData.timestamp > 0)
                     {
                         ping = now - opponentData.timestamp;
                     }
 
-                    if (opponentData.playerID != localPlayerID)
+                    if (opponentData.playerID >= 0 && opponentData.playerID < 4)
                     {
-                        lastOpponent = opponentData;
-                        opponentConnected = true;
-                    }
-
-                    if (localPlayerID == 0)
-                    {
-                        setCarPosition(pRes->pCar2, lastOpponent.x, lastOpponent.y, lastOpponent.angle);
-                    }
-                    else
-                    {
-                        setCarPosition(pRes->pCar1, lastOpponent.x, lastOpponent.y, lastOpponent.angle);
+                        setCarPosition(cars[opponentData.playerID], opponentData.x, opponentData.y, opponentData.angle);
                     }
                 }
-                
+
+                // === Rendera spelvärlden ===
                 renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93);
                 renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap);
 
-                renderCar(pRes->pRenderer, pRes->pCar1);
-                renderCar(pRes->pRenderer, pRes->pCar2);
-                renderCar(pRes->pRenderer, pRes->pCar3);
-                renderCar(pRes->pRenderer, pRes->pCar4);
-                
+                // Rita alla bilar
+                for (int i = 0; i < 4; i++)
+                {
+                    renderCar(pRes->pRenderer, cars[i]);
+                }
 
                 // Rita ping
                 char pingText[64];
@@ -420,6 +393,7 @@
                 SDL_FreeSurface(pingSurface);
                 SDL_DestroyTexture(pingTex);
             }
+
 
             //  Inställningsmeny
             else if (mode == OPTIONS)
