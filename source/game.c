@@ -337,6 +337,13 @@ void gameLoop(GameResources *pRes, int localPlayerID)
                 updateCar(pRes->pCar2, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
             }
 
+            resolveCollision(pRes->pCar1, pRes->pCar2);
+            resolveCollision(pRes->pCar1, pRes->pCar3);
+            resolveCollision(pRes->pCar1, pRes->pCar4);
+            resolveCollision(pRes->pCar2, pRes->pCar3);
+            resolveCollision(pRes->pCar2, pRes->pCar4);
+            resolveCollision(pRes->pCar3, pRes->pCar4);
+
             // Multiplayerdata
             PlayerData myData = {0};
             myData.playerID = localPlayerID;

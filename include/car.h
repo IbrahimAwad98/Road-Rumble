@@ -30,4 +30,5 @@ void setCarPosition(Car *car, float x, float y, float angle);
 void setCarAngle(Car *pCar, float angle);
 void setCarSpeed(Car *pCar, float speed);
 
+void resolveCollision(Car *pA, Car *pB);
 #endif
