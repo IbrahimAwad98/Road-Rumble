@@ -2,7 +2,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_net.h>
 #include <SDL2/SDL_mixer.h>
-
+// filer
 #include "cleanup.h"
 #include "car.h"
 #include "client.h"
@@ -13,6 +13,8 @@ void cleanup(GameResources *pRes)
     // rensa bilar
     destroyCar(pRes->pCar1);
     destroyCar(pRes->pCar2);
+    destroyCar(pRes->pCar3);
+    destroyCar(pRes->pCar4);
 
     // Frigör alla resurser i omvänd ordning
     SDL_DestroyTexture(pRes->pStartTexture);
