@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 #include <stdbool.h>
+
 // filer
 #include "game.h"
 #include "car.h"
@@ -32,6 +33,13 @@ void gameLoop(GameResources *pRes)
     GameMode mode = MENU;           // Startläge: huvudmeny
     int hoveredButton = -1;         // Vilken menyknapp som musen är över
     Uint32 ping = 0;                // ping-mätning
+
+    // Varv räknanre variabler
+    int currentLap = -1;            // Börjar på -1 för att indikera första varvet
+    int displayedLap = 0;           // Startar på 0
+    bool hasCrossedStartLine = false; // Spåra om vi har korsat startlinjen
+    float lastCarX = 0;             // Spåra senaste bilens position
+    float lastCarY = 0;             // Spåra senaste bilens position
 
     // justerar automatisk
     SDL_RenderSetLogicalSize(pRes->pRenderer, WIDTH, HEIGHT);
@@ -198,15 +206,6 @@ void gameLoop(GameResources *pRes)
                     sfxLevel = (seg < 0) ? 0 : (seg > 4 ? 4 : seg);
                     Mix_VolumeMusic(sfxVolumes[sfxLevel]);
                 }
-                /*if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->classicRect))
-                {
-                    menuMode = DARK;
-                }
-                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->darkRect))
-                {
-                    menuMode = CLASSIC;
-                }*/
-
                 // Tillbaka till meny
                 if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->backRect))
                 {
@@ -349,6 +348,29 @@ void gameLoop(GameResources *pRes)
             if (PlayerID >= 0 && PlayerID < 4)
             {
                 updateCar(cars[PlayerID], keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
+                
+                // Varv räknanre logik
+                float currentX = getCarX(cars[PlayerID]);
+                float currentY = getCarY(cars[PlayerID]);
+                
+                // Kontrollera om vi korsar start/mållinjen (tile 41)
+                int tileCol = (int)(currentX / TILE_SIZE);
+                int tileRow = (int)(currentY / TILE_SIZE);
+                
+                if (tilemap[tileRow][tileCol] == 41) {
+                    if (!hasCrossedStartLine) {
+                        hasCrossedStartLine = true;
+                        if (currentLap < 3) {  // Endast räkna upp till 3 varv
+                            currentLap++;
+                            displayedLap = currentLap < 0 ? 0 : currentLap;
+                        }
+                    }
+                } else {
+                    hasCrossedStartLine = false;
+                }
+                
+                lastCarX = currentX;
+                lastCarY = currentY;
             }
 
             // === Skicka min position ===
@@ -404,6 +426,16 @@ void gameLoop(GameResources *pRes)
             SDL_RenderCopy(pRes->pRenderer, pingTex, NULL, &pingRect);
             SDL_FreeSurface(pingSurface);
             SDL_DestroyTexture(pingTex);
+
+            // Visar varv räknanre
+            char lapText[32];
+            sprintf(lapText, "Lap: %d/3", displayedLap);
+            SDL_Surface *lapSurface = TTF_RenderText_Solid(pRes->pFont, lapText, white);
+            SDL_Texture *lapTex = SDL_CreateTextureFromSurface(pRes->pRenderer, lapSurface);
+            SDL_Rect lapRect = {WIDTH - lapSurface->w - 20, 20, lapSurface->w, lapSurface->h};
+            SDL_RenderCopy(pRes->pRenderer, lapTex, NULL, &lapRect);
+            SDL_FreeSurface(lapSurface);
+            SDL_DestroyTexture(lapTex);
         }
 
         //  Inställningsmeny
