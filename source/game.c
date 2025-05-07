@@ -10,22 +10,8 @@
     #include "client.h"
     #include "server.h"
     #include "network.h"
-    #include "globals.h"
+   #include "globals.h"
 
-    // Spelets huvudloop: hanterar input, rendering och växling mellan spellägen
-    void gameLoop(GameResources *pRes)
-
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_mixer.h>
-#include <stdbool.h>
-
-// filer
-#include "game.h"
-#include "car.h"
-#include "tilemap.h"
-#include "client.h"
-#include "server.h"
-#include "network.h"
 
 // Spelets huvudloop: hanterar input, rendering och växling mellan spellägen
 void gameLoop(GameResources *pRes, int localPlayerID)
@@ -404,6 +390,13 @@ void gameLoop(GameResources *pRes, int localPlayerID)
                 updateCar(pRes->pCar2, keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
             }
 
+
+            resolveCollision(pRes->pCar1, pRes->pCar2);
+            resolveCollision(pRes->pCar1, pRes->pCar3);
+            resolveCollision(pRes->pCar1, pRes->pCar4);
+            resolveCollision(pRes->pCar2, pRes->pCar3);
+            resolveCollision(pRes->pCar2, pRes->pCar4);
+            resolveCollision(pRes->pCar3, pRes->pCar4);
 
             // Spelläget (via nätverk)
             Car *cars[4] = {pRes->pCar1, pRes->pCar2, pRes->pCar3, pRes->pCar4};
