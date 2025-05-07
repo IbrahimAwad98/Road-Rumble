@@ -11,7 +11,7 @@ SDL_Rect getTileSrcByID(int tileID)
     src.y = (tileID / TILESET_COLUMNS) * TILE_SIZE; // Beräknar vilken rad i tileset-bilden vi är på (y-position)
     src.w = TILE_SIZE;                              // Sätter bredden på rutan till TILE_SIZE
     src.h = TILE_SIZE;                              // Sätter höjden på rutan till TILE_SIZE
-    
+
     return src; // Returnerar rutan som visar vilken del av bilden vi vill rita
 }
 
@@ -23,7 +23,6 @@ int tilemap[MAP_HEIGHT][MAP_WIDTH] = {
     {-1, 0, 115, 23, 1, 1, 1, 24, 115, 0, -1},
     {-1, 41, 113, -1, -1, -1, -1, -1, 113, 0, -1},
     {104, 38, 1, 1, 1, 1, 1, 1, 1, 40, 104}};
-
 
 // Gör hela bakgrunden till gräs
 void renderGrassBackground(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int grassTileID)
@@ -46,11 +45,11 @@ void renderGrassBackground(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int gr
         for (int col = 0; col < tilesX; col++)
         {
             SDL_Rect dest = {
-                col * TILE_SIZE, // x-position: kolumn * TILE_SIZE (t.ex. 0, 128, 256 ...) räknar ut exakt x-position i pixlar
-                row * TILE_SIZE, // y-position: rad * TILE_SIZE räknar ut exakt y-position i pixlar
+                col * TILE_SIZE,       // x-position: kolumn * TILE_SIZE (t.ex. 0, 128, 256 ...) räknar ut exakt x-position i pixlar
+                row * TILE_SIZE,       // y-position: rad * TILE_SIZE räknar ut exakt y-position i pixlar
                 TILE_SIZE, TILE_SIZE}; // Bredd och höjd på varje tile
 
-            SDL_RenderCopy(pRenderer, pTiles[grassTileID], NULL, &dest);  // Ritar ut grästilen på rätt plats på skärmen
+            SDL_RenderCopy(pRenderer, pTiles[grassTileID], NULL, &dest); // Ritar ut grästilen på rätt plats på skärmen
         }
     }
 }
@@ -72,12 +71,12 @@ void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int ti
             {
                 continue;
             }
-              // Om tileID är giltigt (0 till NUM_TILES-1) och texturen finns
+            // Om tileID är giltigt (0 till NUM_TILES-1) och texturen finns
             if (tileID >= 0 && tileID < NUM_TILES && pTiles[tileID])
             {
                 SDL_Rect dest = {
-                    col * TILE_SIZE, // x-position: kolumn * TILE_SIZE
-                    row * TILE_SIZE, // y-position: rad * TILE_SIZE
+                    col * TILE_SIZE,       // x-position: kolumn * TILE_SIZE
+                    row * TILE_SIZE,       // y-position: rad * TILE_SIZE
                     TILE_SIZE, TILE_SIZE}; // Bredd och höjd på varje tile
 
                 SDL_RenderCopy(pRenderer, pTiles[tileID], NULL, &dest); // Ritar ut rätt tile på rätt plats
@@ -92,7 +91,7 @@ bool isTileAllowed(float x, float y) // Returnerar true om en position (x, y) ä
     int row = (int)(y / TILE_SIZE); // Räkna ut vilken rad i tilemap vi är i (utifrån y-position)
 
     // Om positionen är utanför tilemapens gränser, returnera false
-    if (row < 0 || row >= MAP_HEIGHT || col < 0 || col >= MAP_WIDTH) 
+    if (row < 0 || row >= MAP_HEIGHT || col < 0 || col >= MAP_WIDTH)
         return false;
 
     int tileID = tilemap[row][col]; // Hämta tileID på den aktuella positionen
@@ -100,19 +99,19 @@ bool isTileAllowed(float x, float y) // Returnerar true om en position (x, y) ä
     // Tillåt bara specifika vägtiles
     switch (tileID)
     {
-        case 0:
-        case 1:
-        case 2:
-        case 4:
-        case 5:
-        case 6:
-        case 23:
-        case 24:
-        case 38:
-        case 40:
-        case 41:
-            return true;
-        default:
-            return false;
+    case 0:
+    case 1:
+    case 2:
+    case 4:
+    case 5:
+    case 6:
+    case 23:
+    case 24:
+    case 38:
+    case 40:
+    case 41:
+        return true;
+    default:
+        return false;
     }
 }
