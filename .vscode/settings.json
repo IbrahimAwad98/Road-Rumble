@@ -25,6 +25,7 @@
         "socket": "c",
         "string_view": "c",
         "span": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "globals.h": "c"
     }
 }
