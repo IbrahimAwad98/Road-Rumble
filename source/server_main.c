@@ -48,6 +48,12 @@ int main(int argc, char **argv)
         // Vänta på data från klient
         if (server_receivePlayerData(&playerData, &clientAddress))
         {
+            if (playerData.isPing == 1)
+            {
+                server_sendPlayerData(&playerData, &clientAddress);
+                continue;
+            }
+
             int clientIndex = -1;
 
             // Finn om klienten redan finns

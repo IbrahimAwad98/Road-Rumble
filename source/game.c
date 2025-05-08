@@ -30,7 +30,8 @@ void gameLoop(GameResources *pRes)
     bool escWasPressedOnce = false; // flagga
     GameMode mode = MENU;           // Startläge: huvudmeny
     int hoveredButton = -1;         // Vilken menyknapp som musen är över
-    Uint32 ping = 0;                // ping-mätning
+    Uint32 ping = 0;
+    static Uint32 lastPingRequest = 0; // ping-mätning
     // Varv räknanre variabler
     int currentLap = -1;              // Börjar på -1 för att indikera första varvet
     int displayedLap = 0;             // Startar på 0
@@ -314,8 +315,7 @@ void gameLoop(GameResources *pRes)
             SDL_SetTextureColorMod(pRes->pMultiplayerTexture, hoveredButton == 1 ? 200 : 255, hoveredButton == 1 ? 200 : 255, 255);
             SDL_SetTextureColorMod(pRes->pOptionsTexture, hoveredButton == 2 ? 200 : 255, hoveredButton == 2 ? 200 : 255, 255);
             SDL_SetTextureColorMod(pRes->pExitTexture, hoveredButton == 3 ? 200 : 255, hoveredButton == 3 ? 200 : 255, 255);
-            SDL_SetTextureColorMod(isMuted ? pRes->pMuteTexture : pRes->pUnmuteTexture,
-                                   hoveredButton == 4 ? 200 : 255, hoveredButton == 4 ? 200 : 255, 255);
+            SDL_SetTextureColorMod(isMuted ? pRes->pMuteTexture : pRes->pUnmuteTexture, hoveredButton == 4 ? 200 : 255, hoveredButton == 4 ? 200 : 255, 255);
 
             // Rendera knappar
             SDL_RenderCopy(pRes->pRenderer, pRes->pStartTexture, NULL, &pRes->startRect);
@@ -341,6 +341,16 @@ void gameLoop(GameResources *pRes)
             SDL_RenderClear(pRes->pRenderer);
             const Uint8 *keys = SDL_GetKeyboardState(NULL); // läs tangentbord
 
+            Uint32 now = SDL_GetTicks();
+            if (now - lastPingRequest >= 1000)
+            {
+                PlayerData pingRequest = {0};
+                pingRequest.playerID = PlayerID;
+                pingRequest.timestamp = now;
+                pingRequest.isPing = 1;
+                client_sendPlayerData(&pingRequest);
+                lastPingRequest = now;
+            }
             // === Uppdatera min egen bil ===
             if (PlayerID >= 0 && PlayerID < 4)
             {
@@ -392,13 +402,17 @@ void gameLoop(GameResources *pRes)
 
             while (client_receiveServerData(&opponentData))
             {
-                if (opponentData.playerID == PlayerID)
-                    continue; // hoppa min egen data
-
-                Uint32 now = SDL_GetTicks();
-                if (opponentData.timestamp > 0)
+                // Om det är ett ping-svar till mig
+                if (opponentData.isPing == 1 && opponentData.playerID == PlayerID)
                 {
-                    ping = now - opponentData.timestamp;
+                    ping = SDL_GetTicks() - opponentData.timestamp;
+                    continue;
+                }
+
+                // Vanlig spelardata
+                if (opponentData.playerID == PlayerID)
+                {
+                    continue;
                 }
 
                 if (opponentData.playerID >= 0 && opponentData.playerID < 4)
@@ -419,21 +433,34 @@ void gameLoop(GameResources *pRes)
 
             // Rita ping
             char pingText[64];
-            sprintf(pingText, "%dms", ping);
-            SDL_Color white = {255, 255, 255};
-            SDL_Surface *pingSurface = TTF_RenderText_Solid(pRes->pFont, pingText, white);
+            sprintf(pingText, "%dms", (int)ping);
+            SDL_Color color;
+            if (ping < 30)
+            {
+                color = (SDL_Color){0, 255, 0}; // Grön
+            }
+            else if (ping < 80)
+            {
+                color = (SDL_Color){255, 255, 0}; // Gul
+            }
+            else
+            {
+                color = (SDL_Color){255, 0, 0}; // Röd
+            }
+            SDL_Surface *pingSurface = TTF_RenderText_Solid(pRes->pFont, pingText, color);
             SDL_Texture *pingTex = SDL_CreateTextureFromSurface(pRes->pRenderer, pingSurface);
-            SDL_Rect pingRect = {20, 20, pingSurface->w, pingSurface->h};
+            SDL_Rect pingRect = {10, 10, pingSurface->w, pingSurface->h};
             SDL_RenderCopy(pRes->pRenderer, pingTex, NULL, &pingRect);
             SDL_FreeSurface(pingSurface);
             SDL_DestroyTexture(pingTex);
 
             // Visar varv räknanre
             char lapText[32];
-            sprintf(lapText, "Lap: %d/3", displayedLap);
+            sprintf(lapText, "%d/3", displayedLap);
+            SDL_Color white = {255, 255, 255};
             SDL_Surface *lapSurface = TTF_RenderText_Solid(pRes->pFont, lapText, white);
             SDL_Texture *lapTex = SDL_CreateTextureFromSurface(pRes->pRenderer, lapSurface);
-            SDL_Rect lapRect = {WIDTH - lapSurface->w - 20, 20, lapSurface->w, lapSurface->h};
+            SDL_Rect lapRect = {WIDTH - lapSurface->w - 10, 10, lapSurface->w, lapSurface->h};
             SDL_RenderCopy(pRes->pRenderer, lapTex, NULL, &lapRect);
             SDL_FreeSurface(lapSurface);
             SDL_DestroyTexture(lapTex);
