@@ -12,6 +12,7 @@ typedef struct
     float x, y;       // position
     float angle;      // vridning
     int actionCode;   // kommando ex: 0 = idle, 1 = move...
+    int isPing;       // 0 vanlig data 1 pingförfrågan
     Uint32 timestamp; // för ping-mätning
 } PlayerData;
 
