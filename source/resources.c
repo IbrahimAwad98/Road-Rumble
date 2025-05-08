@@ -178,11 +178,9 @@ bool loadResources(GameResources *pRes)
     pRes->musicVolumeRect = (SDL_Rect){680, 240, 220, 30};
     pRes->backRect = (SDL_Rect){340, 580, 590, 90};
     pRes->SfxRect = (SDL_Rect){680, 329, 220, 30};
-
     pRes->portRect = (SDL_Rect){465, 230, 646, 85};
     pRes->joinRect = (SDL_Rect){465, 325, 646, 89};
     pRes->playerIdRect = (SDL_Rect){465, 430, 646, 85};
-
     pRes->backMRect = (SDL_Rect){240, 540, 370, 75};
     pRes->enterRect = (SDL_Rect){720, 540, 370, 75};
 
