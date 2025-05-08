@@ -87,4 +87,4 @@ typedef struct
 // Funktionsdeklaration
 void gameLoop(GameResources *pRes);
 
-#endif // GAME_H
+#endif

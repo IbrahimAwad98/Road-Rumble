@@ -10,7 +10,6 @@
 #include "network.h"
 #include "globals.h"
 
-// Spelets huvudloop: hanterar input, rendering och växling mellan spellägen
 void gameLoop(GameResources *pRes)
 {
     // tillstånd variabeler
@@ -420,7 +419,7 @@ void gameLoop(GameResources *pRes)
 
             // Rita ping
             char pingText[64];
-            sprintf(pingText, "%d ms", ping);
+            sprintf(pingText, "%dms", ping);
             SDL_Color white = {255, 255, 255};
             SDL_Surface *pingSurface = TTF_RenderText_Solid(pRes->pFont, pingText, white);
             SDL_Texture *pingTex = SDL_CreateTextureFromSurface(pRes->pRenderer, pingSurface);
