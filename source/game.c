@@ -71,7 +71,7 @@ void gameLoop(GameResources *pRes)
 
     // Initiera bilar
     pRes->pCar1 = createCar(pRes->pRenderer, "resources/Cars/Black_viper.png", car1X, car1Y, carWidth, carHeight);
-    pRes->pCar2 = createCar(pRes->pRenderer, "resources/Cars/Police.png", car2X, car2Y, carWidth, carHeight);
+    pRes->pCar2 = createCar(pRes->pRenderer, "resources/Cars/Mini_truck.png", car2X, car2Y, carWidth, carHeight);
     pRes->pCar3 = createCar(pRes->pRenderer, "resources/Cars/Audi.png", car3X, car3Y, carWidth, carHeight);
     pRes->pCar4 = createCar(pRes->pRenderer, "resources/Cars/car.png", car4X, car4Y, carWidth, carHeight);
     // bil 3
