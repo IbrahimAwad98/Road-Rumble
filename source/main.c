@@ -8,7 +8,6 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL.h>
 #include <string.h>
-
 // filer
 #include "cleanup.h"
 #include "game.h"
@@ -21,12 +20,9 @@
 #include "client.h"
 #include "globals.h"
 
-
-
 // Globala variabler
-
 char serverIP[IPLENGTH] = "127.0.0.1"; // Default IP = localhost
-int PlayerID = 0; 
+int PlayerID = 0;
 
 int main(int argc, char **argv)
 {
@@ -62,11 +58,13 @@ int main(int argc, char **argv)
         {
             // test via id
             PlayerID = atoi(argv[i + 1]);
-            if (PlayerID < 0 || PlayerID > 3)
+            if (PlayerID < 1 || PlayerID > 4)
             {
-                printf("Wrong ID. Use --id 0 or --id 1.\n");
+                printf("Wrong ID. Use --id 1 or --id 4.\n");
                 return true;
             }
+            // konvertera 1–4 → 0–3 för arrayer osv.
+            PlayerID--;
             i++;
         }
     }

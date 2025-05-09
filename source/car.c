@@ -17,6 +17,8 @@ struct Car
     float x, y;               // Exakt position i världen (flyttal för smidigare rörelse)
     float angle;              // Vinkel i grader (rotation)
     float speed;              // Nuvarande fart
+    int width;
+    int height;
 };
 
 // Ny version: skapar och returnerar en pekare
@@ -54,6 +56,9 @@ Car *createCar(SDL_Renderer *pRenderer, const char *pImagepath, int x, int y, in
 
     // Initiera bilens rektangel för rendering
     pCar->carRect = (SDL_Rect){x, y, w, h};
+
+    pCar->width = w;
+    pCar->height = h;
 
     // Initiera bilens inre position och rörelse
     pCar->x = (float)x;
@@ -186,13 +191,11 @@ void setCarPosition(Car *car, float x, float y, float angle)
     car->carRect.x = (int)x;
     car->carRect.y = (int)y;
 }
-
 void setCarAngle(Car *pCar, float angle)
 {
     if (pCar)
         pCar->angle = angle;
 }
-
 void setCarSpeed(Car *pCar, float speed)
 {
     if (pCar)
