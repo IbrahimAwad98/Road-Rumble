@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 #include <stdbool.h>
+
 // filer
 #include "game.h"
 #include "car.h"
@@ -10,6 +11,7 @@
 #include "network.h"
 #include "globals.h"
 
+// Spelets huvudloop: hanterar input, rendering och växling mellan spellägen
 void gameLoop(GameResources *pRes)
 {
     // tillstånd variabeler
@@ -29,8 +31,9 @@ void gameLoop(GameResources *pRes)
     bool isFullscreen = true;       // flagga
     bool escWasPressedOnce = false; // flagga
     GameMode mode = MENU;           // Startläge: huvudmeny
-    int hoveredButton = -1;         // Vilken menyknapp som musen är över
-    Uint32 ping = 0;
+    MenuMode menuMode = CLASSIC;
+    int hoveredButton = -1;            // Vilken menyknapp som musen är över
+    Uint32 ping = 0;                   // ping-mätning
     static Uint32 lastPingRequest = 0; // ping-mätning
     // Varv räknanre variabler
     int currentLap = -1;              // Börjar på -1 för att indikera första varvet
@@ -186,28 +189,52 @@ void gameLoop(GameResources *pRes)
                     mode = MENU;
                 }
             }
-            //  Klick i inställningsmenyn
             if (event.type == SDL_MOUSEBUTTONDOWN && mode == OPTIONS)
             {
                 int x = event.button.x, y = event.button.y;
-                // Musikvolym
-                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->musicVolumeRect))
+
+                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->classicRect))
                 {
-                    int seg = (x - pRes->musicVolumeRect.x) / (pRes->musicVolumeRect.w / 5);
-                    musicVolumeLevel = (seg < 0) ? 0 : (seg > 4 ? 4 : seg);
-                    Mix_VolumeMusic(musicVolumes[musicVolumeLevel]);
+                    menuMode = (menuMode == CLASSIC) ? DARK : CLASSIC;
                 }
-                // Ljudeffektvolym
-                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->SfxRect))
+
+                if (menuMode == CLASSIC)
                 {
-                    int seg = (x - pRes->SfxRect.x) / (pRes->SfxRect.w / 5);
-                    sfxLevel = (seg < 0) ? 0 : (seg > 4 ? 4 : seg);
-                    Mix_VolumeMusic(sfxVolumes[sfxLevel]);
+                    if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->musicVolumeRect))
+                    {
+                        int seg = (x - pRes->musicVolumeRect.x) / (pRes->musicVolumeRect.w / 5);
+                        musicVolumeLevel = (seg < 0) ? 0 : (seg > 4 ? 4 : seg);
+                        Mix_VolumeMusic(musicVolumes[musicVolumeLevel]);
+                    }
+                    if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->SfxRect))
+                    {
+                        int seg = (x - pRes->SfxRect.x) / (pRes->SfxRect.w / 5);
+                        sfxLevel = (seg < 0) ? 0 : (seg > 4 ? 4 : seg);
+                        Mix_VolumeMusic(sfxVolumes[sfxLevel]);
+                    }
+                    if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->backRect))
+                    {
+                        mode = MENU;
+                    }
                 }
-                // Tillbaka till meny
-                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->backRect))
+                else if (menuMode == DARK)
                 {
-                    mode = MENU;
+                    if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->musicVolumeDarkRect))
+                    {
+                        int seg = (x - pRes->musicVolumeDarkRect.x) / (pRes->musicVolumeDarkRect.w / 5);
+                        musicVolumeLevel = (seg < 0) ? 0 : (seg > 4 ? 4 : seg);
+                        Mix_VolumeMusic(musicVolumes[musicVolumeLevel]);
+                    }
+                    if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->SfxDarkRect))
+                    {
+                        int seg = (x - pRes->SfxDarkRect.x) / (pRes->SfxDarkRect.w / 5);
+                        sfxLevel = (seg < 0) ? 0 : (seg > 4 ? 4 : seg);
+                        Mix_VolumeMusic(sfxVolumes[sfxLevel]);
+                    }
+                    if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->backDarkRect))
+                    {
+                        mode = MENU;
+                    }
                 }
             }
             // trycka på join felt eller player felt
@@ -256,73 +283,150 @@ void gameLoop(GameResources *pRes)
                 int x = event.button.x;
                 int y = event.button.y;
 
-                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->backMRect))
+                if (menuMode == CLASSIC)
                 {
-                    mode = MENU;
-                    selectedField = -1;
-                    SDL_StopTextInput();
-                    joinIpText[0] = '\0';
-                    playerIdText[0] = '\0';
-                }
-                else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->joinRect))
-                {
-                    selectedField = 1;
-                    SDL_StartTextInput();
-                }
-                else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->playerIdRect))
-                {
-                    selectedField = 2;
-                    SDL_StartTextInput();
-                }
-                else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->enterRect))
-                {
-                    if (strlen(joinIpText) > 0 && strlen(playerIdText) > 0)
-                    {
-                        PlayerID = atoi(playerIdText) - 1; // <- Set playerID globally!
 
-                        if (initClient(joinIpText, SERVER_PORT))
+                    if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->backMRect))
+                    {
+                        mode = MENU;
+                        selectedField = -1;
+                        SDL_StopTextInput();
+                        joinIpText[0] = '\0';
+                        playerIdText[0] = '\0';
+                    }
+                    else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->joinRect))
+                    {
+                        selectedField = 1;
+                        SDL_StartTextInput();
+                    }
+                    else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->playerIdRect))
+                    {
+                        selectedField = 2;
+                        SDL_StartTextInput();
+                    }
+                    else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->enterRect))
+                    {
+                        if (strlen(joinIpText) > 0 && strlen(playerIdText) > 0)
                         {
-                            printf("Connected to %s successfully as Player %d!\n", joinIpText, PlayerID);
-                            mode = PLAYING;
+                            PlayerID = atoi(playerIdText) - 1;
+
+                            if (initClient(joinIpText, SERVER_PORT))
+                            {
+                                printf("Connected to %s successfully as Player %d!\n", joinIpText, PlayerID);
+                                mode = PLAYING;
+                            }
+                            else
+                            {
+                                printf("Failed to connect to server at %s\n", joinIpText);
+                            }
                         }
                         else
                         {
-                            printf("Failed to connect to server at %s\n", joinIpText);
+                            printf("Please fill IP address and Player ID!\n");
                         }
                     }
+
                     else
                     {
-                        printf("Please fill IP address and Player ID!\n");
+                        selectedField = -1;
+                        SDL_StopTextInput();
                     }
                 }
-                else
+                else if (menuMode == DARK)
                 {
-                    selectedField = -1;
-                    SDL_StopTextInput();
+                    if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->backMDarkRect))
+                    {
+                        mode = MENU;
+                        selectedField = -1;
+                        SDL_StopTextInput();
+                        joinIpText[0] = '\0';
+                        playerIdText[0] = '\0';
+                    }
+                    else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->joinDarkRect))
+                    {
+                        selectedField = 1;
+                        SDL_StartTextInput();
+                    }
+                    else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->playerIdDarkRect))
+                    {
+                        selectedField = 2;
+                        SDL_StartTextInput();
+                    }
+                    else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->enterDarkRect))
+                    {
+                        if (strlen(joinIpText) > 0 && strlen(playerIdText) > 0)
+                        {
+                            PlayerID = atoi(playerIdText) - 1; // <- Set playerID globally!
+
+                            if (initClient(joinIpText, SERVER_PORT))
+                            {
+                                printf("Connected to %s successfully as Player %d!\n", joinIpText, PlayerID);
+                                mode = PLAYING;
+                            }
+                            else
+                            {
+                                printf("Failed to connect to server at %s\n", joinIpText);
+                            }
+                        }
+                        else
+                        {
+                            printf("Please fill IP address and Player ID!\n");
+                        }
+                    }
+
+                    else
+                    {
+                        selectedField = -1;
+                        SDL_StopTextInput();
+                    }
                 }
             }
         }
         // Rendering
+        SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255);
         SDL_RenderClear(pRes->pRenderer);
 
         // Huvudmenyn
         if (mode == MENU)
         {
-            SDL_RenderCopy(pRes->pRenderer, pRes->pBackgroundTexture, NULL, NULL);
+            if (menuMode == CLASSIC)
+            {
+                SDL_RenderCopy(pRes->pRenderer, pRes->pBackgroundTexture, NULL, NULL);
 
-            // Färgtoning för hovereffekt
-            SDL_SetTextureColorMod(pRes->pStartTexture, hoveredButton == 0 ? 200 : 255, hoveredButton == 0 ? 200 : 255, 255);
-            SDL_SetTextureColorMod(pRes->pMultiplayerTexture, hoveredButton == 1 ? 200 : 255, hoveredButton == 1 ? 200 : 255, 255);
-            SDL_SetTextureColorMod(pRes->pOptionsTexture, hoveredButton == 2 ? 200 : 255, hoveredButton == 2 ? 200 : 255, 255);
-            SDL_SetTextureColorMod(pRes->pExitTexture, hoveredButton == 3 ? 200 : 255, hoveredButton == 3 ? 200 : 255, 255);
-            SDL_SetTextureColorMod(isMuted ? pRes->pMuteTexture : pRes->pUnmuteTexture, hoveredButton == 4 ? 200 : 255, hoveredButton == 4 ? 200 : 255, 255);
+                // Färgtoning för hovereffekt
+                SDL_SetTextureColorMod(pRes->pStartTexture, hoveredButton == 0 ? 200 : 255, hoveredButton == 0 ? 200 : 255, 255);
+                SDL_SetTextureColorMod(pRes->pMultiplayerTexture, hoveredButton == 1 ? 200 : 255, hoveredButton == 1 ? 200 : 255, 255);
+                SDL_SetTextureColorMod(pRes->pOptionsTexture, hoveredButton == 2 ? 200 : 255, hoveredButton == 2 ? 200 : 255, 255);
+                SDL_SetTextureColorMod(pRes->pExitTexture, hoveredButton == 3 ? 200 : 255, hoveredButton == 3 ? 200 : 255, 255);
+                SDL_SetTextureColorMod(isMuted ? pRes->pMuteTexture : pRes->pUnmuteTexture,
+                                       hoveredButton == 4 ? 200 : 255, hoveredButton == 4 ? 200 : 255, 255);
 
-            // Rendera knappar
-            SDL_RenderCopy(pRes->pRenderer, pRes->pStartTexture, NULL, &pRes->startRect);
-            SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerTexture, NULL, &pRes->multiplayerRect);
-            SDL_RenderCopy(pRes->pRenderer, pRes->pOptionsTexture, NULL, &pRes->optionsRect);
-            SDL_RenderCopy(pRes->pRenderer, pRes->pExitTexture, NULL, &pRes->exitRect);
-            SDL_RenderCopy(pRes->pRenderer, isMuted ? pRes->pMuteTexture : pRes->pUnmuteTexture, NULL, &pRes->muteRect);
+                // Rendera knappar
+                SDL_RenderCopy(pRes->pRenderer, pRes->pStartTexture, NULL, &pRes->startRect);
+                SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerTexture, NULL, &pRes->multiplayerRect);
+                SDL_RenderCopy(pRes->pRenderer, pRes->pOptionsTexture, NULL, &pRes->optionsRect);
+                SDL_RenderCopy(pRes->pRenderer, pRes->pExitTexture, NULL, &pRes->exitRect);
+                SDL_RenderCopy(pRes->pRenderer, isMuted ? pRes->pMuteTexture : pRes->pUnmuteTexture, NULL, &pRes->muteRect);
+            }
+            if (menuMode == DARK)
+            {
+                SDL_RenderCopy(pRes->pRenderer, pRes->pBackgroundDarkTexture, NULL, NULL);
+
+                // Färgtoning för hovereffekt
+                SDL_SetTextureColorMod(pRes->pStartTexture, hoveredButton == 0 ? 200 : 255, hoveredButton == 0 ? 200 : 255, 255);
+                SDL_SetTextureColorMod(pRes->pMultiplayerTexture, hoveredButton == 1 ? 200 : 255, hoveredButton == 1 ? 200 : 255, 255);
+                SDL_SetTextureColorMod(pRes->pOptionsTexture, hoveredButton == 2 ? 200 : 255, hoveredButton == 2 ? 200 : 255, 255);
+                SDL_SetTextureColorMod(pRes->pExitTexture, hoveredButton == 3 ? 200 : 255, hoveredButton == 3 ? 200 : 255, 255);
+                SDL_SetTextureColorMod(isMuted ? pRes->pMuteTexture : pRes->pUnmuteTexture,
+                                       hoveredButton == 4 ? 200 : 255, hoveredButton == 4 ? 200 : 255, 255);
+
+                // Rendera knappar
+                SDL_RenderCopy(pRes->pRenderer, pRes->pStartTexture, NULL, &pRes->startRect);
+                SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerTexture, NULL, &pRes->multiplayerRect);
+                SDL_RenderCopy(pRes->pRenderer, pRes->pOptionsTexture, NULL, &pRes->optionsRect);
+                SDL_RenderCopy(pRes->pRenderer, pRes->pExitTexture, NULL, &pRes->exitRect);
+                SDL_RenderCopy(pRes->pRenderer, isMuted ? pRes->pMuteTexture : pRes->pUnmuteTexture, NULL, &pRes->muteRect);
+            }
         }
 
         resolveCollision(pRes->pCar1, pRes->pCar2);
@@ -351,6 +455,7 @@ void gameLoop(GameResources *pRes)
                 client_sendPlayerData(&pingRequest);
                 lastPingRequest = now;
             }
+
             // === Uppdatera min egen bil ===
             if (PlayerID >= 0 && PlayerID < 4)
             {
@@ -469,102 +574,181 @@ void gameLoop(GameResources *pRes)
         //  Inställningsmeny
         else if (mode == OPTIONS)
         {
-            SDL_RenderCopy(pRes->pRenderer, pRes->pOptionsMenuTex, NULL, NULL);
-            SDL_RenderCopy(pRes->pRenderer, pRes->pBackToMenuTexture, NULL, &pRes->backRect);
-
-            // Rita volymstaplar (musik)
-            for (int i = 0; i < 5; i++)
+            if (menuMode == CLASSIC)
             {
-                SDL_Rect block = {
-                    pRes->musicVolumeRect.x + i * (pRes->musicVolumeRect.w / 5),
-                    pRes->musicVolumeRect.y,
-                    (pRes->musicVolumeRect.w / 5) - 4,
-                    pRes->musicVolumeRect.h};
-                SDL_SetRenderDrawColor(pRes->pRenderer, (i <= musicVolumeLevel) ? 255 : 30, 128, 0, 255);
-                SDL_RenderFillRect(pRes->pRenderer, &block);
+                // Full background with texts already inside
+                SDL_RenderCopy(pRes->pRenderer, pRes->pOptionsMenuTex, NULL, NULL);
+                SDL_RenderCopy(pRes->pRenderer, pRes->pBackToMenuTexture, NULL, &pRes->backRect);
+                // Draw volume bars (same for both modes)
+                for (int i = 0; i < 5; i++)
+                {
+                    SDL_Rect block = {
+                        pRes->musicVolumeRect.x + i * (pRes->musicVolumeRect.w / 5),
+                        pRes->musicVolumeRect.y,
+                        (pRes->musicVolumeRect.w / 5) - 4,
+                        pRes->musicVolumeRect.h};
+                    SDL_SetRenderDrawColor(pRes->pRenderer, (i <= musicVolumeLevel) ? 255 : 30, 128, 0, 255);
+                    SDL_RenderFillRect(pRes->pRenderer, &block);
+                }
+
+                for (int i = 0; i < 5; i++)
+                {
+                    SDL_Rect block = {
+                        pRes->SfxRect.x + i * (pRes->SfxRect.w / 5),
+                        pRes->SfxRect.y,
+                        (pRes->SfxRect.w / 5) - 4,
+                        pRes->SfxRect.h};
+                    SDL_SetRenderDrawColor(pRes->pRenderer, (i <= sfxLevel) ? 255 : 30, 128, 0, 255);
+                    SDL_RenderFillRect(pRes->pRenderer, &block);
+                }
             }
-
-            // Rita volymstaplar (SFX)
-            for (int i = 0; i < 5; i++)
+            else if (menuMode == DARK)
             {
-                SDL_Rect block = {
-                    pRes->SfxRect.x + i * (pRes->SfxRect.w / 5),
-                    pRes->SfxRect.y,
-                    (pRes->SfxRect.w / 5) - 4,
-                    pRes->SfxRect.h};
-                SDL_SetRenderDrawColor(pRes->pRenderer, (i <= sfxLevel) ? 255 : 30, 128, 0, 255);
-                SDL_RenderFillRect(pRes->pRenderer, &block);
+                SDL_RenderCopy(pRes->pRenderer, pRes->pOptionsMenuDarkTex, NULL, NULL);
+                SDL_RenderCopy(pRes->pRenderer, pRes->pBackToMenuDarkTexture, NULL, &pRes->backDarkRect);
+                // Draw volume bars (same for both modes)
+                for (int i = 0; i < 5; i++)
+                {
+                    SDL_Rect block = {
+                        pRes->musicVolumeDarkRect.x + i * (pRes->musicVolumeDarkRect.w / 5),
+                        pRes->musicVolumeDarkRect.y,
+                        (pRes->musicVolumeDarkRect.w / 5) - 4,
+                        pRes->musicVolumeDarkRect.h};
+                    SDL_SetRenderDrawColor(pRes->pRenderer, (i <= musicVolumeLevel) ? 80 : 20, 160, 220, 255);
+                    SDL_RenderFillRect(pRes->pRenderer, &block);
+                }
+
+                for (int i = 0; i < 5; i++)
+                {
+                    SDL_Rect block = {
+                        pRes->SfxDarkRect.x + i * (pRes->SfxDarkRect.w / 5),
+                        pRes->SfxDarkRect.y,
+                        (pRes->SfxDarkRect.w / 5) - 4,
+                        pRes->SfxDarkRect.h};
+                    SDL_SetRenderDrawColor(pRes->pRenderer, (i <= sfxLevel) ? 80 : 20, 160, 220, 255);
+                    SDL_RenderFillRect(pRes->pRenderer, &block);
+                }
             }
         }
 
         //  Multiplayer-meny
         else if (mode == MULTIPLAYER)
         {
-            // Rita svart box och back knapp
-            SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerMenuTex, NULL, NULL);
-            SDL_RenderCopy(pRes->pRenderer, pRes->pBackToMultiTexture, NULL, &pRes->backMRect);
-            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180); // Transparent black border
-            SDL_RenderDrawRect(pRes->pRenderer, &pRes->backMRect);
-            SDL_RenderCopy(pRes->pRenderer, pRes->pEnterGameTexture, NULL, &pRes->enterRect);
-            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180); // Transparent black border
-            SDL_RenderDrawRect(pRes->pRenderer, &pRes->enterRect);
 
-            // rita input felt (blå)
-            SDL_SetRenderDrawColor(pRes->pRenderer, 10, 25, 45, 255); // Blue-ish
-            SDL_RenderFillRect(pRes->pRenderer, &pRes->joinRect);
+            if (menuMode == CLASSIC)
+            {
+                // === Classic Multiplayer menu ===
+                SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerMenuTex, NULL, NULL);
+                SDL_RenderCopy(pRes->pRenderer, pRes->pBackToMultiTexture, NULL, &pRes->backMRect);
+                SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180);
+                SDL_RenderDrawRect(pRes->pRenderer, &pRes->backMRect);
 
-            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180); // Transparent black border
-            SDL_RenderDrawRect(pRes->pRenderer, &pRes->joinRect);
+                // Enter game button
+                SDL_RenderCopy(pRes->pRenderer, pRes->pEnterGameTexture, NULL, &pRes->enterRect);
+                SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180);
+                SDL_RenderDrawRect(pRes->pRenderer, &pRes->enterRect);
+                // Join IP input box
+                SDL_SetRenderDrawColor(pRes->pRenderer, 10, 25, 45, 255);
+                SDL_RenderFillRect(pRes->pRenderer, &pRes->joinRect);
+                SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180);
+                SDL_RenderDrawRect(pRes->pRenderer, &pRes->joinRect);
 
-            // Render join ip texten
-            SDL_Color white = {255, 255, 255};
-            const char *displayIp = strlen(joinIpText) == 0 ? " " : joinIpText;
+                // Render Join IP text
+                SDL_Color white = {255, 255, 255};
+                const char *displayIp = strlen(joinIpText) == 0 ? " " : joinIpText;
 
-            SDL_Surface *ipSurf = TTF_RenderText_Solid(pRes->pFont, displayIp, white);
-            SDL_Texture *ipTex = SDL_CreateTextureFromSurface(pRes->pRenderer, ipSurf);
+                SDL_Surface *ipSurf = TTF_RenderText_Solid(pRes->pFont, displayIp, white);
+                SDL_Texture *ipTex = SDL_CreateTextureFromSurface(pRes->pRenderer, ipSurf);
+                SDL_Rect ipRect = {560, 350, ipSurf->w, ipSurf->h};
+                SDL_RenderCopy(pRes->pRenderer, ipTex, NULL, &ipRect);
+                SDL_FreeSurface(ipSurf);
+                SDL_DestroyTexture(ipTex);
 
-            SDL_Rect ipRect = {520, 350, ipSurf->w, ipSurf->h};
-            SDL_RenderCopy(pRes->pRenderer, ipTex, NULL, &ipRect);
+                // Port input box (readonly)
+                SDL_SetRenderDrawColor(pRes->pRenderer, 10, 25, 45, 255);
+                SDL_RenderFillRect(pRes->pRenderer, &pRes->portRect);
+                SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180);
+                SDL_RenderDrawRect(pRes->pRenderer, &pRes->portRect);
 
-            SDL_FreeSurface(ipSurf);
-            SDL_DestroyTexture(ipTex);
+                snprintf(portText, sizeof(portText), "%d", SERVER_PORT);
+                SDL_Surface *hostSurf = TTF_RenderText_Solid(pRes->pFont, portText, white);
+                SDL_Texture *hostTex = SDL_CreateTextureFromSurface(pRes->pRenderer, hostSurf);
+                SDL_Rect hostTextRect = {720, 250, hostSurf->w, hostSurf->h};
+                SDL_RenderCopy(pRes->pRenderer, hostTex, NULL, &hostTextRect);
+                SDL_FreeSurface(hostSurf);
+                SDL_DestroyTexture(hostTex);
 
-            // rita input host felt (blå)
-            SDL_SetRenderDrawColor(pRes->pRenderer, 10, 25, 45, 255); // Blue-ish
-            SDL_RenderFillRect(pRes->pRenderer, &pRes->portRect);
+                // Player ID input box
+                SDL_SetRenderDrawColor(pRes->pRenderer, 10, 25, 45, 255);
+                SDL_RenderFillRect(pRes->pRenderer, &pRes->playerIdRect);
+                SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180);
+                SDL_RenderDrawRect(pRes->pRenderer, &pRes->playerIdRect);
 
-            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180); // Transparent black border
-            SDL_RenderDrawRect(pRes->pRenderer, &pRes->portRect);
+                const char *displayId = strlen(playerIdText) == 0 ? " " : playerIdText;
+                SDL_Surface *idSurf = TTF_RenderText_Solid(pRes->pFont, displayId, white);
+                SDL_Texture *idTex = SDL_CreateTextureFromSurface(pRes->pRenderer, idSurf);
+                SDL_Rect idRect = {750, 450, idSurf->w, idSurf->h};
+                SDL_RenderCopy(pRes->pRenderer, idTex, NULL, &idRect);
+                SDL_FreeSurface(idSurf);
+                SDL_DestroyTexture(idTex);
+            }
+            else if (menuMode == DARK)
+            {
+                // === Dark Multiplayer menu ===
+                SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerMenuDarkTex, NULL, NULL);
+                SDL_RenderCopy(pRes->pRenderer, pRes->pBackToMultiDarkTexture, NULL, &pRes->backMDarkRect);
+                SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180);
+                SDL_RenderDrawRect(pRes->pRenderer, &pRes->backMDarkRect);
 
-            snprintf(portText, sizeof(portText), "%d", SERVER_PORT);
+                // Enter game button
+                SDL_RenderCopy(pRes->pRenderer, pRes->pEnterGameDarkTexture, NULL, &pRes->enterDarkRect);
+                SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180);
+                SDL_RenderDrawRect(pRes->pRenderer, &pRes->enterDarkRect);
+                // Join IP input box
+                SDL_SetRenderDrawColor(pRes->pRenderer, 5, 10, 20, 255);
+                SDL_RenderFillRect(pRes->pRenderer, &pRes->joinDarkRect);
+                SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180);
+                SDL_RenderDrawRect(pRes->pRenderer, &pRes->joinDarkRect);
 
-            SDL_Surface *hostSurf = TTF_RenderText_Solid(pRes->pFont, portText, white);
-            SDL_Texture *hostTex = SDL_CreateTextureFromSurface(pRes->pRenderer, hostSurf);
+                // Render Join IP text
+                SDL_Color white = {255, 255, 255};
+                const char *displayIp = strlen(joinIpText) == 0 ? " " : joinIpText;
 
-            SDL_Rect hostTextRect = {720, 250, hostSurf->w, hostSurf->h};
-            SDL_RenderCopy(pRes->pRenderer, hostTex, NULL, &hostTextRect);
+                SDL_Surface *ipSurf = TTF_RenderText_Solid(pRes->pFont, displayIp, white);
+                SDL_Texture *ipTex = SDL_CreateTextureFromSurface(pRes->pRenderer, ipSurf);
+                SDL_Rect ipRect = {560, 350, ipSurf->w, ipSurf->h};
+                SDL_RenderCopy(pRes->pRenderer, ipTex, NULL, &ipRect);
+                SDL_FreeSurface(ipSurf);
+                SDL_DestroyTexture(ipTex);
 
-            SDL_FreeSurface(hostSurf);
-            SDL_DestroyTexture(hostTex);
+                // Port input box (readonly)
+                SDL_SetRenderDrawColor(pRes->pRenderer, 5, 10, 20, 255);
+                SDL_RenderFillRect(pRes->pRenderer, &pRes->portDarkRect);
+                SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180);
+                SDL_RenderDrawRect(pRes->pRenderer, &pRes->portDarkRect);
 
-            // rita Player Id box
-            SDL_SetRenderDrawColor(pRes->pRenderer, 10, 25, 45, 255); // Blue-ish
-            SDL_RenderFillRect(pRes->pRenderer, &pRes->playerIdRect);
+                snprintf(portText, sizeof(portText), "%d", SERVER_PORT);
+                SDL_Surface *hostSurf = TTF_RenderText_Solid(pRes->pFont, portText, white);
+                SDL_Texture *hostTex = SDL_CreateTextureFromSurface(pRes->pRenderer, hostSurf);
+                SDL_Rect hostTextRect = {720, 265, hostSurf->w, hostSurf->h};
+                SDL_RenderCopy(pRes->pRenderer, hostTex, NULL, &hostTextRect);
+                SDL_FreeSurface(hostSurf);
+                SDL_DestroyTexture(hostTex);
 
-            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180); // Transparent black border
-            SDL_RenderDrawRect(pRes->pRenderer, &pRes->playerIdRect);
+                // Player ID input box
+                SDL_SetRenderDrawColor(pRes->pRenderer, 5, 10, 20, 255);
+                SDL_RenderFillRect(pRes->pRenderer, &pRes->playerIdDarkRect);
+                SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180);
+                SDL_RenderDrawRect(pRes->pRenderer, &pRes->playerIdDarkRect);
 
-            // rendera player Id texten
-            const char *displayId = strlen(playerIdText) == 0 ? " " : playerIdText;
-
-            SDL_Surface *idSurf = TTF_RenderText_Solid(pRes->pFont, displayId, white);
-            SDL_Texture *idTex = SDL_CreateTextureFromSurface(pRes->pRenderer, idSurf);
-
-            SDL_Rect idRect = {750, 450, idSurf->w, idSurf->h};
-            SDL_RenderCopy(pRes->pRenderer, idTex, NULL, &idRect);
-
-            SDL_FreeSurface(idSurf);
-            SDL_DestroyTexture(idTex);
+                const char *displayId = strlen(playerIdText) == 0 ? " " : playerIdText;
+                SDL_Surface *idSurf = TTF_RenderText_Solid(pRes->pFont, displayId, white);
+                SDL_Texture *idTex = SDL_CreateTextureFromSurface(pRes->pRenderer, idSurf);
+                SDL_Rect idRect = {750, 435, idSurf->w, idSurf->h};
+                SDL_RenderCopy(pRes->pRenderer, idTex, NULL, &idRect);
+                SDL_FreeSurface(idSurf);
+                SDL_DestroyTexture(idTex);
+            }
         }
 
         // Presentera det som ritats

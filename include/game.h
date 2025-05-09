@@ -24,6 +24,20 @@ typedef enum
     PLAYING      // Själva spelet pågår
 } GameMode;
 
+// Enum: MenuLäge
+typedef enum
+{
+    CLASSIC,
+    DARK
+} MenuMode;
+
+// Enum: Kontroller läge
+typedef enum
+{
+    LETTERS,
+    ARROWS
+} ControllerMode;
+
 // Struktur: GameResources
 typedef struct
 {
@@ -31,7 +45,7 @@ typedef struct
     SDL_Window *pWindow;     // Huvudfönster
     SDL_Renderer *pRenderer; // Renderare för grafik
 
-    // Menytexturer
+    // Menytexturer Classic
     SDL_Texture *pBackgroundTexture;
     SDL_Texture *pStartTexture;
     SDL_Texture *pMultiplayerTexture;
@@ -45,6 +59,23 @@ typedef struct
     SDL_Texture *pBackToMultiTexture;
     SDL_Texture *pEnterGameTexture;
     SDL_Texture *pPlayerIdTexture;
+    SDL_Texture *pClassicTexture;
+
+    //  MenuTexturer Dark
+    SDL_Texture *pBackgroundDarkTexture;
+    SDL_Texture *pStartDarkTexture;
+    SDL_Texture *pMultiplayerDarkTexture;
+    SDL_Texture *pOptionsDarkTexture;
+    SDL_Texture *pExitDarkTexture;
+    SDL_Texture *pOptionsMenuDarkTex;
+    SDL_Texture *pMultiplayerMenuDarkTex;
+    SDL_Texture *pMuteDarkTexture;
+    SDL_Texture *pUnmuteDarkTexture;
+    SDL_Texture *pBackToMenuDarkTexture;
+    SDL_Texture *pBackToMultiDarkTexture;
+    SDL_Texture *pEnterGameDarkTexture;
+    SDL_Texture *pPlayerIdDarkTexture;
+    SDL_Texture *pDarkTexture;
 
     // Tiletexturer
     SDL_Texture *pTiles[NUM_TILES]; // Enskilda tile-texturer (asfalt + gräs)
@@ -60,19 +91,31 @@ typedef struct
     SDL_Rect multiplayerRect;
     SDL_Rect optionsRect;
     SDL_Rect muteRect;
+
+    // options
     SDL_Rect backRect;
+    SDL_Rect backDarkRect;
     SDL_Rect musicVolumeRect;
+    SDL_Rect musicVolumeDarkRect;
     SDL_Rect SfxRect;
+    SDL_Rect SfxDarkRect;
+    SDL_Rect classicRect;
+    SDL_Rect darkRect;
 
     // Multiplayer (kommenterade delar kan användas senare)
     SDL_Rect portRect;
+    SDL_Rect portDarkRect;
     SDL_Rect joinRect;
+    SDL_Rect joinDarkRect;
     SDL_Rect playerIdRect;
+    SDL_Rect playerIdDarkRect;
     SDL_Rect backMRect;
+    SDL_Rect backMDarkRect;
     SDL_Rect enterRect;
+    SDL_Rect enterDarkRect;
 
     // Spelobjekt
-    Car *pCar1, *pCar2, *pCar3, *pCar4; // 4 bilar
+    Car *pCar1, *pCar2, *pCar3, *pCar4; // två bilar
     Camera camera1, camera2;            // Två kameror för splitscreen eller nätverk
 
     // Nätverk

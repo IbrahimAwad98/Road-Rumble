@@ -169,20 +169,253 @@ bool loadResources(GameResources *pRes)
         return false;
     }
 
+    // skapa classic knappen texure....
+    SDL_Surface *pClassicSurface = IMG_Load("resources/images/modes.png");
+    if (!pClassicSurface)
+    {
+        printf("Failed to load classic button image: %s\n", IMG_GetError());
+        return false;
+    }
+    // omvandla textur och hantera fel...
+    pRes->pClassicTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pClassicSurface);
+    SDL_FreeSurface(pClassicSurface);
+
+    if (!pRes->pClassicTexture)
+    {
+        printf("Failed to create classic button texture: %s\n", SDL_GetError());
+        return false;
+    }
+
+    // Resources för dark mod
+
+    SDL_Surface *pDSurface = IMG_Load("resources/images/BackgroundDark.png");
+    if (!pDSurface)
+    {
+        printf("Failed to load background image: %s\n", IMG_GetError());
+        return false;
+    }
+    // omvandla till texture och hantera fel.
+    pRes->pBackgroundDarkTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pDSurface);
+    SDL_FreeSurface(pDSurface);
+    if (!pRes->pBackgroundDarkTexture)
+    {
+        printf("Failed to create background texture: %s\n", SDL_GetError());
+        return false;
+    }
+    // ladda "start game" bild
+    /*SDL_Surface *pStartSurface = IMG_Load("resources/images/start.png");
+    if (!pStartSurface)
+    {
+        printf("Failed to load start button image: %s\n", IMG_GetError());
+        return false;
+    }
+    // omvandla textur och hantera fel...
+    pRes->pStartTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pStartSurface);
+    SDL_FreeSurface(pStartSurface);
+    if (!pRes->pStartTexture)
+    {
+        printf("Failed to create start button texture: %s\n", SDL_GetError());
+        return false;
+    }
+    // ladda "Multiplayer" bild
+    SDL_Surface *pMultiSurface = IMG_Load("resources/images/multiplayer.png");
+    if (!pMultiSurface)
+    {
+        printf("Failed to load multiplayer image: %s\n", IMG_GetError());
+        return false;
+    }
+    // omvandla textur och hantera fel...
+    pRes->pMultiplayerTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pMultiSurface);
+    SDL_FreeSurface(pMultiSurface);
+    if (!pRes->pMultiplayerTexture)
+    {
+        printf("Failed to create multiplayer button texture: %s\n", SDL_GetError());
+        return false;
+    }*/
+    // ladda "Options" bild
+    SDL_Surface *pOptionsMenuDarkSurface = IMG_Load("resources/images/option-menu-dark.png");
+    ;
+    if (!pOptionsMenuDarkSurface)
+    {
+        printf("Failed to load option image: %s\n", IMG_GetError());
+        return false;
+    }
+    // omvandla textur och hantera fel...
+    pRes->pOptionsMenuDarkTex = SDL_CreateTextureFromSurface(pRes->pRenderer, pOptionsMenuDarkSurface);
+    SDL_FreeSurface(pOptionsMenuDarkSurface);
+    if (!pRes->pOptionsMenuDarkTex)
+    {
+        printf("Failed to create multiplayer button texture: %s\n", SDL_GetError());
+        return false;
+    }
+
+    // ladda "Exit" image...
+    SDL_Surface *pMultiplayerDarkSurface = IMG_Load("resources/images/multiplayer-menu-dark.png");
+    if (!pMultiplayerDarkSurface)
+    {
+        printf("Failed to load exit button image: %s\n", IMG_GetError());
+        return false;
+    }
+    // omvandla textur och hantera fel...
+    pRes->pMultiplayerMenuDarkTex = SDL_CreateTextureFromSurface(pRes->pRenderer, pMultiplayerDarkSurface);
+    SDL_FreeSurface(pMultiplayerDarkSurface);
+
+    if (!pRes->pMultiplayerMenuDarkTex)
+    {
+        printf("Failed to create exit button texture: %s\n", SDL_GetError());
+        return false;
+    }
+
+    // skapa mute knappen texure....
+    SDL_Surface *pBackMDarkSurface = IMG_Load("resources/images/backtomultidark.png");
+    if (!pBackMDarkSurface)
+    {
+        printf("Failed to load mute button image: %s\n", IMG_GetError());
+        return false;
+    }
+    // omvandla textur och hantera fel...
+    pRes->pBackToMultiDarkTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pBackMDarkSurface);
+    SDL_FreeSurface(pBackMDarkSurface);
+
+    if (!pRes->pBackToMultiDarkTexture)
+    {
+        printf("Failed to create mute button texture: %s\n", SDL_GetError());
+        return false;
+    }
+
+    // skapa unmute knappen texure....
+    SDL_Surface *pEnterDarkSurface = IMG_Load("resources/images/entertomultidark.png");
+    if (!pEnterDarkSurface)
+    {
+        printf("Failed to load unmute button image: %s\n", IMG_GetError());
+        return false;
+    }
+    // omvandla textur och hantera fel...
+    pRes->pEnterGameDarkTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pUnmuteSurface);
+    SDL_FreeSurface(pEnterDarkSurface);
+
+    if (!pRes->pEnterGameDarkTexture)
+    {
+        printf("Failed to create unmute button texture: %s\n", SDL_GetError());
+        return false;
+    }
+
+    // Skapa "back to menu" knapp...
+    SDL_Surface *pBackDarkSurface = IMG_Load("resources/images/backtomenuDark.png");
+    if (!pBackDarkSurface)
+    {
+        printf("Failed to load mute button image: %s\n", IMG_GetError());
+        return false;
+    }
+    // omvandla textur och fel hantering...
+    pRes->pBackToMenuDarkTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pBackDarkSurface);
+    SDL_FreeSurface(pBackDarkSurface);
+
+    if (!pRes->pBackToMenuDarkTexture)
+    {
+        printf("Failed to create /back to menu/ button texture: %s\n", SDL_GetError());
+        return false;
+    }
+    /*
+
+    // Skapa "back to menu" knapp...
+    SDL_Surface *pBackMSurface = IMG_Load("resources/images/backtomulti.png");
+    if (!pBackMSurface)
+    {
+        printf("Failed to load mute button image: %s\n", IMG_GetError());
+        return false;
+    }
+    // omvandla textur och fel hantering...
+    pRes->pBackToMultiTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pBackMSurface);
+    SDL_FreeSurface(pBackMSurface);
+
+    if (!pRes->pBackToMultiTexture)
+    {
+        printf("Failed to create /back to menu/ button texture: %s\n", SDL_GetError());
+        return false;
+    }
+
+    // skapa enter textur
+    SDL_Surface *pEnterSurface = IMG_Load("resources/images/entertomulti.png");
+    if (!pEnterSurface)
+    {
+        printf("Failed to load mute button image: %s\n", IMG_GetError());
+        return false;
+    }
+    // omvandla textur och fel hantering...
+    pRes->pEnterGameTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pEnterSurface);
+    SDL_FreeSurface(pEnterSurface);
+
+    if (!pRes->pEnterGameTexture)
+    {
+        printf("Failed to create /back to menu/ button texture: %s\n", SDL_GetError());
+        return false;
+    }*/
+
+    // skapa dark knappen texure....
+    SDL_Surface *pDarkSurface = IMG_Load("resources/images/dark.png");
+    if (!pDarkSurface)
+    {
+        printf("Failed to load classic button image: %s\n", IMG_GetError());
+        return false;
+    }
+    // omvandla textur och hantera fel...
+    pRes->pDarkTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pDarkSurface);
+    SDL_FreeSurface(pDarkSurface);
+
+    if (!pRes->pDarkTexture)
+    {
+        printf("Failed to create classic button texture: %s\n", SDL_GetError());
+        return false;
+    }
+    /*
+
+    // skapa classic knappen texure....
+    SDL_Surface *pClassicSurface = IMG_Load("resources/images/modes.png");
+    if (!pClassicSurface)
+    {
+        printf("Failed to load classic button image: %s\n", IMG_GetError());
+        return false;
+    }
+    // omvandla textur och hantera fel...
+    pRes->pClassicTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pClassicSurface);
+    SDL_FreeSurface(pClassicSurface);
+
+    if (!pRes->pClassicTexture)
+    {
+        printf("Failed to create classic button texture: %s\n", SDL_GetError());
+        return false;
+    }*/
+
     // bredd x höjd "Start,Multi...."
     pRes->startRect = (SDL_Rect){830, 505, 340, 60};
     pRes->multiplayerRect = (SDL_Rect){830, 585, 340, 60};
     pRes->optionsRect = (SDL_Rect){830, 665, 180, 60};
     pRes->exitRect = (SDL_Rect){1015, 665, 160, 60};
     pRes->muteRect = (SDL_Rect){1250, 665, 60, 60};
+
     pRes->musicVolumeRect = (SDL_Rect){680, 240, 220, 30};
+    pRes->musicVolumeDarkRect = (SDL_Rect){650, 235, 220, 30};
     pRes->backRect = (SDL_Rect){340, 580, 590, 90};
+    pRes->backDarkRect = (SDL_Rect){340, 550, 570, 80};
     pRes->SfxRect = (SDL_Rect){680, 329, 220, 30};
+    pRes->SfxDarkRect = (SDL_Rect){650, 310, 220, 30};
+    pRes->classicRect = (SDL_Rect){670, 398, 250, 70};
+    pRes->darkRect = (SDL_Rect){670, 398, 250, 70};
+
     pRes->portRect = (SDL_Rect){465, 230, 646, 85};
+    pRes->portDarkRect = (SDL_Rect){470, 240, 646, 78};
+
     pRes->joinRect = (SDL_Rect){465, 325, 646, 89};
+    pRes->joinDarkRect = (SDL_Rect){472, 328, 646, 79};
+
     pRes->playerIdRect = (SDL_Rect){465, 430, 646, 85};
+    pRes->playerIdDarkRect = (SDL_Rect){470, 420, 646, 72};
+
     pRes->backMRect = (SDL_Rect){240, 540, 370, 75};
+    pRes->backMDarkRect = (SDL_Rect){240, 500, 370, 75};
     pRes->enterRect = (SDL_Rect){720, 540, 370, 75};
+    pRes->enterDarkRect = (SDL_Rect){720, 500, 370, 75};
 
     // ladda musiken och hantera fel.
     pRes->pBgMusic = Mix_LoadMUS("resources/music/intro_Opening.mp3");
