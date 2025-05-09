@@ -291,7 +291,7 @@ bool loadResources(GameResources *pRes)
         return false;
     }
     // omvandla textur och hantera fel...
-    pRes->pEnterGameDarkTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pUnmuteSurface);
+    pRes->pEnterGameDarkTexture = SDL_CreateTextureFromSurface(pRes->pRenderer, pEnterDarkSurface);
     SDL_FreeSurface(pEnterDarkSurface);
 
     if (!pRes->pEnterGameDarkTexture)
