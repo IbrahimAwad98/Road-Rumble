@@ -135,8 +135,8 @@ void updateCar(Car *pCar, const Uint8 *pKeys, SDL_Scancode up, SDL_Scancode down
     }
 
     // Begränsa så att bilen inte kör utanför skärmen
-    int screenWidth = 1280;
-    int screenHeight = 720;
+    int screenWidth = 1366;
+    int screenHeight = 768;
 
     if (pCar->x < 0)
     {
