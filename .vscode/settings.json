@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "sdl.h": "c",
         "stdio.h": "c",
         "sdl_ttf.h": "c",
         "stdbool.h": "c",
@@ -11,7 +12,6 @@
         "car.h": "c",
         "math.h": "c",
         "test_debug.h": "c",
-        "sdl.h": "c",
         "camera.h": "c",
         "string.h": "c",
         "network.h": "c",
@@ -24,6 +24,7 @@
         "buffer": "c",
         "socket": "c",
         "string_view": "c",
-        "span": "c"
+        "span": "c",
+        "game.h": "c"
     }
 }

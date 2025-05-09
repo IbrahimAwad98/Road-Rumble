@@ -2,8 +2,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-
-// Egna headers
+// filer
 #include "server.h"
 #include "network.h"
 
@@ -49,6 +48,12 @@ int main(int argc, char **argv)
         // Vänta på data från klient
         if (server_receivePlayerData(&playerData, &clientAddress))
         {
+            if (playerData.isPing == 1)
+            {
+                server_sendPlayerData(&playerData, &clientAddress);
+                continue;
+            }
+
             int clientIndex = -1;
 
             // Finn om klienten redan finns
@@ -73,7 +78,7 @@ int main(int argc, char **argv)
                         players[i].address = clientAddress;
                         players[i].active = true;
                         clientIndex = i;
-                        printf("New player connected: slot %d\n",playerData.playerID + 1);
+                        printf("New player connected: slot %d\n", playerData.playerID + 1);
                         break;
                     }
                 }
@@ -112,7 +117,7 @@ int main(int argc, char **argv)
         {
             if (players[i].active && (now - players[i].lastActiveTime > TIMEOUT_MS))
             {
-                printf("Timeout: Player %d disconnected.\n", players[i].data.playerID +  1);
+                printf("Timeout: Player %d disconnected.\n", players[i].data.playerID + 1);
                 players[i].active = false;
             }
         }
