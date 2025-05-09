@@ -31,6 +31,14 @@ typedef enum
     DARK
 } MenuMode;
 
+// Enum: Kontroller läge
+typedef enum
+{
+    LETTERS,
+    ARROWS
+} ControllerMode;
+
+
 // Struktur: GameResources
 typedef struct
 {
@@ -124,4 +132,4 @@ typedef struct
 // Funktionsdeklaration
 void gameLoop(GameResources *pRes);
 
-#endif // GAME_H
+#endif 
