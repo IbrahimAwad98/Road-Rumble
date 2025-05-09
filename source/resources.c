@@ -297,9 +297,9 @@ bool loadResources(GameResources *pRes)
 
     // Ladda decor-tiles: index 104–116 Bana
     const char *decorFilenames[NUM_DECOR_TILES] = {
-        "Bush_01.png", "Bush_02.png", "Decor_Building_01.png", "Decor_Building_02.png",
+        "Bush_01.png", "Race_Flag.png", "Decor_Building_01.png", "Decor_Building_02.png",
         "Finish.png", "Pavilion_01.png", "Pavilion_02.png", "Racing_Lights.png",
-        "Rock_01.png", "Rock_02.png", "Start.png", "Tree_01.png", "Tree_02.png"};
+        "Water_Tile.png", "Rock_02.png", "Start.png", "Tree_01.png", "Tree_02.png"};
 
     for (int i = 0; i < NUM_DECOR_TILES; i++)
     {
