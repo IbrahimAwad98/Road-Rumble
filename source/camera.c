@@ -13,7 +13,7 @@ void updateCamera(Camera *pCamera, SDL_Rect *pTarget)
     {
         pCamera->x = 0;
     }
-    // Begränsa kameran så att den inte går utanför övre kant
+    // Begränsa kameran så att den inte går utanför överkanten
     if (pCamera->y < 0)
     {
         pCamera->y = 0;
