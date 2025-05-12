@@ -18,11 +18,11 @@ SDL_Rect getTileSrcByID(int tileID)
 // Varje heltal representerar ett tileID; -1 betyder tom yta (inget ska ritas).
 int tilemap[MAP_HEIGHT][MAP_WIDTH] = {
     {109, 2, 1, 6, 104, -1, 104, 5, 1, 4, 105},
-    {-1, 0, 115, 0, -1, -1, -1, 0, 107, 0, -1},
+    {-1, 0, 116, 0, -1, -1, -1, 0, 107, 0, -1},
     {-1, 0, -1, 0, 104, 112, 104, 0, -1, 0, -1},
-    {-1, 0, 115, 23, 1, 1, 1, 24, 115, 0, -1},
-    {-1, 41, 113, -1, -1, -1, -1, -1, 113, 0, -1},
-    {111, 38, 1, 1, 1, 1, 1, 1, 1, 40, 110}};
+    {111, 0, 115, 23, 1, 1, 1, 24, 115, 0, -1},
+    {-1, 41, 117, -1, -1, -1, -1, -1, 106, 0, -1},
+    {113, 38, 1, 1, 1, 1, 1, 1, 1, 40, 110}};
 
 // Gör hela bakgrunden till gräs
 void renderGrassBackground(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int grassTileID)
