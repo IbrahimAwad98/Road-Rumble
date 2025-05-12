@@ -10,7 +10,7 @@
 #define MAP_HEIGHT 6         // Höjd på tilemap (antal rader)
 #define NUM_ASPHALT_TILES 90 // Antal asfalt-tiles
 #define NUM_GRASS_TILES 14   // Antal gräs-tiles
-#define NUM_DECOR_TILES 13   // Antal dekorationer
+#define NUM_DECOR_TILES 14   // Antal dekorationer
 #define TILE_OFFSET_ASPHALT 0
 #define TILE_OFFSET_GRASS (TILE_OFFSET_ASPHALT + NUM_ASPHALT_TILES)
 #define TILE_OFFSET_DECOR (TILE_OFFSET_GRASS + NUM_GRASS_TILES)
