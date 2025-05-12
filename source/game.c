@@ -565,7 +565,7 @@ void gameLoop(GameResources *pRes)
             SDL_Color white = {255, 255, 255};
             SDL_Surface *lapSurface = TTF_RenderText_Solid(pRes->pFont, lapText, white);
             SDL_Texture *lapTex = SDL_CreateTextureFromSurface(pRes->pRenderer, lapSurface);
-            SDL_Rect lapRect = {WIDTH - lapSurface->w - 10, 10, lapSurface->w, lapSurface->h};
+            SDL_Rect lapRect = {WIDTH - lapSurface->w / 2 - 10, 110, lapSurface->w / 2, lapSurface->h};
             SDL_RenderCopy(pRes->pRenderer, lapTex, NULL, &lapRect);
             SDL_FreeSurface(lapSurface);
             SDL_DestroyTexture(lapTex);

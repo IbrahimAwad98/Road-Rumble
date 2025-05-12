@@ -17,7 +17,7 @@ SDL_Rect getTileSrcByID(int tileID)
 
 // Varje heltal representerar ett tileID; -1 betyder tom yta (inget ska ritas).
 int tilemap[MAP_HEIGHT][MAP_WIDTH] = {
-    {109, 2, 1, 6, 104, -1, 104, 5, 1, 4, -1},
+    {109, 2, 1, 6, 104, -1, 104, 5, 1, 4, 105},
     {-1, 0, 115, 0, -1, -1, -1, 0, 107, 0, -1},
     {-1, 0, -1, 0, 104, 112, 104, 0, -1, 0, -1},
     {-1, 0, 115, 23, 1, 1, 1, 24, 115, 0, -1},
