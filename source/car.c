@@ -4,12 +4,11 @@
 #include "car.h"
 #include "tilemap.h"
 
-// Om konstanten M_PI inte redan är definierad, definiera den manuellt för windows
+// definiera den manuellt för windows
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
 
-// Dold struktur – bara synlig i denna fil
 struct Car
 {
     SDL_Texture *pCartexture; // Texturen (bilden) för bilen
@@ -17,11 +16,10 @@ struct Car
     float x, y;               // Exakt position i världen (flyttal för smidigare rörelse)
     float angle;              // Vinkel i grader (rotation)
     float speed;              // Nuvarande fart
-    int width;
-    int height;
+    int width;                // bredd
+    int height;               // höjd
 };
 
-// Ny version: skapar och returnerar en pekare
 Car *createCar(SDL_Renderer *pRenderer, const char *pImagepath, int x, int y, int w, int h)
 {
     // Allokera minne för en bil
@@ -56,7 +54,6 @@ Car *createCar(SDL_Renderer *pRenderer, const char *pImagepath, int x, int y, in
 
     // Initiera bilens rektangel för rendering
     pCar->carRect = (SDL_Rect){x, y, w, h};
-
     pCar->width = w;
     pCar->height = h;
 
@@ -154,7 +151,6 @@ void updateCar(Car *pCar, const Uint8 *pKeys, SDL_Scancode up, SDL_Scancode down
     {
         pCar->y = screenHeight - pCar->carRect.h;
     }
-
     pCar->carRect.x = (int)pCar->x;
     pCar->carRect.y = (int)pCar->y;
 }
@@ -175,7 +171,6 @@ void destroyCar(Car *pCar)
         free(pCar);
     }
 }
-
 // Getter-funktioner -> extern kod kan läsa värden men inte ändra dem direkt
 float getCarX(const Car *pCar) { return pCar->x; }
 float getCarY(const Car *pCar) { return pCar->y; }

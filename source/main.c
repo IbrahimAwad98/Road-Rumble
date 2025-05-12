@@ -8,7 +8,6 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL.h>
 #include <string.h>
-// filer
 #include "cleanup.h"
 #include "game.h"
 #include "sdl_init.h"
