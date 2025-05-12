@@ -5,9 +5,8 @@
 #include <stdbool.h>
 #include <string.h>
 #include "network.h"
-#include "resources.h" //för SDL_NET initiering
+#include "resources.h"
 
-// funktioner
 bool initClient(const char *pIpaddress, int port);
 bool client_sendPlayerData(PlayerData *pData);
 bool client_receiveServerData(PlayerData *pData);
