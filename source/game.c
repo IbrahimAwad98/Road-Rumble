@@ -1,6 +1,8 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 #include <stdbool.h>
+
+// filer
 #include "game.h"
 #include "car.h"
 #include "tilemap.h"
@@ -9,52 +11,47 @@
 #include "network.h"
 #include "globals.h"
 
+// Spelets huvudloop: hanterar input, rendering och växling mellan spellägen
 void gameLoop(GameResources *pRes)
 {
-    // Ljudinställningar
+    // tillstånd variabeler
     int isMuted = 0;                            // Flagga för ljud av/på
     int musicVolumeLevel = 4;                   // Musikvolym (0–4)
     int sfxLevel = 4;                           // Ljudeffektsvolym (0–4)
     int musicVolumes[5] = {0, 32, 64, 96, 128}; // Steg för musikvolym
     int sfxVolumes[5] = {0, 32, 64, 96, 128};   // Steg för ljudeffekter
-
-    // Multiplayer & nätverk
-    char joinIpText[16] = "";          // IP-adress att ansluta till
-    char playerIdText[4] = "";         // playerID
-    char hostText[32] = " 127.0.0.1";  // Host Texten (lokalt)
-    char portText[8] = "2000";         // Portnummer som visas
-    int selectedField = -1;            // Fält som är markerat i multiplayermenyn
-    char availableServ[16][5];         // Lista över tillgängliga servrar
-    Uint32 ping = 0;                   // ping-mätning
-    static Uint32 lastPingRequest = 0; // Tidpunkt för senaste ping-request
-
-    // Speltillstånd och UI
-    SDL_Event event;                // SDL-händelse
+    char joinIpText[16] = "";                   // Joina IP
+    char playerIdText[4] = "";                  // playerID
+    char hostText[32] = " 127.0.0.1";           // Host Texten (lokalt)
+    int selectedField = -1;                     // host=0, join=1
+    char availableServ[16][5];                  // alla tillgängliga/startade servrar
+    char portText[8] = "2000";                  // för att visa i multiplayer meny
+    SDL_Event event;
     bool isRunning = true;          // Om spelet ska fortsätta köras
-    bool isFullscreen = true;       // Om spelet körs i fullscreen
-    bool escWasPressedOnce = false; // Flagga för ESC-hantering
-    GameMode mode = MENU;           // Aktuellt spelläge
-    MenuMode menuMode = CLASSIC;    // Huvudmenytyp (t.ex. klassisk)
-    int hoveredButton = -1;         // Menyknapp som musen är över
+    bool isFullscreen = true;       // flagga
+    bool escWasPressedOnce = false; // flagga
+    GameMode mode = MENU;           // Startläge: huvudmeny
+    MenuMode menuMode = CLASSIC;
+    int hoveredButton = -1;            // Vilken menyknapp som musen är över
+    Uint32 ping = 0;                   // ping-mätning
+    static Uint32 lastPingRequest = 0; // ping-mätning
+    // Varv räknanre variabler
+    float lastCarX = 0; // Spåra senaste bilens position
+    float lastCarY = 0; // Spåra senaste bilens position
 
-    // Varvräknare & bilposition
-    int currentLap = -1;              // Aktuellt varv
-    int displayedLap = 0;             // Visat varv på skärmen
-    bool hasCrossedStartLine = false; // Spåra om vi har korsat startlinjen
-    float lastCarX = 0;               // Spåra senaste bilens position
-    float lastCarY = 0;               // Spåra senaste bilens position
-
-    // Justerar renderaren så att vi använder en logisk upplösning oavsett fönstrets storlek
+    int laps[4] = {0, 0, 0, 0};                      // antal varv per spelare
+    bool crossedStart[4] = {true, true, true, true}; // om finishlinjen korsats
+    int winnerID = -1;                               // index för vinnare (–1 = ingen än)
+    // justerar automatisk
     SDL_RenderSetLogicalSize(pRes->pRenderer, WIDTH, HEIGHT);
 
-    // Positionen där bilarna ska starta på tilemapen
+    // Tile bakom 41 är tilemap[4][0]
     float tileRow = 4.7f; // Ändrad till 4.5 för att placera bilarna mellan rad 4 och 5 BANAN
-    int tileCol = 1;
+    int tileCol = 1;      // Behåller samma kolumn
 
     int startX = tileCol * TILE_SIZE;
     int startY = (int)(tileRow * TILE_SIZE); // Konverterar från tile-position till pixel-position.
 
-    // Storlek på bilarna i pixlar
     int carWidth = 64;  // Minskad från 128
     int carHeight = 32; // Minskad från 64
 
@@ -77,28 +74,33 @@ void gameLoop(GameResources *pRes)
     pRes->pCar2 = createCar(pRes->pRenderer, "resources/Cars/Mini_truck.png", car2X, car2Y, carWidth, carHeight);
     pRes->pCar3 = createCar(pRes->pRenderer, "resources/Cars/Audi.png", car3X, car3Y, carWidth, carHeight);
     pRes->pCar4 = createCar(pRes->pRenderer, "resources/Cars/car.png", car4X, car4Y, carWidth, carHeight);
-    // Kontrollera att alla bilar laddats korrekt
+    // bil 3
+    // bil 4
     if (!pRes->pCar1 || !pRes->pCar2 || !pRes->pCar3 || !pRes->pCar4)
     {
         printf("Failed to create car textures: %s\n", SDL_GetError());
         return;
     }
 
-    // Alla bilar pekar uppåt (270 grader) och startar stillastående
     setCarAngle(pRes->pCar1, 270.0f);
     setCarSpeed(pRes->pCar1, 0.0f);
+
     setCarAngle(pRes->pCar2, 270.0f);
     setCarSpeed(pRes->pCar2, 0.0f);
+
     setCarAngle(pRes->pCar3, 270.0f);
     setCarSpeed(pRes->pCar3, 0.0f);
+
     setCarAngle(pRes->pCar4, 270.0f);
     setCarSpeed(pRes->pCar4, 0.0f);
 
+    // Huvudloop
     while (isRunning)
     {
         //  Händelsehantering
         while (SDL_PollEvent(&event))
         {
+
             // Avsluta spel
             if (event.type == SDL_QUIT)
             {
@@ -397,7 +399,8 @@ void gameLoop(GameResources *pRes)
                 SDL_SetTextureColorMod(pRes->pMultiplayerTexture, hoveredButton == 1 ? 200 : 255, hoveredButton == 1 ? 200 : 255, 255);
                 SDL_SetTextureColorMod(pRes->pOptionsTexture, hoveredButton == 2 ? 200 : 255, hoveredButton == 2 ? 200 : 255, 255);
                 SDL_SetTextureColorMod(pRes->pExitTexture, hoveredButton == 3 ? 200 : 255, hoveredButton == 3 ? 200 : 255, 255);
-                SDL_SetTextureColorMod(isMuted ? pRes->pMuteTexture : pRes->pUnmuteTexture, hoveredButton == 4 ? 200 : 255, hoveredButton == 4 ? 200 : 255, 255);
+                SDL_SetTextureColorMod(isMuted ? pRes->pMuteTexture : pRes->pUnmuteTexture,
+                                       hoveredButton == 4 ? 200 : 255, hoveredButton == 4 ? 200 : 255, 255);
 
                 // Rendera knappar
                 SDL_RenderCopy(pRes->pRenderer, pRes->pStartTexture, NULL, &pRes->startRect);
@@ -465,26 +468,6 @@ void gameLoop(GameResources *pRes)
                 // Kontrollera om vi korsar start/mållinjen (tile 41)
                 int tileCol = (int)(currentX / TILE_SIZE);
                 int tileRow = (int)(currentY / TILE_SIZE);
-
-                if (tilemap[tileRow][tileCol] == 41)
-                {
-                    if (!hasCrossedStartLine)
-                    {
-                        hasCrossedStartLine = true;
-                        if (currentLap < 3)
-                        { // Endast räkna upp till 3 varv
-                            currentLap++;
-                            displayedLap = currentLap < 0 ? 0 : currentLap;
-                        }
-                    }
-                }
-                else
-                {
-                    hasCrossedStartLine = false;
-                }
-
-                lastCarX = currentX;
-                lastCarY = currentY;
             }
 
             // === Skicka min position ===
@@ -523,6 +506,76 @@ void gameLoop(GameResources *pRes)
                     setCarPosition(cars[opponentData.playerID], opponentData.x, opponentData.y, opponentData.angle);
                 }
             }
+            // Uppdatera lap-count
+            if (winnerID < 0)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    float x = getCarX(cars[i]);
+                    float y = getCarY(cars[i]);
+                    int col = (int)(x / TILE_SIZE);
+                    int row = (int)(y / TILE_SIZE);
+
+                    if (tilemap[row][col] == 41 && !crossedStart[i])
+                    {
+                        crossedStart[i] = true;
+                        laps[i]++;
+                        if (laps[i] >= 3)
+                        {
+                            winnerID = i;
+                            break;
+                        }
+                    }
+                    else if (tilemap[row][col] != 41)
+                    {
+                        crossedStart[i] = false;
+                    }
+                }
+            }
+
+            if (winnerID >= 0)
+            {
+                // Bygg texten “Winner PlayerX!”
+                char winText[32];
+                sprintf(winText, "Winner Player%d!", winnerID + 1);
+
+                // Rita banan + bilar
+                SDL_RenderClear(pRes->pRenderer);
+                renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93);
+                renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap);
+                for (int i = 0; i < 4; i++)
+                {
+                    renderCar(pRes->pRenderer, cars[i]);
+                }
+
+                // Rendera vinnartext mitt på skärmen
+                SDL_Color green = {0, 255, 0};
+                SDL_Surface *surf = TTF_RenderText_Solid(pRes->pFont, winText, green);
+                SDL_Texture *tex = SDL_CreateTextureFromSurface(pRes->pRenderer, surf);
+                SDL_Rect rect = {
+                    WIDTH / 2 - surf->w / 2,
+                    HEIGHT / 2 - surf->h / 2,
+                    surf->w,
+                    surf->h};
+                SDL_FreeSurface(surf);
+                SDL_RenderCopy(pRes->pRenderer, tex, NULL, &rect);
+                SDL_DestroyTexture(tex);
+
+                // Visa och vänta 3 sekunder
+                SDL_RenderPresent(pRes->pRenderer);
+                SDL_Delay(3000);
+
+                // Återställ för nästa omgång och gå till huvudmeny
+                mode = MENU;
+                for (int i = 0; i < 4; i++)
+                {
+                    laps[i] = 0;
+                    crossedStart[i] = true;
+                }
+                winnerID = -1;
+
+                continue; // hoppa över övrig rendering denna frame
+            }
 
             // === Rendera spelvärlden ===
             renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93);
@@ -557,16 +610,22 @@ void gameLoop(GameResources *pRes)
             SDL_FreeSurface(pingSurface);
             SDL_DestroyTexture(pingTex);
 
-            // Visar varv räknanre
-            char lapText[32];
-            sprintf(lapText, "%d/3", displayedLap);
-            SDL_Color white = {255, 255, 255};
-            SDL_Surface *lapSurface = TTF_RenderText_Solid(pRes->pFont, lapText, white);
-            SDL_Texture *lapTex = SDL_CreateTextureFromSurface(pRes->pRenderer, lapSurface);
-            SDL_Rect lapRect = {WIDTH - lapSurface->w / 2 - 10, 110, lapSurface->w / 2, lapSurface->h};
-            SDL_RenderCopy(pRes->pRenderer, lapTex, NULL, &lapRect);
-            SDL_FreeSurface(lapSurface);
-            SDL_DestroyTexture(lapTex);
+            // Visa egen spelares varv i HUD med laps[PlayerID]
+            {
+                char lapText[32];
+                sprintf(lapText, "%d/3", laps[PlayerID]);
+                SDL_Color white = {255, 255, 255};
+                SDL_Surface *lapSurface = TTF_RenderText_Solid(pRes->pFont, lapText, white);
+                SDL_Texture *lapTex = SDL_CreateTextureFromSurface(pRes->pRenderer, lapSurface);
+                SDL_Rect lapRect = {
+                    WIDTH - lapSurface->w / 2 - 10,
+                    110,
+                    lapSurface->w / 2,
+                    lapSurface->h};
+                SDL_FreeSurface(lapSurface);
+                SDL_RenderCopy(pRes->pRenderer, lapTex, NULL, &lapRect);
+                SDL_DestroyTexture(lapTex);
+            }
         }
 
         //  Inställningsmeny
