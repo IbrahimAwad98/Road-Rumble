@@ -36,12 +36,12 @@ void gameLoop(GameResources *pRes)
     Uint32 ping = 0;                   // ping-mätning
     static Uint32 lastPingRequest = 0; // ping-mätning
     // Varv räknanre variabler
-    int currentLap = -1;              // Börjar på -1 för att indikera första varvet
-    int displayedLap = 0;             // Startar på 0
-    bool hasCrossedStartLine = false; // Spåra om vi har korsat startlinjen
     float lastCarX = 0;               // Spåra senaste bilens position
     float lastCarY = 0;               // Spåra senaste bilens position
 
+    int laps[4] = {0,0,0,0};                    // antal varv per spelare
+    bool crossedStart[4] = {true,true,true,true};  // om finishlinjen korsats
+    int winnerID = -1;                          // index för vinnare (–1 = ingen än)
     // justerar automatisk
     SDL_RenderSetLogicalSize(pRes->pRenderer, WIDTH, HEIGHT);
 
@@ -100,6 +100,7 @@ void gameLoop(GameResources *pRes)
         //  Händelsehantering
         while (SDL_PollEvent(&event))
         {
+
             // Avsluta spel
             if (event.type == SDL_QUIT)
             {
@@ -467,26 +468,6 @@ void gameLoop(GameResources *pRes)
                 // Kontrollera om vi korsar start/mållinjen (tile 41)
                 int tileCol = (int)(currentX / TILE_SIZE);
                 int tileRow = (int)(currentY / TILE_SIZE);
-
-                if (tilemap[tileRow][tileCol] == 41)
-                {
-                    if (!hasCrossedStartLine)
-                    {
-                        hasCrossedStartLine = true;
-                        if (currentLap < 3)
-                        { // Endast räkna upp till 3 varv
-                            currentLap++;
-                            displayedLap = currentLap < 0 ? 0 : currentLap;
-                        }
-                    }
-                }
-                else
-                {
-                    hasCrossedStartLine = false;
-                }
-
-                lastCarX = currentX;
-                lastCarY = currentY;
             }
 
             // === Skicka min position ===
@@ -525,6 +506,68 @@ void gameLoop(GameResources *pRes)
                     setCarPosition(cars[opponentData.playerID], opponentData.x, opponentData.y, opponentData.angle);
                 }
             }
+                // --- Steg 2: Uppdatera lap-count ---
+        if (winnerID < 0) {
+            for (int i = 0; i < 4; i++) {
+                float x = getCarX(cars[i]);
+                float y = getCarY(cars[i]);
+                int col = (int)(x / TILE_SIZE);
+                int row = (int)(y / TILE_SIZE);
+
+                if (tilemap[row][col] == 41 && !crossedStart[i]) {
+                    crossedStart[i] = true;
+                    laps[i]++;
+                    if (laps[i] >= 3) {
+                        winnerID = i;
+                        break;
+                    }
+                }
+                else if (tilemap[row][col] != 41) {
+                    crossedStart[i] = false;
+                }
+            }
+        }
+
+        if (winnerID >= 0) {
+            // Bygg texten “Winner PlayerX!”
+            char winText[32];
+            sprintf(winText, "Winner Player%d!", winnerID + 1);
+            // Rita banan + bilar
+            SDL_RenderClear(pRes->pRenderer);
+            renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93);
+            renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap);
+            for (int i = 0; i < 4; i++) {
+                renderCar(pRes->pRenderer, cars[i]);
+            }
+
+            // Rendera vinnartext mitt på skärmen
+            SDL_Color white = {255,255,255};
+            SDL_Surface *surf = TTF_RenderText_Solid(pRes->pFont, winText, white);
+            SDL_Texture *tex  = SDL_CreateTextureFromSurface(pRes->pRenderer, surf);
+            SDL_Rect rect = {
+                WIDTH/2 - surf->w/2,
+                HEIGHT/2 - surf->h/2,
+                surf->w,
+                surf->h
+            };
+            SDL_FreeSurface(surf);
+            SDL_RenderCopy(pRes->pRenderer, tex, NULL, &rect);
+            SDL_DestroyTexture(tex);
+
+            // Visa och vänta 3 sekunder
+            SDL_RenderPresent(pRes->pRenderer);
+            SDL_Delay(3000);
+
+            // Återställ för nästa omgång och gå till huvudmeny
+            mode = MENU;
+            for (int i = 0; i < 4; i++) {
+                laps[i] = 0;
+                crossedStart[i] = true;
+            }
+            winnerID = -1;
+
+            continue; // hoppa över övrig rendering denna frame
+        }
 
             // === Rendera spelvärlden ===
             renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93);
@@ -559,16 +602,23 @@ void gameLoop(GameResources *pRes)
             SDL_FreeSurface(pingSurface);
             SDL_DestroyTexture(pingTex);
 
-            // Visar varv räknanre
-            char lapText[32];
-            sprintf(lapText, "%d/3", displayedLap);
-            SDL_Color white = {255, 255, 255};
-            SDL_Surface *lapSurface = TTF_RenderText_Solid(pRes->pFont, lapText, white);
-            SDL_Texture *lapTex = SDL_CreateTextureFromSurface(pRes->pRenderer, lapSurface);
-            SDL_Rect lapRect = {WIDTH - lapSurface->w / 2 - 10, 110, lapSurface->w / 2, lapSurface->h};
-            SDL_RenderCopy(pRes->pRenderer, lapTex, NULL, &lapRect);
-            SDL_FreeSurface(lapSurface);
-            SDL_DestroyTexture(lapTex);
+        // ← 4: Visa egen spelares varv i HUD med laps[PlayerID]
+    {
+        char lapText[32];
+        sprintf(lapText, "%d/3", laps[PlayerID]);
+        SDL_Color white = {255,255,255};
+        SDL_Surface *lapSurface = TTF_RenderText_Solid(pRes->pFont, lapText, white);
+        SDL_Texture *lapTex = SDL_CreateTextureFromSurface(pRes->pRenderer, lapSurface);
+        SDL_Rect lapRect = {
+            WIDTH - lapSurface->w/2 - 10,
+            110,
+            lapSurface->w/2,
+            lapSurface->h
+        };
+        SDL_FreeSurface(lapSurface);
+        SDL_RenderCopy(pRes->pRenderer, lapTex, NULL, &lapRect);
+        SDL_DestroyTexture(lapTex);
+    } 
         }
 
         //  Inställningsmeny
