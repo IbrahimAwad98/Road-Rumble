@@ -10,12 +10,12 @@
 #define MAP_HEIGHT 6         // Höjd på tilemap (antal rader)
 #define NUM_ASPHALT_TILES 90 // Antal asfalt-tiles
 #define NUM_GRASS_TILES 14   // Antal gräs-tiles
-#define NUM_DECOR_TILES 14   // Antal dekorationer
+#define NUM_DECOR_TILES 15   // Antal dekorationer
 #define TILE_OFFSET_ASPHALT 0
 #define TILE_OFFSET_GRASS (TILE_OFFSET_ASPHALT + NUM_ASPHALT_TILES)
 #define TILE_OFFSET_DECOR (TILE_OFFSET_GRASS + NUM_GRASS_TILES)
 #define NUM_TILES (NUM_ASPHALT_TILES + NUM_GRASS_TILES + NUM_DECOR_TILES) // Totalt antal tiles
-
+#define BOOST_FLAME_TILE_ID (TILE_OFFSET_DECOR + 14)                      // 14 är indexet för nya raketbilden
 // Global tilemap
 extern int tilemap[MAP_HEIGHT][MAP_WIDTH];
 
