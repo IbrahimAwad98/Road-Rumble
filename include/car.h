@@ -8,7 +8,7 @@ typedef struct Car Car;
 
 // Funktionen skapar och returnerar en ny bil
 Car *createCar(SDL_Renderer *pRenderer, const char *pImagepath, int x, int y, int w, int h);
-void updateCar(Car *pCar, const Uint8 *pKeys, SDL_Scancode up, SDL_Scancode down, SDL_Scancode left, SDL_Scancode right);
+void updateCar(Car *pCar, const Uint8 *pKeys, SDL_Scancode up, SDL_Scancode down, SDL_Scancode left, SDL_Scancode right, float boost);
 void renderCar(SDL_Renderer *pRenderer, Car *pCar);
 void destroyCar(Car *pCar);
 

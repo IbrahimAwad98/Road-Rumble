@@ -40,6 +40,14 @@ void gameLoop(GameResources *pRes)
     int laps[4] = {0, 0, 0, 0};                      // antal varv per spelare
     bool crossedStart[4] = {true, true, true, true}; // om finishlinjen korsats
     int winnerID = -1;                               // index för vinnare (–1 = ingen än)
+
+    // Boost varaibel
+    bool boostActive[4] = {false};
+    Uint32 boostStart[4] = {0};
+    Uint32 lastBoostUsed[4] = {0};
+    bool boostUsed[4] = {false};
+    const Uint32 boostDuration = 2000;
+
     // justerar automatisk
     SDL_RenderSetLogicalSize(pRes->pRenderer, WIDTH, HEIGHT);
 
@@ -457,7 +465,12 @@ void gameLoop(GameResources *pRes)
             // === Uppdatera min egen bil ===
             if (PlayerID >= 0 && PlayerID < 4)
             {
-                updateCar(cars[PlayerID], keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D);
+                float boostFactor = boostActive[PlayerID] ? 2.0f : 1.0f;
+                updateCar(cars[PlayerID], keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D, boostFactor);
+                if (boostActive[PlayerID] && SDL_GetTicks() - boostStart[PlayerID] > boostDuration)
+                {
+                    boostActive[PlayerID] = false;
+                }
                 // Varv räknanre logik
                 float currentX = getCarX(cars[PlayerID]);
                 float currentY = getCarY(cars[PlayerID]);
@@ -503,6 +516,24 @@ void gameLoop(GameResources *pRes)
                     setCarPosition(cars[opponentData.playerID], opponentData.x, opponentData.y, opponentData.angle);
                 }
             }
+
+            // === BOOST MED SHIFT: endast för spelaren ===
+            float px = getCarX(cars[PlayerID]);
+            float py = getCarY(cars[PlayerID]);
+            int pcol = (int)(px / TILE_SIZE);
+            int prow = (int)(py / TILE_SIZE);
+
+            if (tilemap[prow][pcol] == 40 &&
+                laps[PlayerID] == 2 &&
+                !boostUsed[PlayerID] &&
+                !boostActive[PlayerID] &&
+                keys[SDL_SCANCODE_LSHIFT])
+            {
+                boostActive[PlayerID] = true;
+                boostUsed[PlayerID] = true;
+                boostStart[PlayerID] = SDL_GetTicks();
+                printf("BOOST activated by SHIFT!\n");
+            }
             // Uppdatera lap-count
             if (winnerID < 0)
             {
@@ -512,9 +543,9 @@ void gameLoop(GameResources *pRes)
                     float y = getCarY(cars[i]);
                     int col = (int)(x / TILE_SIZE);
                     int row = (int)(y / TILE_SIZE);
-
                     if (tilemap[row][col] == 41 && !crossedStart[i] && y < prevY[i])
                     {
+
                         crossedStart[i] = true;
                         laps[i]++;
                         if (laps[i] >= 3)
@@ -542,16 +573,6 @@ void gameLoop(GameResources *pRes)
                 SDL_RenderClear(pRes->pRenderer);
                 renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93);
                 renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap, laps[PlayerID]);
-
-                // Visa boost-ikon ovanpå asfaltsruta (t.ex. tile 1) på rad 4, kolumn 1
-                SDL_Rect rocketPos = {
-                    1 * TILE_SIZE, // kolumn 1
-                    4 * TILE_SIZE, // rad 4
-                    TILE_SIZE,
-                    TILE_SIZE};
-
-                // Ritar raketbilden ovanpå asfalt
-                SDL_RenderCopy(pRes->pRenderer, pRes->pTiles[BOOST_FLAME_TILE_ID], NULL, &rocketPos);
 
                 for (int i = 0; i < 4; i++)
                 {

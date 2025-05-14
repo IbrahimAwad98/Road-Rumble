@@ -84,7 +84,7 @@ void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int ti
                 // BOOST OVERLAY – rita ovanpå asphalt tile 40
                 if (tileID == 40 && pTiles[BOOST_FLAME_TILE_ID])
                 {
-                    if (currentLap == 3) // visa endast under varv 2 (lap == 1 → andra varvet)
+                    if (currentLap == 2) // visa endast under varv 2 (lap == 1 → andra varvet)
                     {
                         SDL_Rect small = {
                             dest.x + (TILE_SIZE - 64) / 2,
