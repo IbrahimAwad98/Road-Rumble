@@ -528,11 +528,11 @@ bool loadResources(GameResources *pRes)
         return false;
     }
 
-    // Ladda decor-tiles: index 104–116 Bana
+    // Ladda decor-tiles: index 104–118 Bana
     const char *decorFilenames[NUM_DECOR_TILES] = {
         "Bush_01.png", "Race_Flag.png", "Decor_Building_01.png", "Decor_Building_02.png",
         "Finish.png", "Pavilion_01.png", "Pavilion_02.png", "Racing_Lights.png",
-        "Water_Tile.png", "Rock_02.png", "Start.png", "Tree_01.png", "Tree_02.png", "Tribune_full.png"};
+        "Water_Tile.png", "Rock_02.png", "Start.png", "Tree_01.png", "Tree_02.png", "Tribune_full.png", "Boost.png"};
 
     for (int i = 0; i < NUM_DECOR_TILES; i++)
     {

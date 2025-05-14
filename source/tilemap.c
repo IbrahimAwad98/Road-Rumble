@@ -80,6 +80,18 @@ void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int ti
                     TILE_SIZE, TILE_SIZE}; // Bredd och höjd på varje tile
 
                 SDL_RenderCopy(pRenderer, pTiles[tileID], NULL, &dest); // Ritar ut rätt tile på rätt plats
+
+                // BOOST OVERLAY – rita ovanpå asphalt tile 40
+                if (tileID == 40 && pTiles[BOOST_FLAME_TILE_ID])
+                {
+                    SDL_Rect small = {
+                        dest.x + (TILE_SIZE - 64) / 2, // centrera horisontellt
+                        dest.y + (TILE_SIZE - 64) / 2, // centrera vertikalt
+                        64,
+                        64};
+
+                    SDL_RenderCopy(pRenderer, pTiles[BOOST_FLAME_TILE_ID], NULL, &small);
+                }
             }
         }
     }
