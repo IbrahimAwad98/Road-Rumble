@@ -43,28 +43,27 @@ void gameLoop(GameResources *pRes)
     // justerar automatisk
     SDL_RenderSetLogicalSize(pRes->pRenderer, WIDTH, HEIGHT);
 
-    // Tile bakom 41 är tilemap[4][0]
-    float tileRow = 4.7f; // Ändrad till 4.5 för att placera bilarna mellan rad 4 och 5 BANAN
-    int tileCol = 1;      // Behåller samma kolumn
-
-    int startX = tileCol * TILE_SIZE;
-    int startY = (int)(tileRow * TILE_SIZE); // Konverterar från tile-position till pixel-position.
-
     // Bil storlek
     int carWidth = 80;
     int carHeight = 48;
 
-    // Centrera bilen i mitten av tilen
-    int car1X = (startX + (TILE_SIZE - carWidth) / 2);
-    int car1Y = startY + (TILE_SIZE - carHeight) / 2;
+    // Flytta startpositionen ett steg åt vänster (t.ex. tileCol = 0 istället för 1)
+    int tileCol = 1;
+    float tileRow = 4.7f;
 
-    // Bil 2 bredvid bil 1 med mindre utrymme
-    int car2X = car1X + carWidth - 35;
+    int startX = tileCol * TILE_SIZE;
+    int startY = (int)(tileRow * TILE_SIZE);
+
+    // Flytta bara lite åt vänster (2 pixlar)
+    int car1X = startX + 2; // Vänster bil
+    int car1Y = startY + 20;
+
+    int car2X = car1X + carWidth - 28; // Höger bil direkt bredvid
     int car2Y = car1Y;
 
-    // Bil 3 och 4 ovanför bil 1 och 2
     int car3X = car1X;
     int car3Y = car1Y - carHeight - 2;
+
     int car4X = car2X;
     int car4Y = car2Y - carHeight - 2;
 
