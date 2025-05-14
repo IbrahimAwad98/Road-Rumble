@@ -1,7 +1,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 #include <stdbool.h>
-
 // filer
 #include "game.h"
 #include "car.h"
@@ -11,7 +10,6 @@
 #include "network.h"
 #include "globals.h"
 
-// Spelets huvudloop: hanterar input, rendering och växling mellan spellägen
 void gameLoop(GameResources *pRes)
 {
     // tillstånd variabeler
@@ -36,9 +34,9 @@ void gameLoop(GameResources *pRes)
     Uint32 ping = 0;                   // ping-mätning
     static Uint32 lastPingRequest = 0; // ping-mätning
     // Varv räknanre variabler
-    float lastCarX = 0; // Spåra senaste bilens position
-    float lastCarY = 0; // Spåra senaste bilens position
-
+    float lastCarX = 0;                              // Spåra senaste bilens position
+    float lastCarY = 0;                              // Spåra senaste bilens position
+    float prevY[4] = {0};                            // För att spåra föregående Y-position för varje bil
     int laps[4] = {0, 0, 0, 0};                      // antal varv per spelare
     bool crossedStart[4] = {true, true, true, true}; // om finishlinjen korsats
     int winnerID = -1;                               // index för vinnare (–1 = ingen än)
@@ -52,8 +50,9 @@ void gameLoop(GameResources *pRes)
     int startX = tileCol * TILE_SIZE;
     int startY = (int)(tileRow * TILE_SIZE); // Konverterar från tile-position till pixel-position.
 
-    int carWidth = 64;  // Minskad från 128
-    int carHeight = 32; // Minskad från 64
+    // Bil storlek
+    int carWidth = 80;
+    int carHeight = 48;
 
     // Centrera bilen i mitten av tilen
     int car1X = (startX + (TILE_SIZE - carWidth) / 2);
@@ -516,7 +515,7 @@ void gameLoop(GameResources *pRes)
                     int col = (int)(x / TILE_SIZE);
                     int row = (int)(y / TILE_SIZE);
 
-                    if (tilemap[row][col] == 41 && !crossedStart[i])
+                    if (tilemap[row][col] == 41 && !crossedStart[i] && y < prevY[i])
                     {
                         crossedStart[i] = true;
                         laps[i]++;
@@ -530,6 +529,8 @@ void gameLoop(GameResources *pRes)
                     {
                         crossedStart[i] = false;
                     }
+                    // Uppdatera föregående Y-position
+                    prevY[i] = y;
                 }
             }
 
