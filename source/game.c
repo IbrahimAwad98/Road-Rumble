@@ -72,8 +72,7 @@ void gameLoop(GameResources *pRes)
     pRes->pCar2 = createCar(pRes->pRenderer, "resources/Cars/Mini_truck.png", car2X, car2Y, carWidth, carHeight);
     pRes->pCar3 = createCar(pRes->pRenderer, "resources/Cars/Audi.png", car3X, car3Y, carWidth, carHeight);
     pRes->pCar4 = createCar(pRes->pRenderer, "resources/Cars/car.png", car4X, car4Y, carWidth, carHeight);
-    // bil 3
-    // bil 4
+
     if (!pRes->pCar1 || !pRes->pCar2 || !pRes->pCar3 || !pRes->pCar4)
     {
         printf("Failed to create car textures: %s\n", SDL_GetError());
@@ -543,6 +542,17 @@ void gameLoop(GameResources *pRes)
                 SDL_RenderClear(pRes->pRenderer);
                 renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93);
                 renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap);
+
+                // Visa boost-ikon ovanpå asfaltsruta (t.ex. tile 1) på rad 4, kolumn 1
+                SDL_Rect rocketPos = {
+                    1 * TILE_SIZE, // kolumn 1
+                    4 * TILE_SIZE, // rad 4
+                    TILE_SIZE,
+                    TILE_SIZE};
+
+                // Ritar raketbilden ovanpå asfalt
+                SDL_RenderCopy(pRes->pRenderer, pRes->pTiles[BOOST_FLAME_TILE_ID], NULL, &rocketPos);
+
                 for (int i = 0; i < 4; i++)
                 {
                     renderCar(pRes->pRenderer, cars[i]);
