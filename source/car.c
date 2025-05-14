@@ -66,10 +66,10 @@ Car *createCar(SDL_Renderer *pRenderer, const char *pImagepath, int x, int y, in
     return pCar;
 }
 
-void updateCar(Car *pCar, const Uint8 *pKeys, SDL_Scancode up, SDL_Scancode down, SDL_Scancode left, SDL_Scancode right)
+void updateCar(Car *pCar, const Uint8 *pKeys, SDL_Scancode up, SDL_Scancode down, SDL_Scancode left, SDL_Scancode right, float boost)
 {
-    const float accel = 0.2f;
-    const float maxSpeed = 5.0f;
+    const float accel = 0.2f * boost;
+    const float maxSpeed = 5.0f * boost;
     const float turnSpeed = 3.0f; // Hur snabbt bilen svänger
     const float friction = 0.05f; // Hur snabbt bilen svänger
 
