@@ -541,7 +541,7 @@ void gameLoop(GameResources *pRes)
                 // Rita banan + bilar
                 SDL_RenderClear(pRes->pRenderer);
                 renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93);
-                renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap);
+                renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap, laps[PlayerID]);
 
                 // Visa boost-ikon ovanpå asfaltsruta (t.ex. tile 1) på rad 4, kolumn 1
                 SDL_Rect rocketPos = {
@@ -589,7 +589,7 @@ void gameLoop(GameResources *pRes)
 
             // === Rendera spelvärlden ===
             renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93);
-            renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap);
+            renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap, laps[PlayerID]);
 
             // Rita alla bilar
             for (int i = 0; i < 4; i++)
