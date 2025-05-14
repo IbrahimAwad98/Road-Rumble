@@ -56,7 +56,7 @@ void renderGrassBackground(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int gr
 
 // Renderar banan (vägar, objekt, etc.) baserat på `tilemap`-arrayen.
 // TileID -1 betyder att inget ska ritas.
-void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int tilemap[MAP_HEIGHT][MAP_WIDTH])
+void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int tilemap[MAP_HEIGHT][MAP_WIDTH], int currentLap)
 {
     // Gå igenom varje rad i tilemap
     for (int row = 0; row < MAP_HEIGHT; row++)
@@ -84,13 +84,15 @@ void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int ti
                 // BOOST OVERLAY – rita ovanpå asphalt tile 40
                 if (tileID == 40 && pTiles[BOOST_FLAME_TILE_ID])
                 {
-                    SDL_Rect small = {
-                        dest.x + (TILE_SIZE - 64) / 2, // centrera horisontellt
-                        dest.y + (TILE_SIZE - 64) / 2, // centrera vertikalt
-                        64,
-                        64};
-
-                    SDL_RenderCopy(pRenderer, pTiles[BOOST_FLAME_TILE_ID], NULL, &small);
+                    if (currentLap == 3) // visa endast under varv 2 (lap == 1 → andra varvet)
+                    {
+                        SDL_Rect small = {
+                            dest.x + (TILE_SIZE - 64) / 2,
+                            dest.y + (TILE_SIZE - 64) / 2,
+                            64,
+                            64};
+                        SDL_RenderCopy(pRenderer, pTiles[BOOST_FLAME_TILE_ID], NULL, &small);
+                    }
                 }
             }
         }
