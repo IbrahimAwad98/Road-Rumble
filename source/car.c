@@ -8,6 +8,13 @@
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+#define MAX_TRAIL 30
+
+typedef struct
+{
+    float x, y;
+    float angle;
+} TrailMark;
 
 struct Car
 {
@@ -18,6 +25,9 @@ struct Car
     float speed;              // Nuvarande fart
     int width;                // bredd
     int height;               // höjd
+    bool isDrifting;          // Drift effekt
+    TrailMark trail[MAX_TRAIL];
+    int trailCount;
 };
 
 Car *createCar(SDL_Renderer *pRenderer, const char *pImagepath, int x, int y, int w, int h)
@@ -62,6 +72,8 @@ Car *createCar(SDL_Renderer *pRenderer, const char *pImagepath, int x, int y, in
     pCar->y = (float)y;
     pCar->angle = 0.0f;
     pCar->speed = 0.0f;
+    pCar->isDrifting = false;
+    pCar->trailCount = 0;
 
     return pCar;
 }
@@ -94,6 +106,40 @@ void updateCar(Car *pCar, const Uint8 *pKeys, SDL_Scancode up, SDL_Scancode down
     if (pKeys[right])
     {
         pCar->angle += turnSpeed;
+    }
+
+    if ((pKeys[left] || pKeys[right]) && fabs(pCar->speed) > 1.2f)
+    {
+        pCar->isDrifting = true;
+    }
+    else
+    {
+        pCar->isDrifting = false;
+    }
+
+    if (pCar->isDrifting && fabs(pCar->speed) > 1.0f)
+    {
+        float radians = pCar->angle * (M_PI / 180.0f);
+        float trailX = pCar->x + pCar->carRect.w / 2 - cos(radians) * 20;
+        float trailY = pCar->y + pCar->carRect.h / 2 - sin(radians) * 20;
+
+        if (pCar->trailCount < MAX_TRAIL)
+        {
+            pCar->trail[pCar->trailCount].x = trailX;
+            pCar->trail[pCar->trailCount].y = trailY;
+            pCar->trail[pCar->trailCount].angle = pCar->angle;
+            pCar->trailCount++;
+        }
+        else
+        {
+            for (int i = 1; i < MAX_TRAIL; i++)
+            {
+                pCar->trail[i - 1] = pCar->trail[i];
+            }
+            pCar->trail[MAX_TRAIL - 1].x = trailX;
+            pCar->trail[MAX_TRAIL - 1].y = trailY;
+            pCar->trail[MAX_TRAIL - 1].angle = pCar->angle;
+        }
     }
     // Friktion (saktar ner bilen om man släpper knappar)
     if (pCar->speed > 0)
@@ -172,10 +218,56 @@ void destroyCar(Car *pCar)
     }
 }
 // Getter-funktioner -> extern kod kan läsa värden men inte ändra dem direkt
-float getCarX(const Car *pCar) { return pCar->x; }
-float getCarY(const Car *pCar) { return pCar->y; }
-float getCarAngle(const Car *pCar) { return pCar->angle; }
-SDL_Rect getCarRect(const Car *pCar) { return pCar->carRect; }
+float getCarX(const Car *pCar)
+{
+    return pCar->x;
+}
+float getCarY(const Car *pCar)
+{
+    return pCar->y;
+}
+float getCarAngle(const Car *pCar)
+{
+    return pCar->angle;
+}
+SDL_Rect getCarRect(const Car *pCar)
+{
+    return pCar->carRect;
+}
+int getTrailMarkX(const Car *car, int index)
+{
+    if (!car || index < 0 || index >= MAX_TRAIL)
+    {
+        return -1;
+    }
+    return (int)car->trail[index].x;
+}
+
+int getTrailMarkY(const Car *car, int index)
+{
+    if (!car || index < 0 || index >= MAX_TRAIL)
+    {
+        return -1;
+    }
+    return (int)car->trail[index].y;
+}
+
+int getTrailCount(const Car *car)
+{
+    if (!car)
+    {
+        return 0;
+    }
+    return car->trailCount;
+}
+float getTrailMarkAngle(const Car *car, int index)
+{
+    if (!car || index < 0 || index >= MAX_TRAIL)
+    {
+        return 0.0f;
+    }
+    return car->trail[index].angle;
+}
 
 // bilpostioner
 void setCarPosition(Car *car, float x, float y, float angle)
@@ -189,12 +281,16 @@ void setCarPosition(Car *car, float x, float y, float angle)
 void setCarAngle(Car *pCar, float angle)
 {
     if (pCar)
+    {
         pCar->angle = angle;
+    }
 }
 void setCarSpeed(Car *pCar, float speed)
 {
     if (pCar)
+    {
         pCar->speed = speed;
+    }
 }
 void resolveCollision(Car *pA, Car *pB)
 {
@@ -210,7 +306,9 @@ void resolveCollision(Car *pA, Car *pB)
     float minDistance = 29.0f; // Justera detta: bilarnas visuella närhet
 
     if (distance >= minDistance)
+    {
         return; // För långt ifrån, ingen krock
+    }
 
     float overlap = minDistance - distance;
     if (distance == 0.0f)

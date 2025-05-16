@@ -30,6 +30,7 @@ void gameLoop(GameResources *pRes)
     bool escWasPressedOnce = false; // flagga
     GameMode mode = MENU;           // Startläge: huvudmeny
     MenuMode menuMode = CLASSIC;
+    ControllerMode cMode = WASD;
     int hoveredButton = -1;            // Vilken menyknapp som musen är över
     Uint32 ping = 0;                   // ping-mätning
     static Uint32 lastPingRequest = 0; // ping-mätning
@@ -199,9 +200,22 @@ void gameLoop(GameResources *pRes)
             {
                 int x = event.button.x, y = event.button.y;
 
-                if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->classicRect))
+                if (menuMode == CLASSIC && SDL_PointInRect(&(SDL_Point){x, y}, &pRes->classicRect))
                 {
-                    menuMode = (menuMode == CLASSIC) ? DARK : CLASSIC;
+                    menuMode = DARK;
+                }
+                else if (menuMode == DARK && SDL_PointInRect(&(SDL_Point){x, y}, &pRes->darkRect))
+                {
+                    menuMode = CLASSIC;
+                }
+
+                if (menuMode == CLASSIC && SDL_PointInRect(&(SDL_Point){x, y}, &pRes->WASDRect))
+                {
+                    cMode = (cMode == WASD) ? ARROWS : WASD;
+                }
+                else if (menuMode == DARK && SDL_PointInRect(&(SDL_Point){x, y}, &pRes->WASDDarkRect))
+                {
+                    cMode = (cMode == WASD) ? ARROWS : WASD;
                 }
 
                 if (menuMode == CLASSIC)
@@ -465,7 +479,14 @@ void gameLoop(GameResources *pRes)
             if (PlayerID >= 0 && PlayerID < 4)
             {
                 float boostFactor = boostActive[PlayerID] ? 2.0f : 1.0f;
-                updateCar(cars[PlayerID], keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D, boostFactor);
+                if (cMode == WASD)
+                {
+                    updateCar(cars[PlayerID], keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D, boostFactor);
+                }
+                else if (cMode == ARROWS)
+                {
+                    updateCar(cars[PlayerID], keys, SDL_SCANCODE_UP, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT, SDL_SCANCODE_RIGHT, boostFactor);
+                }
                 if (boostActive[PlayerID] && SDL_GetTicks() - boostStart[PlayerID] > boostDuration)
                 {
                     boostActive[PlayerID] = false;
@@ -515,6 +536,35 @@ void gameLoop(GameResources *pRes)
                     setCarPosition(cars[opponentData.playerID], opponentData.x, opponentData.y, opponentData.angle);
                 }
             }
+            // === Rendera spelvärlden ===
+            renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93);
+            renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap, laps[PlayerID]);
+
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < getTrailCount(cars[i]); j++)
+                {
+                    int x = getTrailMarkX(cars[i], j);
+                    int y = getTrailMarkY(cars[i], j);
+                    float angle = getTrailMarkAngle(cars[i], j);
+                    SDL_Rect trailRect =
+                        {
+                            x - 12,
+                            y - 12,
+                            24, 24};
+                    SDL_Point center = {trailRect.w / 2, trailRect.h / 2};
+                    int trailCount = getTrailCount(cars[i]);
+                    if (trailCount > 1)
+                    {
+                        int alpha = (int)(255.0 * ((float)j / (trailCount - 1)));
+                        SDL_SetTextureAlphaMod(pRes->pTireTrailTexture, alpha);
+                    }
+                    SDL_RenderCopyEx(pRes->pRenderer, pRes->pTireTrailTexture, NULL, &trailRect, angle, &center, SDL_FLIP_NONE);
+                }
+
+                renderCar(pRes->pRenderer, cars[i]);
+            }
+            SDL_SetTextureAlphaMod(pRes->pTireTrailTexture, 255);
 
             // === BOOST MED SHIFT: endast för spelaren ===
             float px = getCarX(cars[PlayerID]);
@@ -607,10 +657,6 @@ void gameLoop(GameResources *pRes)
                 continue; // hoppa över övrig rendering denna frame
             }
 
-            // === Rendera spelvärlden ===
-            renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93);
-            renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap, laps[PlayerID]);
-
             // Rita alla bilar
             for (int i = 0; i < 4; i++)
             {
@@ -666,6 +712,13 @@ void gameLoop(GameResources *pRes)
                 // Full background with texts already inside
                 SDL_RenderCopy(pRes->pRenderer, pRes->pOptionsMenuTex, NULL, NULL);
                 SDL_RenderCopy(pRes->pRenderer, pRes->pBackToMenuTexture, NULL, &pRes->backRect);
+                if (cMode == WASD)
+                {
+                    SDL_RenderCopy(pRes->pRenderer, pRes->pWASDTexture, NULL, &pRes->WASDRect);
+                }
+                else
+                    SDL_RenderCopy(pRes->pRenderer, pRes->pArrowTexture, NULL, &pRes->arrowRect);
+
                 // Draw volume bars (same for both modes)
                 for (int i = 0; i < 5; i++)
                 {
@@ -693,6 +746,12 @@ void gameLoop(GameResources *pRes)
             {
                 SDL_RenderCopy(pRes->pRenderer, pRes->pOptionsMenuDarkTex, NULL, NULL);
                 SDL_RenderCopy(pRes->pRenderer, pRes->pBackToMenuDarkTexture, NULL, &pRes->backDarkRect);
+                if (cMode == WASD)
+                {
+                    SDL_RenderCopy(pRes->pRenderer, pRes->pWASDDarkTexture, NULL, &pRes->WASDDarkRect);
+                }
+                else
+                    SDL_RenderCopy(pRes->pRenderer, pRes->pArrowDarkTexture, NULL, &pRes->arrowDarRect);
                 // Draw volume bars (same for both modes)
                 for (int i = 0; i < 5; i++)
                 {

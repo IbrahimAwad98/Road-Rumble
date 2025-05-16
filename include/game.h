@@ -34,7 +34,7 @@ typedef enum
 // Enum: Kontroller läge
 typedef enum
 {
-    LETTERS,
+    WASD,
     ARROWS
 } ControllerMode;
 
@@ -60,6 +60,8 @@ typedef struct
     SDL_Texture *pEnterGameTexture;
     SDL_Texture *pPlayerIdTexture;
     SDL_Texture *pClassicTexture;
+    SDL_Texture *pWASDTexture;
+    SDL_Texture *pArrowTexture;
 
     //  MenuTexturer Dark
     SDL_Texture *pBackgroundDarkTexture;
@@ -76,6 +78,11 @@ typedef struct
     SDL_Texture *pEnterGameDarkTexture;
     SDL_Texture *pPlayerIdDarkTexture;
     SDL_Texture *pDarkTexture;
+    SDL_Texture *pWASDDarkTexture;
+    SDL_Texture *pArrowDarkTexture;
+
+    // Spel Effekter
+    SDL_Texture *pTireTrailTexture;
 
     // Tiletexturer
     SDL_Texture *pTiles[NUM_TILES]; // Enskilda tile-texturer (asfalt + gräs)
@@ -101,6 +108,10 @@ typedef struct
     SDL_Rect SfxDarkRect;
     SDL_Rect classicRect;
     SDL_Rect darkRect;
+    SDL_Rect WASDRect;
+    SDL_Rect arrowRect;
+    SDL_Rect WASDDarkRect;
+    SDL_Rect arrowDarRect;
 
     // Multiplayer (kommenterade delar kan användas senare)
     SDL_Rect portRect;
