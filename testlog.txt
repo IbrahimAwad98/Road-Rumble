@@ -5,7 +5,7 @@ SDL_mixer initialized successfully.
 SDL_net initialized successfully.
 SDL window created successfully.
 SDL renderer created successfully.
-BOOST activated by SHIFT!
+Please fill IP address and Player ID!
 Cleanup completed!
 libpng warning: iCCP: known incorrect sRGB profile
 libpng warning: iCCP: known incorrect sRGB profile
