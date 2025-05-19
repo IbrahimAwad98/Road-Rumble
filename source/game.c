@@ -9,6 +9,11 @@
 #include "server.h"
 #include "network.h"
 #include "globals.h"
+#include "math.h"
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 void gameLoop(GameResources *pRes)
 {
@@ -41,13 +46,18 @@ void gameLoop(GameResources *pRes)
     int laps[4] = {0, 0, 0, 0};                      // antal varv per spelare
     bool crossedStart[4] = {true, true, true, true}; // om finishlinjen korsats
     int winnerID = -1;                               // index för vinnare (–1 = ingen än)
+    bool wasOnFinish[4] = {false};
 
     // Boost varaibel
     bool boostActive[4] = {false};
     Uint32 boostStart[4] = {0};
     Uint32 lastBoostUsed[4] = {0};
+    bool boostAvailable[4] = {false};
     bool boostUsed[4] = {false};
     const Uint32 boostDuration = 2000;
+    static int boostFrame = 0;
+    static Uint32 lastBoostFrameTime = 0;
+    const Uint32 BOOST_ANIM_SPEED = 60;
 
     // justerar automatisk
     SDL_RenderSetLogicalSize(pRes->pRenderer, WIDTH, HEIGHT);
@@ -566,49 +576,116 @@ void gameLoop(GameResources *pRes)
             }
             SDL_SetTextureAlphaMod(pRes->pTireTrailTexture, 255);
 
-            // === BOOST MED SHIFT: endast för spelaren ===
             float px = getCarX(cars[PlayerID]);
             float py = getCarY(cars[PlayerID]);
             int pcol = (int)(px / TILE_SIZE);
             int prow = (int)(py / TILE_SIZE);
 
-            if (tilemap[prow][pcol] == 40 &&
+            // Unlock boost if on tile 9 during lap 2 and not already unlocked
+            if (prow >= 0 && prow < MAP_HEIGHT &&
+                pcol >= 0 && pcol < MAP_WIDTH &&
+                tilemap[prow][pcol] == 9 &&
                 laps[PlayerID] == 2 &&
+                !boostUsed[PlayerID] && !boostAvailable[PlayerID])
+            {
+                boostAvailable[PlayerID] = true;
+                printf("BOOST unlocked! You can use it anytime now.\n");
+            }
+
+            if (boostAvailable[PlayerID] &&
                 !boostUsed[PlayerID] &&
                 !boostActive[PlayerID] &&
-                keys[SDL_SCANCODE_LSHIFT])
+                keys[SDL_SCANCODE_RSHIFT] && keys[SDL_SCANCODE_LSHIFT])
             {
                 boostActive[PlayerID] = true;
                 boostUsed[PlayerID] = true;
                 boostStart[PlayerID] = SDL_GetTicks();
                 printf("BOOST activated by SHIFT!\n");
             }
+
+            if (boostActive[PlayerID])
+            {
+                Uint32 now = SDL_GetTicks();
+                Uint32 boostDuration = 10000; // 3 seconds
+
+                if (now - boostStart[PlayerID] > boostDuration)
+                {
+                    boostActive[PlayerID] = false;
+                }
+                else
+                {
+                    float angle = getCarAngle(cars[PlayerID]);
+                    float radians = angle * (M_PI / 180.0f);
+
+                    // Start at the *center* of the car (just like in trail logic)
+                    float centerX = getCarX(cars[PlayerID]) + getCarWidth(cars[PlayerID]) / 2;
+                    float centerY = getCarY(cars[PlayerID]) + getCarHeight(cars[PlayerID]) / 2;
+
+                    // Move flame backward from center based on angle
+                    float offset = getCarHeight(cars[PlayerID]) / 2 + 10; // adjust 10px more for spacing
+                    float flameX = centerX - cos(radians) * offset;
+                    float flameY = centerY - sin(radians) * offset;
+
+                    int spriteWidth = 50;
+                    int spriteHeight = 50;
+
+                    SDL_Rect flameRect = {
+                        (int)(flameX - spriteWidth / 2),
+                        (int)(flameY - spriteHeight / 2),
+                        spriteWidth,
+                        spriteHeight};
+
+                    SDL_Point flameCenter = {spriteWidth / 2, spriteHeight / 2};
+
+                    // Render with the same rotation
+
+                    // Animation frame timing
+                    Uint32 now = SDL_GetTicks();
+                    if (now - lastBoostFrameTime >= BOOST_ANIM_SPEED)
+                    {
+                        boostFrame = (boostFrame + 1) % BOOST_FRAME_COUNT;
+                        lastBoostFrameTime = now;
+                    }
+
+                    // Render the current flame frame
+                    SDL_Texture *currentFlame = pRes->pBoostFlameFrames[boostFrame];
+
+                    SDL_SetTextureAlphaMod(currentFlame, 200);
+                    SDL_RenderCopyEx(pRes->pRenderer, currentFlame, NULL, &flameRect, angle, &flameCenter, SDL_FLIP_NONE);
+                    SDL_SetTextureAlphaMod(currentFlame, 255);
+                }
+            }
+
             // Uppdatera lap-count
             if (winnerID < 0)
             {
+
                 for (int i = 0; i < 4; i++)
                 {
                     float x = getCarX(cars[i]);
                     float y = getCarY(cars[i]);
                     int col = (int)(x / TILE_SIZE);
                     int row = (int)(y / TILE_SIZE);
-                    if (tilemap[row][col] == 41 && !crossedStart[i] && y < prevY[i])
-                    {
 
-                        crossedStart[i] = true;
+                    // Ensure indices are within bounds of tilemap
+                    if (row < 0 || row >= MAP_HEIGHT || col < 0 || col >= MAP_WIDTH)
+                        continue;
+
+                    bool currentlyOnFinish = (tilemap[row][col] == 7);
+
+                    // Check for crossing onto finish line
+                    if (currentlyOnFinish && !wasOnFinish[i])
+                    {
+                        // Car just crossed onto the finish line
                         laps[i]++;
-                        if (laps[i] >= 3)
+                        if (laps[i] > 3)
                         {
                             winnerID = i;
-                            break;
                         }
                     }
-                    else if (tilemap[row][col] != 41)
-                    {
-                        crossedStart[i] = false;
-                    }
-                    // Uppdatera föregående Y-position
-                    prevY[i] = y;
+
+                    // Update previous state
+                    wasOnFinish[i] = currentlyOnFinish;
                 }
             }
 
@@ -651,16 +728,26 @@ void gameLoop(GameResources *pRes)
                 {
                     laps[i] = 0;
                     crossedStart[i] = true;
+                    boostAvailable[i] = false;
+                    boostUsed[i] = false;
+                    boostActive[i] = false;
                 }
                 winnerID = -1;
 
-                continue; // hoppa över övrig rendering denna frame
-            }
+                // Återställ bilarnas startpositioner och egenskaper efter vinst
+                setCarPosition(pRes->pCar1, car1X, car1Y, 270.0f);
+                setCarSpeed(pRes->pCar1, 0.0f);
 
-            // Rita alla bilar
-            for (int i = 0; i < 4; i++)
-            {
-                renderCar(pRes->pRenderer, cars[i]);
+                setCarPosition(pRes->pCar2, car2X, car2Y, 270.0f);
+                setCarSpeed(pRes->pCar2, 0.0f);
+
+                setCarPosition(pRes->pCar3, car3X, car3Y, 270.0f);
+                setCarSpeed(pRes->pCar3, 0.0f);
+
+                setCarPosition(pRes->pCar4, car4X, car4Y, 270.0f);
+                setCarSpeed(pRes->pCar4, 0.0f);
+
+                continue; // hoppa över övrig rendering denna frame
             }
 
             // Rita ping

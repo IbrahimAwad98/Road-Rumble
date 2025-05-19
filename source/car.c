@@ -167,14 +167,55 @@ void updateCar(Car *pCar, const Uint8 *pKeys, SDL_Scancode up, SDL_Scancode down
     float checkX = nextX + pCar->carRect.w / 2;
     float checkY = nextY + pCar->carRect.h / 2;
 
-    if (isTileAllowed(checkX, checkY))
+    bool blockedByObstacle = false;
+
+    int shrink = 12; // shrink width and height by 12px
+
+    SDL_Rect nextRect = {
+        (int)nextX + shrink / 2,
+        (int)nextY + shrink / 2,
+        pCar->carRect.w - shrink,
+        pCar->carRect.h - shrink};
+
+    // Loop over tilemap to check if car intersects with crate or barrel
+    for (int row = 0; row < MAP_HEIGHT; row++)
+    {
+        for (int col = 0; col < MAP_WIDTH; col++)
+        {
+            int tileID = tilemap[row][col];
+
+            if (tileID == 10 || tileID == 11)
+            { // Barrel or Crate
+                SDL_Rect obstacleRect = {
+                    col * TILE_SIZE + (TILE_SIZE - 8) / 4,
+                    row * TILE_SIZE + (TILE_SIZE - 8) / 4,
+                    8,
+                    8};
+
+                if (SDL_HasIntersection(&nextRect, &obstacleRect))
+                {
+                    blockedByObstacle = true;
+                    break;
+                }
+            }
+        }
+        if (blockedByObstacle)
+            break;
+    }
+
+    if (isTileAllowed(checkX, checkY) && !blockedByObstacle)
     {
         pCar->x = nextX;
         pCar->y = nextY;
     }
+    // Move slightly back to avoid overlapping obstacle
     else
     {
-        pCar->speed = 0;
+        pCar->x -= pCar->speed * cos(radians);
+        pCar->y -= pCar->speed * sin(radians);
+
+        // Apply bounce effect
+        pCar->speed *= -0.6f; // adjust the value to control bounce strength
     }
 
     // Begränsa så att bilen inte kör utanför skärmen
@@ -218,55 +259,44 @@ void destroyCar(Car *pCar)
     }
 }
 // Getter-funktioner -> extern kod kan läsa värden men inte ändra dem direkt
-float getCarX(const Car *pCar)
-{
-    return pCar->x;
-}
-float getCarY(const Car *pCar)
-{
-    return pCar->y;
-}
-float getCarAngle(const Car *pCar)
-{
-    return pCar->angle;
-}
-SDL_Rect getCarRect(const Car *pCar)
-{
-    return pCar->carRect;
-}
+float getCarX(const Car *pCar) { return pCar->x; }
+float getCarY(const Car *pCar) { return pCar->y; }
+float getCarAngle(const Car *pCar) { return pCar->angle; }
+SDL_Rect getCarRect(const Car *pCar) { return pCar->carRect; }
 int getTrailMarkX(const Car *car, int index)
 {
     if (!car || index < 0 || index >= MAX_TRAIL)
-    {
         return -1;
-    }
     return (int)car->trail[index].x;
 }
 
 int getTrailMarkY(const Car *car, int index)
 {
     if (!car || index < 0 || index >= MAX_TRAIL)
-    {
         return -1;
-    }
     return (int)car->trail[index].y;
 }
 
 int getTrailCount(const Car *car)
 {
     if (!car)
-    {
         return 0;
-    }
     return car->trailCount;
 }
 float getTrailMarkAngle(const Car *car, int index)
 {
     if (!car || index < 0 || index >= MAX_TRAIL)
-    {
         return 0.0f;
-    }
     return car->trail[index].angle;
+}
+int getCarWidth(Car *car)
+{
+    return car->carRect.w;
+}
+
+int getCarHeight(Car *car)
+{
+    return car->carRect.h;
 }
 
 // bilpostioner
@@ -281,16 +311,12 @@ void setCarPosition(Car *car, float x, float y, float angle)
 void setCarAngle(Car *pCar, float angle)
 {
     if (pCar)
-    {
         pCar->angle = angle;
-    }
 }
 void setCarSpeed(Car *pCar, float speed)
 {
     if (pCar)
-    {
         pCar->speed = speed;
-    }
 }
 void resolveCollision(Car *pA, Car *pB)
 {
@@ -306,9 +332,7 @@ void resolveCollision(Car *pA, Car *pB)
     float minDistance = 29.0f; // Justera detta: bilarnas visuella närhet
 
     if (distance >= minDistance)
-    {
         return; // För långt ifrån, ingen krock
-    }
 
     float overlap = minDistance - distance;
     if (distance == 0.0f)
