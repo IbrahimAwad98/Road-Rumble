@@ -14,15 +14,29 @@ SDL_Rect getTileSrcByID(int tileID)
 
     return src; // Returnerar rutan som visar vilken del av bilden vi vill rita
 }
+SDL_Rect getObstacleRect(int col, int row, int tileID)
+{
+    SDL_Rect rect = {0, 0, 0, 0};
+
+    if (tileID == 10 || tileID == 11)
+    {
+        rect.x = col * TILE_SIZE + (TILE_SIZE - 48) / 6;
+        rect.y = row * TILE_SIZE + (TILE_SIZE - 48) / 6;
+        rect.w = 48;
+        rect.h = 48;
+    }
+
+    return rect;
+}
 
 // Varje heltal representerar ett tileID; -1 betyder tom yta (inget ska ritas).
 int tilemap[MAP_HEIGHT][MAP_WIDTH] = {
     {109, 2, 1, 6, 104, -1, 104, 5, 1, 4, 105},
-    {-1, 0, 116, 0, -1, -1, -1, 0, 107, 0, -1},
-    {-1, 0, -1, 0, 104, 112, 104, 0, -1, 0, -1},
-    {111, 0, 115, 23, 1, 1, 1, 24, 115, 0, -1},
-    {-1, 41, 117, -1, -1, -1, -1, -1, 106, 0, -1},
-    {113, 38, 1, 1, 1, 1, 1, 1, 1, 40, 110}};
+    {-1, 0, -1, 0, -1, -1, -1, 0, 107, 0, -1},
+    {115, 0, -1, 10, 104, 112, 104, 0, -1, 0, -1},
+    {115, 0, 111, 23, 1, 1, 1, 24, 114, 0, -1},
+    {-1, 8, -1, -1, -1, -1, -1, -1, 106, 0, -1},
+    {110, 38, 7, 1, 1, 1, 11, 1, 9, 40, 110}};
 
 // Gör hela bakgrunden till gräs
 void renderGrassBackground(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int grassTileID)
@@ -82,17 +96,47 @@ void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int ti
                 SDL_RenderCopy(pRenderer, pTiles[tileID], NULL, &dest); // Ritar ut rätt tile på rätt plats
 
                 // BOOST OVERLAY – rita ovanpå asphalt tile 40
-                if (tileID == 40 && pTiles[BOOST_FLAME_TILE_ID])
+                if (tileID == 9 && pTiles[BOOST_FLAME_TILE_ID])
                 {
                     if (currentLap == 2) // visa endast under varv 2 (lap == 1 → andra varvet)
                     {
                         SDL_Rect small = {
-                            dest.x + (TILE_SIZE - 64) / 2,
-                            dest.y + (TILE_SIZE - 64) / 2,
-                            64,
-                            64};
+                            dest.x + (TILE_SIZE / 2) / 2,
+                            dest.y + (TILE_SIZE / 2) / 2,
+                            TILE_SIZE / 2,
+                            TILE_SIZE / 2};
                         SDL_RenderCopy(pRenderer, pTiles[BOOST_FLAME_TILE_ID], NULL, &small);
                     }
+                }
+                if (tileID == 7)
+                {
+                    SDL_Rect small = {
+                        dest.x + (TILE_SIZE * 2) / 3,
+                        dest.y + (TILE_SIZE - TILE_SIZE) / 2,
+                        TILE_SIZE / 3,
+                        TILE_SIZE};
+                    SDL_RenderCopy(pRenderer, pTiles[FINISH_TILE_ID], NULL, &small);
+                }
+                if (tileID == 8)
+                {
+                    SDL_Rect small = {
+                        dest.x + (TILE_SIZE - TILE_SIZE) / 2,
+                        dest.y + (TILE_SIZE - 24) / 2,
+                        TILE_SIZE,
+                        24};
+
+                    SDL_RenderCopy(pRenderer, pTiles[START_TILE_ID], NULL, &small); // Ritar ut rätt tile på rätt plats
+                }
+
+                if (tileID == 10)
+                {
+                    SDL_Rect small1 = getObstacleRect(col, row, tileID);
+                    SDL_RenderCopy(pRenderer, pTiles[BARELL_TILE_ID], NULL, &small1);
+                }
+                if (tileID == 11)
+                {
+                    SDL_Rect small = getObstacleRect(col, row, tileID);
+                    SDL_RenderCopy(pRenderer, pTiles[CRATE_TILE_ID], NULL, &small);
                 }
             }
         }
@@ -119,6 +163,11 @@ bool isTileAllowed(float x, float y) // Returnerar true om en position (x, y) ä
     case 4:
     case 5:
     case 6:
+    case 7:
+    case 8:
+    case 9:
+    case 10:
+    case 11:
     case 23:
     case 24:
     case 38:

@@ -14,6 +14,8 @@
 #define AUDIO_FREQ 44100     // Ljudfrekvens i Hz
 #define AUDIO_CHANNELS 2     // Antal ljudkanaler (stereo)
 #define AUDIO_CHUNKSIZE 2048 // Buffertstorlek för ljud
+#define BOOST_FRAME_COUNT 6
+
 
 // Enum: Spellägen
 typedef enum
@@ -81,8 +83,9 @@ typedef struct
     SDL_Texture *pWASDDarkTexture;
     SDL_Texture *pArrowDarkTexture;
 
-    // Spel Effekter
+    //Spel Effekter
     SDL_Texture *pTireTrailTexture;
+    SDL_Texture* pBoostFlameFrames[BOOST_FRAME_COUNT];
 
     // Tiletexturer
     SDL_Texture *pTiles[NUM_TILES]; // Enskilda tile-texturer (asfalt + gräs)
@@ -112,6 +115,7 @@ typedef struct
     SDL_Rect arrowRect;
     SDL_Rect WASDDarkRect;
     SDL_Rect arrowDarRect;
+
 
     // Multiplayer (kommenterade delar kan användas senare)
     SDL_Rect portRect;
