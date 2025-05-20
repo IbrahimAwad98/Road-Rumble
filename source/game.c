@@ -54,7 +54,7 @@ void gameLoop(GameResources *pRes)
     Uint32 lastBoostUsed[4] = {0};
     bool boostAvailable[4] = {false};
     bool boostUsed[4] = {false};
-    const Uint32 boostDuration = 2000;
+    const Uint32 boostDuration = 5000;
     static int boostFrame = 0;
     static Uint32 lastBoostFrameTime = 0;
     const Uint32 BOOST_ANIM_SPEED = 60;
@@ -595,7 +595,7 @@ void gameLoop(GameResources *pRes)
             if (boostAvailable[PlayerID] &&
                 !boostUsed[PlayerID] &&
                 !boostActive[PlayerID] &&
-                keys[SDL_SCANCODE_RSHIFT] && keys[SDL_SCANCODE_LSHIFT])
+                keys[SDL_SCANCODE_RSHIFT])
             {
                 boostActive[PlayerID] = true;
                 boostUsed[PlayerID] = true;
