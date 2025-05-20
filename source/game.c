@@ -107,7 +107,6 @@ void gameLoop(GameResources *pRes)
         //  Händelsehantering
         while (SDL_PollEvent(&event))
         {
-
             // Avsluta spel
             if (event.type == SDL_QUIT)
             {
@@ -158,7 +157,6 @@ void gameLoop(GameResources *pRes)
                     Mix_VolumeMusic(isMuted ? 0 : MIX_MAX_VOLUME);
                 }
             }
-            // Visuell feedback för menyknappar
             if (event.type == SDL_MOUSEMOTION && mode == MENU)
             {
                 int x = event.motion.x, y = event.motion.y;
@@ -185,7 +183,6 @@ void gameLoop(GameResources *pRes)
                     hoveredButton = 4;
                 }
             }
-            // Snabbtangent-funktioner
             if (event.type == SDL_KEYDOWN)
             {
                 if (event.key.keysym.sym == SDLK_p)
@@ -258,7 +255,6 @@ void gameLoop(GameResources *pRes)
                     }
                 }
             }
-            // trycka på join felt eller player felt
             if (event.type == SDL_TEXTINPUT && mode == MULTIPLAYER)
             {
                 if (selectedField == 1 && strlen(joinIpText) < sizeof(joinIpText) - 1)
@@ -270,7 +266,6 @@ void gameLoop(GameResources *pRes)
                     strcat(playerIdText, event.text.text);
                 }
             }
-            // trycker på enter när man är klar med ip add....
             if (event.type == SDL_KEYDOWN && mode == MULTIPLAYER && selectedField == 1)
             {
                 if (event.key.keysym.sym == SDLK_BACKSPACE && strlen(joinIpText) > 0)
@@ -290,7 +285,6 @@ void gameLoop(GameResources *pRes)
                     }
                 }
             }
-            // klick på Player felt...
             if (event.type == SDL_KEYDOWN && mode == MULTIPLAYER && selectedField == 2)
             {
                 if (event.key.keysym.sym == SDLK_BACKSPACE && strlen(playerIdText) > 0)
@@ -298,15 +292,12 @@ void gameLoop(GameResources *pRes)
                     playerIdText[strlen(playerIdText) - 1] = '\0';
                 }
             }
-            //  Klick i multiplayermenyn
             if (event.type == SDL_MOUSEBUTTONDOWN && mode == MULTIPLAYER)
             {
                 int x = event.button.x;
                 int y = event.button.y;
-
                 if (menuMode == CLASSIC)
                 {
-
                     if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->backMRect))
                     {
                         mode = MENU;
@@ -346,7 +337,6 @@ void gameLoop(GameResources *pRes)
                             printf("Please fill IP address and Player ID!\n");
                         }
                     }
-
                     else
                     {
                         selectedField = -1;
@@ -377,7 +367,7 @@ void gameLoop(GameResources *pRes)
                     {
                         if (strlen(joinIpText) > 0 && strlen(playerIdText) > 0)
                         {
-                            PlayerID = atoi(playerIdText) - 1; // <- Set playerID globally!
+                            PlayerID = atoi(playerIdText) - 1;
 
                             if (initClient(joinIpText, SERVER_PORT))
                             {
@@ -394,7 +384,6 @@ void gameLoop(GameResources *pRes)
                             printf("Please fill IP address and Player ID!\n");
                         }
                     }
-
                     else
                     {
                         selectedField = -1;
@@ -406,7 +395,6 @@ void gameLoop(GameResources *pRes)
         // Rendering: rensa skärm
         SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255);
         SDL_RenderClear(pRes->pRenderer);
-
         // Rendering: menyer och spellägen
         if (mode == MENU)
         {
@@ -456,7 +444,6 @@ void gameLoop(GameResources *pRes)
         resolveCollision(pRes->pCar2, pRes->pCar4);
         resolveCollision(pRes->pCar3, pRes->pCar4);
 
-        // Spelläget (via nätverk)
         Car *cars[4] = {pRes->pCar1, pRes->pCar2, pRes->pCar3, pRes->pCar4};
 
         // Hela spelets grafik, biluppdateringar, kollisionskontroll
@@ -478,7 +465,7 @@ void gameLoop(GameResources *pRes)
                 lastPingRequest = now;
             }
 
-            // === Uppdatera min egen bil ===
+            // Uppdatera min egen bil
             if (PlayerID >= 0 && PlayerID < 4)
             {
                 float boostFactor = boostActive[PlayerID] ? 2.0f : 1.0f;
@@ -503,7 +490,7 @@ void gameLoop(GameResources *pRes)
                 int tileRow = (int)(currentY / TILE_SIZE);
             }
 
-            // === Skicka min position ===
+            // Skicka min position
             PlayerData myData = {0};
             myData.playerID = PlayerID;
 
@@ -516,7 +503,7 @@ void gameLoop(GameResources *pRes)
 
             client_sendPlayerData(&myData);
 
-            // === Ta emot andra spelares positioner ===
+            // Ta emot andra spelares positioner
             PlayerData opponentData = {0};
 
             while (client_receiveServerData(&opponentData))
@@ -539,7 +526,7 @@ void gameLoop(GameResources *pRes)
                     setCarPosition(cars[opponentData.playerID], opponentData.x, opponentData.y, opponentData.angle);
                 }
             }
-            // === Rendera spelvärlden ===
+            // Rendera spelvärlden
             renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93);
             renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap, laps[PlayerID]);
 
@@ -574,7 +561,7 @@ void gameLoop(GameResources *pRes)
             int pcol = (int)(px / TILE_SIZE);
             int prow = (int)(py / TILE_SIZE);
 
-            // Unlock boost if on tile 9 during lap 2 and not already unlocked
+            // Aktivera boost
             if (prow >= 0 && prow < MAP_HEIGHT &&
                 pcol >= 0 && pcol < MAP_WIDTH &&
                 tilemap[prow][pcol] == 9 &&
@@ -599,7 +586,7 @@ void gameLoop(GameResources *pRes)
             if (boostActive[PlayerID])
             {
                 Uint32 now = SDL_GetTicks();
-                Uint32 boostDuration = 10000; // 3 seconds
+                Uint32 boostDuration = 10000; // 10 sekunder
 
                 if (now - boostStart[PlayerID] > boostDuration)
                 {
@@ -610,12 +597,10 @@ void gameLoop(GameResources *pRes)
                     float angle = getCarAngle(cars[PlayerID]);
                     float radians = angle * (M_PI / 180.0f);
 
-                    // Start at the *center* of the car (just like in trail logic)
                     float centerX = getCarX(cars[PlayerID]) + getCarWidth(cars[PlayerID]) / 2;
                     float centerY = getCarY(cars[PlayerID]) + getCarHeight(cars[PlayerID]) / 2;
 
-                    // Move flame backward from center based on angle
-                    float offset = getCarHeight(cars[PlayerID]) / 2 + 10; // adjust 10px more for spacing
+                    float offset = getCarHeight(cars[PlayerID]) / 2 + 10;
                     float flameX = centerX - cos(radians) * offset;
                     float flameY = centerY - sin(radians) * offset;
 
@@ -630,16 +615,13 @@ void gameLoop(GameResources *pRes)
 
                     SDL_Point flameCenter = {spriteWidth / 2, spriteHeight / 2};
 
-                    // Render with the same rotation
-
-                    // Animation frame timing
+                    // Animation flame
                     Uint32 now = SDL_GetTicks();
                     if (now - lastBoostFrameTime >= BOOST_ANIM_SPEED)
                     {
                         boostFrame = (boostFrame + 1) % BOOST_FRAME_COUNT;
                         lastBoostFrameTime = now;
                     }
-
                     // Render the current flame frame
                     SDL_Texture *currentFlame = pRes->pBoostFlameFrames[boostFrame];
 
@@ -648,7 +630,6 @@ void gameLoop(GameResources *pRes)
                     SDL_SetTextureAlphaMod(currentFlame, 255);
                 }
             }
-
             // Uppdatera lap-count
             if (winnerID < 0)
             {
@@ -660,16 +641,13 @@ void gameLoop(GameResources *pRes)
                     int col = (int)(x / TILE_SIZE);
                     int row = (int)(y / TILE_SIZE);
 
-                    // Ensure indices are within bounds of tilemap
                     if (row < 0 || row >= MAP_HEIGHT || col < 0 || col >= MAP_WIDTH)
                         continue;
 
                     bool currentlyOnFinish = (tilemap[row][col] == 7);
 
-                    // Check for crossing onto finish line
                     if (currentlyOnFinish && !wasOnFinish[i])
                     {
-                        // Car just crossed onto the finish line
                         laps[i]++;
                         if (laps[i] > 3)
                         {
@@ -677,14 +655,13 @@ void gameLoop(GameResources *pRes)
                         }
                     }
 
-                    // Update previous state
                     wasOnFinish[i] = currentlyOnFinish;
                 }
             }
 
             if (winnerID >= 0)
             {
-                // Bygg texten “Winner PlayerX!”
+                // vinnare
                 char winText[32];
                 sprintf(winText, "Winner Player%d!", winnerID + 1);
 
@@ -730,13 +707,10 @@ void gameLoop(GameResources *pRes)
                 // Återställ bilarnas startpositioner och egenskaper efter vinst
                 setCarPosition(pRes->pCar1, car1X, car1Y, 270.0f);
                 setCarSpeed(pRes->pCar1, 0.0f);
-
                 setCarPosition(pRes->pCar2, car2X, car2Y, 270.0f);
                 setCarSpeed(pRes->pCar2, 0.0f);
-
                 setCarPosition(pRes->pCar3, car3X, car3Y, 270.0f);
                 setCarSpeed(pRes->pCar3, 0.0f);
-
                 setCarPosition(pRes->pCar4, car4X, car4Y, 270.0f);
                 setCarSpeed(pRes->pCar4, 0.0f);
 
@@ -783,7 +757,6 @@ void gameLoop(GameResources *pRes)
                 SDL_DestroyTexture(lapTex);
             }
         }
-
         // Inställningar: ljud, kontroller, färgtema
         else if (mode == OPTIONS)
         {
@@ -855,7 +828,6 @@ void gameLoop(GameResources *pRes)
                 }
             }
         }
-
         // IP-anslutning, inmatning av ID
         else if (mode == MULTIPLAYER)
         {
@@ -867,12 +839,9 @@ void gameLoop(GameResources *pRes)
                 SDL_RenderCopy(pRes->pRenderer, pRes->pBackToMultiTexture, NULL, &pRes->backMRect);
                 SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180);
                 SDL_RenderDrawRect(pRes->pRenderer, &pRes->backMRect);
-
-                // Enter game button
                 SDL_RenderCopy(pRes->pRenderer, pRes->pEnterGameTexture, NULL, &pRes->enterRect);
                 SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180);
                 SDL_RenderDrawRect(pRes->pRenderer, &pRes->enterRect);
-                // Join IP input box
                 SDL_SetRenderDrawColor(pRes->pRenderer, 10, 25, 45, 255);
                 SDL_RenderFillRect(pRes->pRenderer, &pRes->joinRect);
                 SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180);
@@ -881,7 +850,6 @@ void gameLoop(GameResources *pRes)
                 // Render Join IP text
                 SDL_Color white = {255, 255, 255};
                 const char *displayIp = strlen(joinIpText) == 0 ? " " : joinIpText;
-
                 SDL_Surface *ipSurf = TTF_RenderText_Solid(pRes->pFont, displayIp, white);
                 SDL_Texture *ipTex = SDL_CreateTextureFromSurface(pRes->pRenderer, ipSurf);
                 SDL_Rect ipRect = {560, 350, ipSurf->w, ipSurf->h};
@@ -889,7 +857,6 @@ void gameLoop(GameResources *pRes)
                 SDL_FreeSurface(ipSurf);
                 SDL_DestroyTexture(ipTex);
 
-                // Port input box (readonly)
                 SDL_SetRenderDrawColor(pRes->pRenderer, 10, 25, 45, 255);
                 SDL_RenderFillRect(pRes->pRenderer, &pRes->portRect);
                 SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180);
@@ -903,7 +870,6 @@ void gameLoop(GameResources *pRes)
                 SDL_FreeSurface(hostSurf);
                 SDL_DestroyTexture(hostTex);
 
-                // Player ID input box
                 SDL_SetRenderDrawColor(pRes->pRenderer, 10, 25, 45, 255);
                 SDL_RenderFillRect(pRes->pRenderer, &pRes->playerIdRect);
                 SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180);
@@ -971,7 +937,6 @@ void gameLoop(GameResources *pRes)
                 SDL_DestroyTexture(idTex);
             }
         }
-
         // Presentera rendering
         SDL_RenderPresent(pRes->pRenderer);
         SDL_Delay(16); // cirka 60 FPS
