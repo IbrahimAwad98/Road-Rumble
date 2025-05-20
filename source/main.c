@@ -7,7 +7,6 @@
 #include <limits.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL.h>
-#include <string.h>
 #include "cleanup.h"
 #include "game.h"
 #include "sdl_init.h"
@@ -19,60 +18,49 @@
 #include "client.h"
 #include "globals.h"
 
-// Globala variabler
-char serverIP[IPLENGTH] = "127.0.0.1"; // Default IP = localhost
+// Globala nätverksvariabler
+char serverIP[IPLENGTH] = "127.0.0.1"; // Standard: localhost
 int PlayerID = 0;
 
 int main(int argc, char **argv)
 {
-    // Omdirigera stdout och stderr till en loggfil (för test och felsökning)
-    freopen("testlog.txt", "w", stdout); // Öppnar och skriver över fil
-    freopen("testlog.txt", "a", stderr); // Append: loggar även fel
+    // Logga stdout och stderr till fil
+    freopen("testlog.txt", "w", stdout);
+    freopen("testlog.txt", "a", stderr);
 
-    // Struktur som håller alla spelresurser (renderer, texturer, bilar, osv.)
-    GameResources res = {0};
+    GameResources res = {0}; // Allokerar allt spelinnehåll
 
-    // Flaggor för att avgöra om spelet ska köras i test- eller debugläge
     bool testMode = false, debugMode = false;
 
-    // Kolla igenom argumenten som skickades till programmet
+    // Tolka kommandoradsargument
     for (int i = 1; i < argc; i++)
     {
-        // flera argumenter för terminal-testing
         if (strcasecmp(argv[i], "--test") == 0)
-        {
             testMode = true;
-        }
         else if (strcasecmp(argv[i], "--debug") == 0)
-        {
             debugMode = true;
-        }
-        else if (strcasecmp(argv[i], "--ip") == 0 && (i + 1) < argc)
+        else if (strcasecmp(argv[i], "--ip") == 0 && i + 1 < argc)
         {
-            strncpy(serverIP, argv[i + 1], sizeof(serverIP) - 1);
+            strncpy(serverIP, argv[++i], sizeof(serverIP) - 1);
             serverIP[sizeof(serverIP) - 1] = '\0';
-            i++; // hoppa över nästa argument (IP-adressen)
         }
-        else if (strcasecmp(argv[i], "--id") == 0 && (i + 1) < argc)
+        else if (strcasecmp(argv[i], "--id") == 0 && i + 1 < argc)
         {
-            // test via id
-            PlayerID = atoi(argv[i + 1]);
+            PlayerID = atoi(argv[++i]);
             if (PlayerID < 1 || PlayerID > 4)
             {
-                printf("Wrong ID. Use --id 1 or --id 4.\n");
+                printf("Wrong ID. Use --id 1 to 4.\n");
                 return true;
             }
-            // konvertera 1–4 → 0–3 för arrayer osv.
-            PlayerID--;
-            i++;
+            PlayerID--; // Justera till 1-4
         }
     }
 
-    // Initiera SDL, fönster, ljud, nätverk osv.
+    // Initiera SDL och nätverk
     if (!initSDL(&res))
     {
         printf("Failed to initialize SDL components.\n");
-        return true; // Felkod 1 = SDL-fel
+        return true;
     }
     if (!initClient(serverIP, SERVER_PORT))
     {
@@ -80,41 +68,37 @@ int main(int argc, char **argv)
         return true;
     }
 
-    // Ladda texturer, bilder, ljud och fonter
+    // Ladda resurser
     if (!loadResources(&res))
     {
         printf("Failed to load game resources.\n");
-        cleanup(&res); // Rensa innan vi avslutar
+        cleanup(&res);
         return true;
     }
 
-    // Om testläge är aktiverat, kör tester först
+    // Testläge
     if (testMode)
     {
         bool testPassed = true;
-
-        // Kör alla testfunktioner, med eller utan debug-läge
         runAllTests(&res, &testPassed, debugMode);
 
         if (testPassed)
         {
             printf("TEST RESULTAT: PASSED.\n");
-            printf("Everything went fine! Test completed without errors.\n");
-            gameLoop(&res); // Om testerna gick bra, starta spelet
+            gameLoop(&res);
         }
         else
         {
             printf("TEST RESULTAT: FAILED.\n");
-            printf("One or more tests failed. Check the log above for details.\n");
-            return true; // Avsluta om testet misslyckades
+            return true;
         }
     }
+    else
+    {
+        gameLoop(&res); // Starta spelet direkt
+    }
 
-    // Om inte testläge, starta spelet direkt
-    gameLoop(&res);
-
-    // Rensa alla resurser och avsluta SDL
+    // Avsluta
     cleanup(&res);
-
-    return false; // Allt gick bra
+    return false;
 }

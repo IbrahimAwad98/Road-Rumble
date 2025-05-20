@@ -1,7 +1,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 #include <stdbool.h>
-// filer
 #include "game.h"
 #include "car.h"
 #include "tilemap.h"
@@ -17,38 +16,46 @@
 
 void gameLoop(GameResources *pRes)
 {
-    // tillstånd variabeler
-    int isMuted = 0;                            // Flagga för ljud av/på
-    int musicVolumeLevel = 4;                   // Musikvolym (0–4)
-    int sfxLevel = 4;                           // Ljudeffektsvolym (0–4)
-    int musicVolumes[5] = {0, 32, 64, 96, 128}; // Steg för musikvolym
-    int sfxVolumes[5] = {0, 32, 64, 96, 128};   // Steg för ljudeffekter
-    char joinIpText[16] = "";                   // Joina IP
-    char playerIdText[4] = "";                  // playerID
-    char hostText[32] = " 127.0.0.1";           // Host Texten (lokalt)
-    int selectedField = -1;                     // host=0, join=1
-    char availableServ[16][5];                  // alla tillgängliga/startade servrar
-    char portText[8] = "2000";                  // för att visa i multiplayer meny
+    // Allmänna tillståndsvariabler
+    int isMuted = 0;
+    int musicVolumeLevel = 4;
+    int sfxLevel = 4;
+    int musicVolumes[5] = {0, 32, 64, 96, 128};
+    int sfxVolumes[5] = {0, 32, 64, 96, 128};
+
+    // Multiplayer och IP
+    char joinIpText[16] = "";
+    char playerIdText[4] = "";
+    char hostText[32] = " 127.0.0.1";
+    char availableServ[16][5];
+    char portText[8] = "2000";
+    int selectedField = -1;
+
+    // Fönster- och loopstatus
     SDL_Event event;
-    bool isRunning = true;          // Om spelet ska fortsätta köras
-    bool isFullscreen = true;       // flagga
-    bool escWasPressedOnce = false; // flagga
-    GameMode mode = MENU;           // Startläge: huvudmeny
+    bool isRunning = true;
+    bool isFullscreen = true;
+    bool escWasPressedOnce = false;
+
+    // Meny- och spelläge
+    GameMode mode = MENU;
     MenuMode menuMode = CLASSIC;
     ControllerMode cMode = WASD;
-    int hoveredButton = -1;            // Vilken menyknapp som musen är över
-    Uint32 ping = 0;                   // ping-mätning
-    static Uint32 lastPingRequest = 0; // ping-mätning
-    // Varv räknanre variabler
-    float lastCarX = 0;                              // Spåra senaste bilens position
-    float lastCarY = 0;                              // Spåra senaste bilens position
-    float prevY[4] = {0};                            // För att spåra föregående Y-position för varje bil
-    int laps[4] = {0, 0, 0, 0};                      // antal varv per spelare
-    bool crossedStart[4] = {true, true, true, true}; // om finishlinjen korsats
-    int winnerID = -1;                               // index för vinnare (–1 = ingen än)
-    bool wasOnFinish[4] = {false};
+    int hoveredButton = -1;
 
-    // Boost varaibel
+    // Nätverk och ping
+    Uint32 ping = 0;
+    static Uint32 lastPingRequest = 0;
+
+    // Varvhantering
+    float lastCarX = 0, lastCarY = 0;
+    float prevY[4] = {0};
+    int laps[4] = {0, 0, 0, 0};
+    bool crossedStart[4] = {true, true, true, true};
+    bool wasOnFinish[4] = {false};
+    int winnerID = -1;
+
+    // Boostsystem
     bool boostActive[4] = {false};
     Uint32 boostStart[4] = {0};
     Uint32 lastBoostUsed[4] = {0};
@@ -59,54 +66,38 @@ void gameLoop(GameResources *pRes)
     static Uint32 lastBoostFrameTime = 0;
     const Uint32 BOOST_ANIM_SPEED = 60;
 
-    // justerar automatisk
+    // Fönsterstorlek
     SDL_RenderSetLogicalSize(pRes->pRenderer, WIDTH, HEIGHT);
 
-    // Bil storlek
-    int carWidth = 80;
-    int carHeight = 48;
-
-    // Flytta startpositionen ett steg åt vänster (t.ex. tileCol = 0 istället för 1)
+    // === Bilarnas startkoordinater ===
+    int carWidth = 80, carHeight = 48;
     int tileCol = 1;
     float tileRow = 4.7f;
-
     int startX = tileCol * TILE_SIZE;
     int startY = (int)(tileRow * TILE_SIZE);
-
-    // Flytta bara lite åt vänster (2 pixlar)
-    int car1X = startX + 2; // Vänster bil
-    int car1Y = startY + 20;
-
-    int car2X = car1X + carWidth - 28; // Höger bil direkt bredvid
-    int car2Y = car1Y;
-
-    int car3X = car1X;
-    int car3Y = car1Y - carHeight - 2;
-
-    int car4X = car2X;
-    int car4Y = car2Y - carHeight - 2;
+    int car1X = startX + 2, car1Y = startY + 20;
+    int car2X = car1X + carWidth - 28, car2Y = car1Y;
+    int car3X = car1X, car3Y = car1Y - carHeight - 2;
+    int car4X = car2X, car4Y = car2Y - carHeight - 2;
 
     // Initiera bilar
     pRes->pCar1 = createCar(pRes->pRenderer, "resources/Cars/Black_viper.png", car1X, car1Y, carWidth, carHeight);
     pRes->pCar2 = createCar(pRes->pRenderer, "resources/Cars/Mini_truck.png", car2X, car2Y, carWidth, carHeight);
     pRes->pCar3 = createCar(pRes->pRenderer, "resources/Cars/Audi.png", car3X, car3Y, carWidth, carHeight);
     pRes->pCar4 = createCar(pRes->pRenderer, "resources/Cars/car.png", car4X, car4Y, carWidth, carHeight);
-
     if (!pRes->pCar1 || !pRes->pCar2 || !pRes->pCar3 || !pRes->pCar4)
     {
         printf("Failed to create car textures: %s\n", SDL_GetError());
         return;
     }
 
+    // Initiera vinkel och hastighet
     setCarAngle(pRes->pCar1, 270.0f);
     setCarSpeed(pRes->pCar1, 0.0f);
-
     setCarAngle(pRes->pCar2, 270.0f);
     setCarSpeed(pRes->pCar2, 0.0f);
-
     setCarAngle(pRes->pCar3, 270.0f);
     setCarSpeed(pRes->pCar3, 0.0f);
-
     setCarAngle(pRes->pCar4, 270.0f);
     setCarSpeed(pRes->pCar4, 0.0f);
 
@@ -412,13 +403,14 @@ void gameLoop(GameResources *pRes)
                 }
             }
         }
-        // Rendering
+        // Rendering: rensa skärm
         SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255);
         SDL_RenderClear(pRes->pRenderer);
 
-        // Huvudmenyn
+        // Rendering: menyer och spellägen
         if (mode == MENU)
         {
+            // Meny: rendera UI baserat på theme
             if (menuMode == CLASSIC)
             {
                 SDL_RenderCopy(pRes->pRenderer, pRes->pBackgroundTexture, NULL, NULL);
@@ -428,8 +420,7 @@ void gameLoop(GameResources *pRes)
                 SDL_SetTextureColorMod(pRes->pMultiplayerTexture, hoveredButton == 1 ? 200 : 255, hoveredButton == 1 ? 200 : 255, 255);
                 SDL_SetTextureColorMod(pRes->pOptionsTexture, hoveredButton == 2 ? 200 : 255, hoveredButton == 2 ? 200 : 255, 255);
                 SDL_SetTextureColorMod(pRes->pExitTexture, hoveredButton == 3 ? 200 : 255, hoveredButton == 3 ? 200 : 255, 255);
-                SDL_SetTextureColorMod(isMuted ? pRes->pMuteTexture : pRes->pUnmuteTexture,
-                                       hoveredButton == 4 ? 200 : 255, hoveredButton == 4 ? 200 : 255, 255);
+                SDL_SetTextureColorMod(isMuted ? pRes->pMuteTexture : pRes->pUnmuteTexture, hoveredButton == 4 ? 200 : 255, hoveredButton == 4 ? 200 : 255, 255);
 
                 // Rendera knappar
                 SDL_RenderCopy(pRes->pRenderer, pRes->pStartTexture, NULL, &pRes->startRect);
@@ -468,11 +459,13 @@ void gameLoop(GameResources *pRes)
         // Spelläget (via nätverk)
         Car *cars[4] = {pRes->pCar1, pRes->pCar2, pRes->pCar3, pRes->pCar4};
 
+        // Hela spelets grafik, biluppdateringar, kollisionskontroll
+        // Spelrendering: tilemap, bilar, boost, trail, ping, varv, vinnare
         if (mode == PLAYING)
         {
-            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255); // rensa skärmen
+            SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 255);
             SDL_RenderClear(pRes->pRenderer);
-            const Uint8 *keys = SDL_GetKeyboardState(NULL); // läs tangentbord
+            const Uint8 *keys = SDL_GetKeyboardState(NULL);
 
             Uint32 now = SDL_GetTicks();
             if (now - lastPingRequest >= 1000)
@@ -791,12 +784,11 @@ void gameLoop(GameResources *pRes)
             }
         }
 
-        //  Inställningsmeny
+        // Inställningar: ljud, kontroller, färgtema
         else if (mode == OPTIONS)
         {
             if (menuMode == CLASSIC)
             {
-                // Full background with texts already inside
                 SDL_RenderCopy(pRes->pRenderer, pRes->pOptionsMenuTex, NULL, NULL);
                 SDL_RenderCopy(pRes->pRenderer, pRes->pBackToMenuTexture, NULL, &pRes->backRect);
                 if (cMode == WASD)
@@ -806,7 +798,6 @@ void gameLoop(GameResources *pRes)
                 else
                     SDL_RenderCopy(pRes->pRenderer, pRes->pArrowTexture, NULL, &pRes->arrowRect);
 
-                // Draw volume bars (same for both modes)
                 for (int i = 0; i < 5; i++)
                 {
                     SDL_Rect block = {
@@ -838,8 +829,9 @@ void gameLoop(GameResources *pRes)
                     SDL_RenderCopy(pRes->pRenderer, pRes->pWASDDarkTexture, NULL, &pRes->WASDDarkRect);
                 }
                 else
+                {
                     SDL_RenderCopy(pRes->pRenderer, pRes->pArrowDarkTexture, NULL, &pRes->arrowDarRect);
-                // Draw volume bars (same for both modes)
+                }
                 for (int i = 0; i < 5; i++)
                 {
                     SDL_Rect block = {
@@ -864,7 +856,7 @@ void gameLoop(GameResources *pRes)
             }
         }
 
-        //  Multiplayer-meny
+        // IP-anslutning, inmatning av ID
         else if (mode == MULTIPLAYER)
         {
 
@@ -927,23 +919,21 @@ void gameLoop(GameResources *pRes)
             }
             else if (menuMode == DARK)
             {
-                // === Dark Multiplayer menu ===
+
                 SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerMenuDarkTex, NULL, NULL);
                 SDL_RenderCopy(pRes->pRenderer, pRes->pBackToMultiDarkTexture, NULL, &pRes->backMDarkRect);
                 SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180);
                 SDL_RenderDrawRect(pRes->pRenderer, &pRes->backMDarkRect);
 
-                // Enter game button
                 SDL_RenderCopy(pRes->pRenderer, pRes->pEnterGameDarkTexture, NULL, &pRes->enterDarkRect);
                 SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180);
                 SDL_RenderDrawRect(pRes->pRenderer, &pRes->enterDarkRect);
-                // Join IP input box
+
                 SDL_SetRenderDrawColor(pRes->pRenderer, 5, 10, 20, 255);
                 SDL_RenderFillRect(pRes->pRenderer, &pRes->joinDarkRect);
                 SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180);
                 SDL_RenderDrawRect(pRes->pRenderer, &pRes->joinDarkRect);
 
-                // Render Join IP text
                 SDL_Color white = {255, 255, 255};
                 const char *displayIp = strlen(joinIpText) == 0 ? " " : joinIpText;
 
@@ -954,7 +944,6 @@ void gameLoop(GameResources *pRes)
                 SDL_FreeSurface(ipSurf);
                 SDL_DestroyTexture(ipTex);
 
-                // Port input box (readonly)
                 SDL_SetRenderDrawColor(pRes->pRenderer, 5, 10, 20, 255);
                 SDL_RenderFillRect(pRes->pRenderer, &pRes->portDarkRect);
                 SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180);
@@ -968,7 +957,6 @@ void gameLoop(GameResources *pRes)
                 SDL_FreeSurface(hostSurf);
                 SDL_DestroyTexture(hostTex);
 
-                // Player ID input box
                 SDL_SetRenderDrawColor(pRes->pRenderer, 5, 10, 20, 255);
                 SDL_RenderFillRect(pRes->pRenderer, &pRes->playerIdDarkRect);
                 SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180);
@@ -984,7 +972,7 @@ void gameLoop(GameResources *pRes)
             }
         }
 
-        // Presentera det som ritats
+        // Presentera rendering
         SDL_RenderPresent(pRes->pRenderer);
         SDL_Delay(16); // cirka 60 FPS
     }

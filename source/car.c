@@ -4,18 +4,20 @@
 #include "car.h"
 #include "tilemap.h"
 
-// definiera den manuellt för windows
+// För M_PI på vissa system
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+
 #define MAX_TRAIL 30
 
+// Internt trail-spår
 typedef struct
 {
     float x, y;
     float angle;
 } TrailMark;
-
+// Bil-strukten
 struct Car
 {
     SDL_Texture *pCartexture; // Texturen (bilden) för bilen
@@ -30,6 +32,7 @@ struct Car
     int trailCount;
 };
 
+// Initiera bil
 Car *createCar(SDL_Renderer *pRenderer, const char *pImagepath, int x, int y, int w, int h)
 {
     // Allokera minne för en bil
@@ -62,12 +65,9 @@ Car *createCar(SDL_Renderer *pRenderer, const char *pImagepath, int x, int y, in
         return NULL;
     }
 
-    // Initiera bilens rektangel för rendering
     pCar->carRect = (SDL_Rect){x, y, w, h};
     pCar->width = w;
     pCar->height = h;
-
-    // Initiera bilens inre position och rörelse
     pCar->x = (float)x;
     pCar->y = (float)y;
     pCar->angle = 0.0f;
@@ -77,7 +77,7 @@ Car *createCar(SDL_Renderer *pRenderer, const char *pImagepath, int x, int y, in
 
     return pCar;
 }
-
+// Uppdatera bilens rörelse och effekter
 void updateCar(Car *pCar, const Uint8 *pKeys, SDL_Scancode up, SDL_Scancode down, SDL_Scancode left, SDL_Scancode right, float boost)
 {
     const float accel = 0.2f * boost;
@@ -107,7 +107,7 @@ void updateCar(Car *pCar, const Uint8 *pKeys, SDL_Scancode up, SDL_Scancode down
     {
         pCar->angle += turnSpeed;
     }
-
+    // Drift-effekt
     if ((pKeys[left] || pKeys[right]) && fabs(pCar->speed) > 1.2f)
     {
         pCar->isDrifting = true;
@@ -116,7 +116,7 @@ void updateCar(Car *pCar, const Uint8 *pKeys, SDL_Scancode up, SDL_Scancode down
     {
         pCar->isDrifting = false;
     }
-
+    // Trail vid drift
     if (pCar->isDrifting && fabs(pCar->speed) > 1.0f)
     {
         float radians = pCar->angle * (M_PI / 180.0f);
@@ -141,7 +141,7 @@ void updateCar(Car *pCar, const Uint8 *pKeys, SDL_Scancode up, SDL_Scancode down
             pCar->trail[MAX_TRAIL - 1].angle = pCar->angle;
         }
     }
-    // Friktion (saktar ner bilen om man släpper knappar)
+    // Friktion
     if (pCar->speed > 0)
     {
         pCar->speed -= friction;
@@ -158,26 +158,23 @@ void updateCar(Car *pCar, const Uint8 *pKeys, SDL_Scancode up, SDL_Scancode down
             pCar->speed = 0;
         }
     }
-    // Räkna ut nästa position baserat på hastighet och vinkel
+
     float radians = pCar->angle * (M_PI / 180.0f);
     float nextX = pCar->x + pCar->speed * cos(radians);
     float nextY = pCar->y + pCar->speed * sin(radians);
-
-    // Kolla om nästa position är tillåten (krockkontroll med tilemap)
     float checkX = nextX + pCar->carRect.w / 2;
     float checkY = nextY + pCar->carRect.h / 2;
 
     bool blockedByObstacle = false;
 
-    int shrink = 12; // shrink width and height by 12px
-
+    int shrink = 12;
+    // Hinderkoll
     SDL_Rect nextRect = {
         (int)nextX + shrink / 2,
         (int)nextY + shrink / 2,
         pCar->carRect.w - shrink,
         pCar->carRect.h - shrink};
 
-    // Loop over tilemap to check if car intersects with crate or barrel
     for (int row = 0; row < MAP_HEIGHT; row++)
     {
         for (int col = 0; col < MAP_WIDTH; col++)
@@ -185,7 +182,7 @@ void updateCar(Car *pCar, const Uint8 *pKeys, SDL_Scancode up, SDL_Scancode down
             int tileID = tilemap[row][col];
 
             if (tileID == 10 || tileID == 11)
-            { // Barrel or Crate
+            {
                 SDL_Rect obstacleRect = {
                     col * TILE_SIZE + (TILE_SIZE - 8) / 4,
                     row * TILE_SIZE + (TILE_SIZE - 8) / 4,
@@ -213,12 +210,10 @@ void updateCar(Car *pCar, const Uint8 *pKeys, SDL_Scancode up, SDL_Scancode down
     {
         pCar->x -= pCar->speed * cos(radians);
         pCar->y -= pCar->speed * sin(radians);
-
-        // Apply bounce effect
-        pCar->speed *= -0.6f; // adjust the value to control bounce strength
+        pCar->speed *= -0.6f; // studs
     }
 
-    // Begränsa så att bilen inte kör utanför skärmen
+    // Skärmgräns (För bilen)
     int screenWidth = 1366;
     int screenHeight = 768;
 
@@ -241,12 +236,12 @@ void updateCar(Car *pCar, const Uint8 *pKeys, SDL_Scancode up, SDL_Scancode down
     pCar->carRect.x = (int)pCar->x;
     pCar->carRect.y = (int)pCar->y;
 }
-// Rendera
+// Rendera bil
 void renderCar(SDL_Renderer *pRenderer, Car *pCar)
 {
     SDL_RenderCopyEx(pRenderer, pCar->pCartexture, NULL, &pCar->carRect, pCar->angle + 90.0f, NULL, SDL_FLIP_NONE);
 }
-// Rensa minnet
+// Frigör minne
 void destroyCar(Car *pCar)
 {
     if (pCar)
@@ -258,7 +253,7 @@ void destroyCar(Car *pCar)
         free(pCar);
     }
 }
-// Getter-funktioner -> extern kod kan läsa värden men inte ändra dem direkt
+// Getters
 float getCarX(const Car *pCar) { return pCar->x; }
 float getCarY(const Car *pCar) { return pCar->y; }
 float getCarAngle(const Car *pCar) { return pCar->angle; }
@@ -299,7 +294,7 @@ int getCarHeight(Car *car)
     return car->carRect.h;
 }
 
-// bilpostioner
+// Setters
 void setCarPosition(Car *car, float x, float y, float angle)
 {
     car->x = x;
@@ -318,6 +313,7 @@ void setCarSpeed(Car *pCar, float speed)
     if (pCar)
         pCar->speed = speed;
 }
+// Kollision mellan två bilar
 void resolveCollision(Car *pA, Car *pB)
 {
     float ax = pA->x + pA->carRect.w / 2;
@@ -329,10 +325,10 @@ void resolveCollision(Car *pA, Car *pB)
     float dy = ay - by;
     float distance = SDL_sqrtf(dx * dx + dy * dy);
 
-    float minDistance = 29.0f; // Justera detta: bilarnas visuella närhet
+    float minDistance = 29.0f;
 
     if (distance >= minDistance)
-        return; // För långt ifrån, ingen krock
+        return;
 
     float overlap = minDistance - distance;
     if (distance == 0.0f)
@@ -348,7 +344,6 @@ void resolveCollision(Car *pA, Car *pB)
     float newBx = pB->x - dx * push;
     float newBy = pB->y - dy * push;
 
-    // Kolla att båda bilarna får stå kvar på banan
     if (isTileAllowed(newAx + pA->carRect.w / 2, newAy + pA->carRect.h / 2) &&
         isTileAllowed(newBx + pB->carRect.w / 2, newBy + pB->carRect.h / 2))
     {

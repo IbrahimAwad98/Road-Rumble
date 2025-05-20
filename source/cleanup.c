@@ -9,21 +9,26 @@
 
 void cleanup(GameResources *pRes)
 {
-    // 1. Rensa bilar
+    // Rensa bilar
     destroyCar(pRes->pCar1);
     destroyCar(pRes->pCar2);
     destroyCar(pRes->pCar3);
     destroyCar(pRes->pCar4);
 
-    // 2. Rensa texturer
+    //  Rensa texturer (huvudmeny)
     if (pRes->pStartTexture)
+    {
         SDL_DestroyTexture(pRes->pStartTexture);
+    }
     if (pRes->pExitTexture)
+    {
         SDL_DestroyTexture(pRes->pExitTexture);
+    }
     if (pRes->pBackgroundTexture)
+    {
         SDL_DestroyTexture(pRes->pBackgroundTexture);
-
-    // 3. Rensa tiles
+    }
+    // Rensa tile-texturer
     for (int i = 0; i < NUM_TILES; i++)
     {
         if (pRes->pTiles[i])
@@ -32,26 +37,29 @@ void cleanup(GameResources *pRes)
             pRes->pTiles[i] = NULL;
         }
     }
-
-    // 4. Font
+    // Rensa font
     if (pRes->pFont)
         TTF_CloseFont(pRes->pFont);
 
-    // 5. Renderer och fönster
+    // Rensa renderer och fönster
     if (pRes->pRenderer)
+    {
         SDL_DestroyRenderer(pRes->pRenderer);
+    }
     if (pRes->pWindow)
+    {
         SDL_DestroyWindow(pRes->pWindow);
-
-    // 6. Musik
+    }
+    // Rensa musik
     if (pRes->pBgMusic)
+    {
         Mix_FreeMusic(pRes->pBgMusic);
-
-    // 7. Nätverk
+    }
+    // Stäng nätverk
     closeClient();
     closeServer();
 
-    // 8. SDL-subsystem
+    // Stäng SDL-subsystem
     Mix_CloseAudio();
     SDLNet_Quit();
     TTF_Quit();

@@ -3,7 +3,7 @@
 
 #include "game.h"
 
-// Frigör alla resurser och avslutar SDL-systemen
+// Frigör alla resurser och stänger ner SDL
 void cleanup(GameResources *pRes);
 
 #endif

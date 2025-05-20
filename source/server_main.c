@@ -2,32 +2,31 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-// filer
 #include "server.h"
 #include "network.h"
 
-#define NROFPLAYERS 4   // Max 4 spelare
+#define NROFPLAYERS 4   // Max antal spelare
 #define TIMEOUT_MS 5000 // Timeout efter 5 sekunder
 
-// Struktur för varje ansluten spelare
+// Spelarstruktur
 typedef struct
 {
-    IPaddress address;     // Spelarens IP och port
-    PlayerData data;       // Senast mottagna PlayerData
-    bool active;           // Är spelaren aktiv/ansluten?
-    Uint32 lastActiveTime; // När senast tog emot data
+    IPaddress address;
+    PlayerData data;
+    bool active;
+    Uint32 lastActiveTime;
 } Player;
 
 int main(int argc, char **argv)
 {
-    // Initiera SDL_net
+    // Initiera nätverksbibliotek
     if (SDLNet_Init() < 0)
     {
         printf("SDLNet_Init error: %s\n", SDLNet_GetError());
         return 1;
     }
 
-    // Öppna en UDP-socket
+    // Starta server
     if (!initServer(SERVER_PORT))
     {
         printf("Failed to start server.\n");
@@ -37,17 +36,17 @@ int main(int argc, char **argv)
 
     printf("Server is running on port: %d.\n", SERVER_PORT);
 
-    Player players[NROFPLAYERS] = {0}; // Nollställ alla spelare
-
+    Player players[NROFPLAYERS] = {0};
     PlayerData playerData;
     IPaddress clientAddress;
 
-    // Huvudloop
+    // Serverloop
     while (true)
     {
-        // Vänta på data från klient
+        // Mottagning av data från klient
         if (server_receivePlayerData(&playerData, &clientAddress))
         {
+            // Hantera ping-paket
             if (playerData.isPing == 1)
             {
                 server_sendPlayerData(&playerData, &clientAddress);
@@ -56,7 +55,7 @@ int main(int argc, char **argv)
 
             int clientIndex = -1;
 
-            // Finn om klienten redan finns
+            // Leta efter befintlig klient
             for (int i = 0; i < NROFPLAYERS; i++)
             {
                 if (players[i].active &&
@@ -68,7 +67,7 @@ int main(int argc, char **argv)
                 }
             }
 
-            // Om ny klient, registrera
+            // Ny klient -> tilldela plats
             if (clientIndex == -1)
             {
                 for (int i = 0; i < NROFPLAYERS; i++)
@@ -83,12 +82,12 @@ int main(int argc, char **argv)
                     }
                 }
 
-                // Server full
+                // Om full server -> avvisa
                 if (clientIndex == -1)
                 {
                     printf("Server full. Rejecting client %u:%u\n", clientAddress.host, clientAddress.port);
                     PlayerData rejectData = {0};
-                    rejectData.playerID = -1; // signalerar avvisad
+                    rejectData.playerID = -1;
                     server_sendPlayerData(&rejectData, &clientAddress);
                     continue;
                 }
@@ -101,7 +100,7 @@ int main(int argc, char **argv)
                 players[clientIndex].lastActiveTime = SDL_GetTicks();
                 players[clientIndex].address = clientAddress;
 
-                // Skicka den NYA datan till alla andra spelare
+                // Skicka till alla andra spelare
                 for (int i = 0; i < NROFPLAYERS; i++)
                 {
                     if (i != clientIndex && players[i].active)
@@ -111,7 +110,8 @@ int main(int argc, char **argv)
                 }
             }
         }
-        // Kolla timeouts
+
+        // Timeout-hantering
         Uint32 now = SDL_GetTicks();
         for (int i = 0; i < NROFPLAYERS; i++)
         {
@@ -122,10 +122,10 @@ int main(int argc, char **argv)
             }
         }
 
-        SDL_Delay(1); // Spara CPU
+        SDL_Delay(1); // Minska CPU-belastning
     }
 
-    // Om loop bryts
+    // Rensa resurser om loopen bryts
     closeServer();
     SDLNet_Quit();
     return 0;
