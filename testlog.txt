@@ -5,9 +5,20 @@ SDL_mixer initialized successfully.
 SDL_net initialized successfully.
 SDL window created successfully.
 SDL renderer created successfully.
-Connected to 130.229.139.202 successfully as Player 3!
-BOOST unlocked! You can use it anytime now.
-BOOST activated by SHIFT!
+===============================
+         STATUSRAPPORT         
+===============================
+Debug mode is active
+Test mode is active
+===============================
+SDL is working.
+SDL font is working.
+SDL_net is working.
+
+Tests are done
+===============================
+TEST RESULTAT: PASSED.
+Please fill IP address and Player ID!
 Cleanup completed!
 libpng warning: iCCP: known incorrect sRGB profile
 libpng warning: iCCP: known incorrect sRGB profile

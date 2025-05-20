@@ -2,18 +2,18 @@
 #include "tilemap.h"
 #include <stdlib.h>
 
-// Behövs inte då vi använder enskilda tiles för att bygga banan och inte en stor bild
+// Tileset-källa (används ej i dagsläget)
 SDL_Rect getTileSrcByID(int tileID)
 {
-    SDL_Rect src; // Skapar en rektangel som ska visa vilken del av bilden vi vill rita
-
-    src.x = (tileID % TILESET_COLUMNS) * TILE_SIZE; // Beräknar vilken kolumn i tileset-bilden vi är på (x-position)
-    src.y = (tileID / TILESET_COLUMNS) * TILE_SIZE; // Beräknar vilken rad i tileset-bilden vi är på (y-position)
-    src.w = TILE_SIZE;                              // Sätter bredden på rutan till TILE_SIZE
-    src.h = TILE_SIZE;                              // Sätter höjden på rutan till TILE_SIZE
-
-    return src; // Returnerar rutan som visar vilken del av bilden vi vill rita
+    SDL_Rect src;
+    src.x = (tileID % TILESET_COLUMNS) * TILE_SIZE;
+    src.y = (tileID / TILESET_COLUMNS) * TILE_SIZE;
+    src.w = TILE_SIZE;
+    src.h = TILE_SIZE;
+    return src;
 }
+
+// Returnerar rektangel för hinderobjekt (barrel/crate)
 SDL_Rect getObstacleRect(int col, int row, int tileID)
 {
     SDL_Rect rect = {0, 0, 0, 0};
@@ -29,7 +29,7 @@ SDL_Rect getObstacleRect(int col, int row, int tileID)
     return rect;
 }
 
-// Varje heltal representerar ett tileID; -1 betyder tom yta (inget ska ritas).
+// Tilemap: -1 = tom, 0+ = tile-ID
 int tilemap[MAP_HEIGHT][MAP_WIDTH] = {
     {109, 2, 1, 6, 104, -1, 104, 5, 1, 4, 105},
     {-1, 0, -1, 0, -1, -1, -1, 0, 107, 0, -1},
@@ -38,94 +38,78 @@ int tilemap[MAP_HEIGHT][MAP_WIDTH] = {
     {-1, 8, -1, -1, -1, -1, -1, -1, 106, 0, -1},
     {110, 38, 7, 1, 1, 1, 11, 1, 9, 40, 110}};
 
-// Gör hela bakgrunden till gräs
+// Rendera gräsbakgrund
 void renderGrassBackground(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int grassTileID)
 {
-    // Om bilden för gräset saknas, gör ingenting
     if (!pTiles[grassTileID])
-    {
-        return; // Avsluta funktionen
-    }
+        return;
 
-    // Beräkna hur många tiles som behövs för att täcka hela skärmen i x- och y-led
-    int tilesX = WIDTH / TILE_SIZE + 2; // +2 för att täcka lite extra utanför skärmen (om kameran rör sig)
+    int tilesX = WIDTH / TILE_SIZE + 2;
     int tilesY = HEIGHT / TILE_SIZE + 2;
 
-    // Rita ett rutnät av grästiles
-    // Loopa igenom alla rader
     for (int row = 0; row < tilesY; row++)
     {
-        // Loopa igenom alla kolumner
         for (int col = 0; col < tilesX; col++)
         {
             SDL_Rect dest = {
-                col * TILE_SIZE,       // x-position: kolumn * TILE_SIZE (t.ex. 0, 128, 256 ...) räknar ut exakt x-position i pixlar
-                row * TILE_SIZE,       // y-position: rad * TILE_SIZE räknar ut exakt y-position i pixlar
-                TILE_SIZE, TILE_SIZE}; // Bredd och höjd på varje tile
+                col * TILE_SIZE,
+                row * TILE_SIZE,
+                TILE_SIZE, TILE_SIZE};
 
-            SDL_RenderCopy(pRenderer, pTiles[grassTileID], NULL, &dest); // Ritar ut grästilen på rätt plats på skärmen
+            SDL_RenderCopy(pRenderer, pTiles[grassTileID], NULL, &dest);
         }
     }
 }
 
-// Renderar banan (vägar, objekt, etc.) baserat på `tilemap`-arrayen.
-// TileID -1 betyder att inget ska ritas.
+// Rendera vägbana och objekt från tilemap
 void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int tilemap[MAP_HEIGHT][MAP_WIDTH], int currentLap)
 {
-    // Gå igenom varje rad i tilemap
     for (int row = 0; row < MAP_HEIGHT; row++)
     {
-        // Gå igenom varje kolumn i tilemap
         for (int col = 0; col < MAP_WIDTH; col++)
         {
-            int tileID = tilemap[row][col]; // Hämta tileID för den här rutan
-
-            // Hoppa över tomma tiles (-1)
+            int tileID = tilemap[row][col];
             if (tileID == -1)
-            {
                 continue;
-            }
-            // Om tileID är giltigt (0 till NUM_TILES-1) och texturen finns
+
             if (tileID >= 0 && tileID < NUM_TILES && pTiles[tileID])
             {
                 SDL_Rect dest = {
-                    col * TILE_SIZE,       // x-position: kolumn * TILE_SIZE
-                    row * TILE_SIZE,       // y-position: rad * TILE_SIZE
-                    TILE_SIZE, TILE_SIZE}; // Bredd och höjd på varje tile
+                    col * TILE_SIZE,
+                    row * TILE_SIZE,
+                    TILE_SIZE, TILE_SIZE};
 
-                SDL_RenderCopy(pRenderer, pTiles[tileID], NULL, &dest); // Ritar ut rätt tile på rätt plats
+                SDL_RenderCopy(pRenderer, pTiles[tileID], NULL, &dest);
 
-                // BOOST OVERLAY – rita ovanpå asphalt tile 40
-                if (tileID == 9 && pTiles[BOOST_FLAME_TILE_ID])
+                // Specialeffekter
+                if (tileID == 9 && pTiles[BOOST_FLAME_TILE_ID] && currentLap == 2)
                 {
-                    if (currentLap == 2) // visa endast under varv 2 (lap == 1 → andra varvet)
-                    {
-                        SDL_Rect small = {
-                            dest.x + (TILE_SIZE / 2) / 2,
-                            dest.y + (TILE_SIZE / 2) / 2,
-                            TILE_SIZE / 2,
-                            TILE_SIZE / 2};
-                        SDL_RenderCopy(pRenderer, pTiles[BOOST_FLAME_TILE_ID], NULL, &small);
-                    }
+                    SDL_Rect small = {
+                        dest.x + TILE_SIZE / 4,
+                        dest.y + TILE_SIZE / 4,
+                        TILE_SIZE / 2,
+                        TILE_SIZE / 2};
+                    SDL_RenderCopy(pRenderer, pTiles[BOOST_FLAME_TILE_ID], NULL, &small);
                 }
+
                 if (tileID == 7)
                 {
                     SDL_Rect small = {
-                        dest.x + (TILE_SIZE * 2) / 3,
-                        dest.y + (TILE_SIZE - TILE_SIZE) / 2,
+                        dest.x + TILE_SIZE * 2 / 3,
+                        dest.y,
                         TILE_SIZE / 3,
                         TILE_SIZE};
                     SDL_RenderCopy(pRenderer, pTiles[FINISH_TILE_ID], NULL, &small);
                 }
+
                 if (tileID == 8)
                 {
                     SDL_Rect small = {
-                        dest.x + (TILE_SIZE - TILE_SIZE) / 2,
+                        dest.x,
                         dest.y + (TILE_SIZE - 24) / 2,
                         TILE_SIZE,
                         24};
-
-                    SDL_RenderCopy(pRenderer, pTiles[START_TILE_ID], NULL, &small); // Ritar ut rätt tile på rätt plats
+                    SDL_RenderCopy(pRenderer, pTiles[START_TILE_ID], NULL, &small);
                 }
 
                 if (tileID == 10)
@@ -133,6 +117,7 @@ void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int ti
                     SDL_Rect small1 = getObstacleRect(col, row, tileID);
                     SDL_RenderCopy(pRenderer, pTiles[BARELL_TILE_ID], NULL, &small1);
                 }
+
                 if (tileID == 11)
                 {
                     SDL_Rect small = getObstacleRect(col, row, tileID);
@@ -143,18 +128,17 @@ void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int ti
     }
 }
 
-bool isTileAllowed(float x, float y) // Returnerar true om en position (x, y) är på en tillåten tile (väg), annars false
+// Kollar om en tile tillåter körning
+bool isTileAllowed(float x, float y)
 {
-    int col = (int)(x / TILE_SIZE); // Räkna ut vilken kolumn i tilemap vi är i (utifrån x-position)
-    int row = (int)(y / TILE_SIZE); // Räkna ut vilken rad i tilemap vi är i (utifrån y-position)
+    int col = (int)(x / TILE_SIZE);
+    int row = (int)(y / TILE_SIZE);
 
-    // Om positionen är utanför tilemapens gränser, returnera false
     if (row < 0 || row >= MAP_HEIGHT || col < 0 || col >= MAP_WIDTH)
         return false;
 
-    int tileID = tilemap[row][col]; // Hämta tileID på den aktuella positionen
+    int tileID = tilemap[row][col];
 
-    // Tillåt bara specifika vägtiles
     switch (tileID)
     {
     case 0:

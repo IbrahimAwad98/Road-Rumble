@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include "game.h"
 
-// Laddar in alla resurser som bakgrund, text, ljud, fonter
+// Laddar alla resurser: bilder, ljud, texturer, fonter
 bool loadResources(GameResources *pRes);
 
 #endif

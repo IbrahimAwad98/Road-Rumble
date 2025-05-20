@@ -3,17 +3,17 @@
 
 #include <SDL2/SDL_net.h>
 
-#define SERVER_PORT 55000 // dynamisk, privat och ephemeral (2000 lokalt)
+#define SERVER_PORT 55000 // Serverport för nätverk (UDP)
 
-// strukten skickar data till server.
+// Struktur som skickas mellan klient och server
 typedef struct
 {
-    int playerID;     // ID
-    float x, y;       // position
-    float angle;      // vridning
-    int actionCode;   // kommando ex: 0 = idle, 1 = move...
-    int isPing;       // 0 vanlig data 1 pingförfrågan
-    Uint32 timestamp; // för ping-mätning
+    int playerID;     // Spelarens ID (1–4)
+    float x, y;       // Position
+    float angle;      // Vinkel (rotation)
+    int actionCode;   // Kommando (t.ex. 0 = idle, 1 = move)
+    int isPing;       // 1 = pingförfrågan, 0 = vanlig data
+    Uint32 timestamp; // Används för ping-mätning
 } PlayerData;
 
 #endif

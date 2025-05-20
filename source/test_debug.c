@@ -3,37 +3,30 @@
 #include <SDL2/SDL_mixer.h>
 #include <stdio.h>
 #include "test_debug.h"
-// Kör alla tester för spelets resurser och SDL-komponenter
+
+// Kör tester för spelets resurser och SDL-komponenter
 void runAllTests(GameResources *pRes, bool *pTestPassed, bool debugMode)
 {
-    // Skriver ut en header för testrapporten
+    // Statusrapport-header
     printf("===============================\n");
     printf("         STATUSRAPPORT         \n");
     printf("===============================\n");
 
-    // Visar om debug-läge är aktiverat
     if (debugMode)
-    {
         printf("Debug mode is active\n");
-    }
 
-    // Aktiverar testläge
     printf("Test mode is active\n");
     printf("===============================\n");
 
-    // Sätter teststatus som godkänd tills något visar motsatsen
     *pTestPassed = true;
 
-    // Skapa en vit textfärg för visning
+    //  Visa "Running tests..." på skärmen
     SDL_Color white = {255, 255, 255};
-
-    // Rendera texten "Running tests..." till en SDL_Surface
     SDL_Surface *pLoadingSurf = TTF_RenderText_Solid(pRes->pFont, "Running tests...", white);
-    SDL_Rect rRunning; // Rektangel som definierar var texten visas
+    SDL_Rect rRunning;
 
     if (pLoadingSurf)
     {
-        // Skapa textur från ytan och centrera den i fönstret
         SDL_Texture *pLoadingTex = SDL_CreateTextureFromSurface(pRes->pRenderer, pLoadingSurf);
         rRunning = (SDL_Rect){
             .w = pLoadingSurf->w,
@@ -44,16 +37,13 @@ void runAllTests(GameResources *pRes, bool *pTestPassed, bool debugMode)
         SDL_RenderClear(pRes->pRenderer);
         SDL_RenderCopy(pRes->pRenderer, pLoadingTex, NULL, &rRunning);
         SDL_RenderPresent(pRes->pRenderer);
-        SDL_Delay(1000); // Visa i 1 sekund
+        SDL_Delay(1000);
 
-        // Frigör resurser
         SDL_FreeSurface(pLoadingSurf);
         SDL_DestroyTexture(pLoadingTex);
     }
 
-    // Början på faktiska tester
-
-    // Testar att renderer och fönster finns
+    // Utför tester
     if (!pRes->pRenderer || !pRes->pWindow)
     {
         printf("SDL Renderer and window is not working.\n");
@@ -64,7 +54,6 @@ void runAllTests(GameResources *pRes, bool *pTestPassed, bool debugMode)
         printf("SDL is working.\n");
     }
 
-    // Testar att fonten laddats korrekt
     if (!pRes->pFont)
     {
         printf("SDL font is not working.\n");
@@ -74,19 +63,6 @@ void runAllTests(GameResources *pRes, bool *pTestPassed, bool debugMode)
     {
         printf("SDL font is working.\n");
     }
-
-    // Testar att tileset-texturen laddats
-    if (!pRes->ptilesetTexture)
-    {
-        printf("SDL Tileset is not working.\n");
-        *pTestPassed = false;
-    }
-    else
-    {
-        printf("Tileset is working.\n");
-    }
-
-    // Testar om SDL_net är initierad korrekt
     if (SDLNet_Init() != 0)
     {
         printf("SDL_net is not working: %s\n", SDLNet_GetError());
@@ -97,25 +73,16 @@ void runAllTests(GameResources *pRes, bool *pTestPassed, bool debugMode)
         printf("SDL_net is working.\n");
     }
 
-    // Resultatvisning
+    // Visa testresultat
     SDL_Color green = {0, 255, 0};
     SDL_Color red = {255, 0, 0};
-    SDL_Color resultColor = green;
-    const char *pResultText = "TEST OK";
+    SDL_Color resultColor = *pTestPassed ? green : red;
+    const char *pResultText = *pTestPassed ? "TEST OK" : "TEST FAILED";
 
-    // Om något test fallerade, visa röd text
-    if (!*pTestPassed)
-    {
-        resultColor = red;
-        pResultText = "TEST FAILED";
-    }
-
-    // Rendera resultattexten
     SDL_Surface *pResultSurf = TTF_RenderText_Solid(pRes->pFont, pResultText, resultColor);
     if (pResultSurf)
     {
         SDL_Texture *pResultTex = SDL_CreateTextureFromSurface(pRes->pRenderer, pResultSurf);
-
         SDL_Rect rTest = {
             .w = pResultSurf->w,
             .h = pResultSurf->h,
@@ -124,14 +91,13 @@ void runAllTests(GameResources *pRes, bool *pTestPassed, bool debugMode)
 
         SDL_RenderCopy(pRes->pRenderer, pResultTex, NULL, &rTest);
         SDL_RenderPresent(pRes->pRenderer);
-        SDL_Delay(3000); // Visa resultat i 3 sekunder
+        SDL_Delay(3000);
 
-        // Rensa resurser
         SDL_FreeSurface(pResultSurf);
         SDL_DestroyTexture(pResultTex);
     }
 
-    // Avsluta rapport
+    // Avslutning
     printf("\nTests are done\n");
     printf("===============================\n");
 }
