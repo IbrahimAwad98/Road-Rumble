@@ -8,140 +8,94 @@
 #include "camera.h"
 #include "tilemap.h"
 
-//  Spelkonstanter
-#define WIDTH 1366           // Fönstrets bredd
-#define HEIGHT 768           // Fönstrets höjd
-#define AUDIO_FREQ 44100     // Ljudfrekvens i Hz
-#define AUDIO_CHANNELS 2     // Antal ljudkanaler (stereo)
-#define AUDIO_CHUNKSIZE 2048 // Buffertstorlek för ljud
+// Konstanter
+#define WIDTH 1366
+#define HEIGHT 768
+#define AUDIO_FREQ 44100
+#define AUDIO_CHANNELS 2
+#define AUDIO_CHUNKSIZE 2048
 #define BOOST_FRAME_COUNT 6
 
-
-// Enum: Spellägen
+// Spellägen
 typedef enum
 {
-    MENU,        // Huvudmenyn
-    OPTIONS,     // Inställningsmenyn
-    MULTIPLAYER, // Multiplayer-läget
-    PLAYING      // Själva spelet pågår
+    MENU,
+    OPTIONS,
+    MULTIPLAYER,
+    PLAYING
 } GameMode;
-
-// Enum: MenuLäge
 typedef enum
 {
     CLASSIC,
     DARK
 } MenuMode;
-
-// Enum: Kontroller läge
 typedef enum
 {
     WASD,
     ARROWS
 } ControllerMode;
 
-// Struktur: GameResources
+// Spelresurser
 typedef struct
 {
-    // SDL-fönster och renderare
-    SDL_Window *pWindow;     // Huvudfönster
-    SDL_Renderer *pRenderer; // Renderare för grafik
+    // Fönster och renderare
+    SDL_Window *pWindow;
+    SDL_Renderer *pRenderer;
 
-    // Menytexturer Classic
-    SDL_Texture *pBackgroundTexture;
-    SDL_Texture *pStartTexture;
-    SDL_Texture *pMultiplayerTexture;
-    SDL_Texture *pOptionsTexture;
-    SDL_Texture *pExitTexture;
-    SDL_Texture *pOptionsMenuTex;
-    SDL_Texture *pMultiplayerMenuTex;
-    SDL_Texture *pMuteTexture;
-    SDL_Texture *pUnmuteTexture;
-    SDL_Texture *pBackToMenuTexture;
-    SDL_Texture *pBackToMultiTexture;
-    SDL_Texture *pEnterGameTexture;
-    SDL_Texture *pPlayerIdTexture;
-    SDL_Texture *pClassicTexture;
-    SDL_Texture *pWASDTexture;
-    SDL_Texture *pArrowTexture;
+    // Menytexturer (Classic)
+    SDL_Texture *pBackgroundTexture, *pStartTexture, *pMultiplayerTexture, *pOptionsTexture, *pExitTexture;
+    SDL_Texture *pOptionsMenuTex, *pMultiplayerMenuTex;
+    SDL_Texture *pMuteTexture, *pUnmuteTexture;
+    SDL_Texture *pBackToMenuTexture, *pBackToMultiTexture, *pEnterGameTexture;
+    SDL_Texture *pPlayerIdTexture, *pClassicTexture, *pWASDTexture, *pArrowTexture;
 
-    //  MenuTexturer Dark
-    SDL_Texture *pBackgroundDarkTexture;
-    SDL_Texture *pStartDarkTexture;
-    SDL_Texture *pMultiplayerDarkTexture;
-    SDL_Texture *pOptionsDarkTexture;
-    SDL_Texture *pExitDarkTexture;
-    SDL_Texture *pOptionsMenuDarkTex;
-    SDL_Texture *pMultiplayerMenuDarkTex;
-    SDL_Texture *pMuteDarkTexture;
-    SDL_Texture *pUnmuteDarkTexture;
-    SDL_Texture *pBackToMenuDarkTexture;
-    SDL_Texture *pBackToMultiDarkTexture;
-    SDL_Texture *pEnterGameDarkTexture;
-    SDL_Texture *pPlayerIdDarkTexture;
-    SDL_Texture *pDarkTexture;
-    SDL_Texture *pWASDDarkTexture;
-    SDL_Texture *pArrowDarkTexture;
+    // Menytexturer (Dark)
+    SDL_Texture *pBackgroundDarkTexture, *pStartDarkTexture, *pMultiplayerDarkTexture, *pOptionsDarkTexture, *pExitDarkTexture;
+    SDL_Texture *pOptionsMenuDarkTex, *pMultiplayerMenuDarkTex;
+    SDL_Texture *pMuteDarkTexture, *pUnmuteDarkTexture;
+    SDL_Texture *pBackToMenuDarkTexture, *pBackToMultiDarkTexture, *pEnterGameDarkTexture;
+    SDL_Texture *pPlayerIdDarkTexture, *pDarkTexture, *pWASDDarkTexture, *pArrowDarkTexture;
 
-    //Spel Effekter
+    // Spelgrafik
     SDL_Texture *pTireTrailTexture;
-    SDL_Texture* pBoostFlameFrames[BOOST_FRAME_COUNT];
+    SDL_Texture *pBoostFlameFrames[BOOST_FRAME_COUNT];
+    SDL_Texture *pTiles[NUM_TILES];
+    SDL_Texture *ptilesetTexture;
 
-    // Tiletexturer
-    SDL_Texture *pTiles[NUM_TILES]; // Enskilda tile-texturer (asfalt + gräs)
-    SDL_Texture *ptilesetTexture;   // Hela tileset-bilden
+    // Ljud och text
+    TTF_Font *pFont;
+    Mix_Music *pBgMusic;
 
-    // Font och musik
-    TTF_Font *pFont;     // Typsnitt
-    Mix_Music *pBgMusic; // Bakgrundsmusik
+    // UI-element (Menyknappar)
+    SDL_Rect startRect, exitRect, multiplayerRect, optionsRect, muteRect;
 
-    // Rektanglar för menyknappar och UI-element
-    SDL_Rect startRect;
-    SDL_Rect exitRect;
-    SDL_Rect multiplayerRect;
-    SDL_Rect optionsRect;
-    SDL_Rect muteRect;
+    // UI-element (Options)
+    SDL_Rect backRect, backDarkRect;
+    SDL_Rect musicVolumeRect, musicVolumeDarkRect;
+    SDL_Rect SfxRect, SfxDarkRect;
+    SDL_Rect classicRect, darkRect;
+    SDL_Rect WASDRect, arrowRect;
+    SDL_Rect WASDDarkRect, arrowDarRect;
 
-    // options
-    SDL_Rect backRect;
-    SDL_Rect backDarkRect;
-    SDL_Rect musicVolumeRect;
-    SDL_Rect musicVolumeDarkRect;
-    SDL_Rect SfxRect;
-    SDL_Rect SfxDarkRect;
-    SDL_Rect classicRect;
-    SDL_Rect darkRect;
-    SDL_Rect WASDRect;
-    SDL_Rect arrowRect;
-    SDL_Rect WASDDarkRect;
-    SDL_Rect arrowDarRect;
-
-
-    // Multiplayer (kommenterade delar kan användas senare)
-    SDL_Rect portRect;
-    SDL_Rect portDarkRect;
-    SDL_Rect joinRect;
-    SDL_Rect joinDarkRect;
-    SDL_Rect playerIdRect;
-    SDL_Rect playerIdDarkRect;
-    SDL_Rect backMRect;
-    SDL_Rect backMDarkRect;
-    SDL_Rect enterRect;
-    SDL_Rect enterDarkRect;
+    // UI-element (Multiplayer)
+    SDL_Rect portRect, portDarkRect;
+    SDL_Rect joinRect, joinDarkRect;
+    SDL_Rect playerIdRect, playerIdDarkRect;
+    SDL_Rect backMRect, backMDarkRect;
+    SDL_Rect enterRect, enterDarkRect;
 
     // Spelobjekt
-    Car *pCar1, *pCar2, *pCar3, *pCar4; // två bilar
-    Camera camera1, camera2;            // Två kameror för splitscreen eller nätverk
+    Car *pCar1, *pCar2, *pCar3, *pCar4;
+    Camera camera1, camera2;
 
-    // Nätverk
+    // Nätverksstatus
     bool isHosting;
     bool isClient;
-
-    // Multiplayerdata
-    int localPlayerID; // ID för lokala spelaren (0 eller 1)
+    int localPlayerID;
 
 } GameResources;
 
+// Startar spelets huvudloop
 void gameLoop(GameResources *pRes);
 
 #endif
