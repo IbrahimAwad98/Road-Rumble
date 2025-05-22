@@ -38,8 +38,9 @@ Car *createCar(SDL_Renderer *pRenderer, const char *pImagepath, int x, int y, in
     // Allokera minne för en bil
     Car *pCar = malloc(sizeof(Car));
     if (!pCar)
+    {
         return NULL;
-
+    }
     if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG))
     {
         SDL_Log("Failed to initialize SDL_image: %s\n", IMG_GetError());
@@ -89,14 +90,18 @@ void updateCar(Car *pCar, const Uint8 *pKeys, SDL_Scancode up, SDL_Scancode down
     {
         pCar->speed += accel;
         if (pCar->speed > maxSpeed)
+        {
             pCar->speed = maxSpeed;
+        }
     }
 
     if (pKeys[down])
     {
         pCar->speed -= accel;
         if (pCar->speed < -maxSpeed / 2)
+        {
             pCar->speed = -maxSpeed / 2;
+        }
     }
 
     if (pKeys[left])
@@ -197,9 +202,10 @@ void updateCar(Car *pCar, const Uint8 *pKeys, SDL_Scancode up, SDL_Scancode down
             }
         }
         if (blockedByObstacle)
+        {
             break;
+        }
     }
-
     if (isTileAllowed(checkX, checkY) && !blockedByObstacle)
     {
         pCar->x = nextX;
@@ -261,27 +267,35 @@ SDL_Rect getCarRect(const Car *pCar) { return pCar->carRect; }
 int getTrailMarkX(const Car *car, int index)
 {
     if (!car || index < 0 || index >= MAX_TRAIL)
+    {
         return -1;
+    }
     return (int)car->trail[index].x;
 }
 
 int getTrailMarkY(const Car *car, int index)
 {
     if (!car || index < 0 || index >= MAX_TRAIL)
+    {
         return -1;
+    }
     return (int)car->trail[index].y;
 }
 
 int getTrailCount(const Car *car)
 {
     if (!car)
+    {
         return 0;
+    }
     return car->trailCount;
 }
 float getTrailMarkAngle(const Car *car, int index)
 {
     if (!car || index < 0 || index >= MAX_TRAIL)
+    {
         return 0.0f;
+    }
     return car->trail[index].angle;
 }
 int getCarWidth(Car *car)
@@ -306,12 +320,16 @@ void setCarPosition(Car *car, float x, float y, float angle)
 void setCarAngle(Car *pCar, float angle)
 {
     if (pCar)
+    {
         pCar->angle = angle;
+    }
 }
 void setCarSpeed(Car *pCar, float speed)
 {
     if (pCar)
+    {
         pCar->speed = speed;
+    }
 }
 // Kollision mellan två bilar
 void resolveCollision(Car *pA, Car *pB)
@@ -328,11 +346,15 @@ void resolveCollision(Car *pA, Car *pB)
     float minDistance = 29.0f;
 
     if (distance >= minDistance)
+    {
         return;
+    }
 
     float overlap = minDistance - distance;
     if (distance == 0.0f)
+    {
         distance = 1.0f;
+    }
 
     dx /= distance;
     dy /= distance;

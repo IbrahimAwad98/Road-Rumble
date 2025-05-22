@@ -69,7 +69,7 @@ void gameLoop(GameResources *pRes)
     // Fönsterstorlek
     SDL_RenderSetLogicalSize(pRes->pRenderer, WIDTH, HEIGHT);
 
-    // === Bilarnas startkoordinater ===
+    // Bilarnas startkoordinater
     int carWidth = 80, carHeight = 48;
     int tileCol = 1;
     float tileRow = 4.7f;
@@ -169,7 +169,6 @@ void gameLoop(GameResources *pRes)
                 {
                     hoveredButton = 1;
                 }
-
                 else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->optionsRect))
                 {
                     hoveredButton = 2;
@@ -206,7 +205,6 @@ void gameLoop(GameResources *pRes)
                 {
                     menuMode = CLASSIC;
                 }
-
                 if (menuMode == CLASSIC && SDL_PointInRect(&(SDL_Point){x, y}, &pRes->WASDRect))
                 {
                     cMode = (cMode == WASD) ? ARROWS : WASD;
@@ -215,7 +213,6 @@ void gameLoop(GameResources *pRes)
                 {
                     cMode = (cMode == WASD) ? ARROWS : WASD;
                 }
-
                 if (menuMode == CLASSIC)
                 {
                     if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->musicVolumeRect))
@@ -633,7 +630,6 @@ void gameLoop(GameResources *pRes)
             // Uppdatera lap-count
             if (winnerID < 0)
             {
-
                 for (int i = 0; i < 4; i++)
                 {
                     float x = getCarX(cars[i]);
@@ -642,7 +638,9 @@ void gameLoop(GameResources *pRes)
                     int row = (int)(y / TILE_SIZE);
 
                     if (row < 0 || row >= MAP_HEIGHT || col < 0 || col >= MAP_WIDTH)
+                    {
                         continue;
+                    }
 
                     bool currentlyOnFinish = (tilemap[row][col] == 7);
 
@@ -658,7 +656,6 @@ void gameLoop(GameResources *pRes)
                     wasOnFinish[i] = currentlyOnFinish;
                 }
             }
-
             if (winnerID >= 0)
             {
                 // vinnare
@@ -739,7 +736,6 @@ void gameLoop(GameResources *pRes)
             SDL_RenderCopy(pRes->pRenderer, pingTex, NULL, &pingRect);
             SDL_FreeSurface(pingSurface);
             SDL_DestroyTexture(pingTex);
-
             // Visa egen spelares varv i HUD med laps[PlayerID]
             {
                 char lapText[32];
@@ -769,8 +765,9 @@ void gameLoop(GameResources *pRes)
                     SDL_RenderCopy(pRes->pRenderer, pRes->pWASDTexture, NULL, &pRes->WASDRect);
                 }
                 else
+                {
                     SDL_RenderCopy(pRes->pRenderer, pRes->pArrowTexture, NULL, &pRes->arrowRect);
-
+                }
                 for (int i = 0; i < 5; i++)
                 {
                     SDL_Rect block = {
@@ -781,7 +778,6 @@ void gameLoop(GameResources *pRes)
                     SDL_SetRenderDrawColor(pRes->pRenderer, (i <= musicVolumeLevel) ? 255 : 30, 128, 0, 255);
                     SDL_RenderFillRect(pRes->pRenderer, &block);
                 }
-
                 for (int i = 0; i < 5; i++)
                 {
                     SDL_Rect block = {
@@ -815,7 +811,6 @@ void gameLoop(GameResources *pRes)
                     SDL_SetRenderDrawColor(pRes->pRenderer, (i <= musicVolumeLevel) ? 80 : 20, 160, 220, 255);
                     SDL_RenderFillRect(pRes->pRenderer, &block);
                 }
-
                 for (int i = 0; i < 5; i++)
                 {
                     SDL_Rect block = {
@@ -831,7 +826,6 @@ void gameLoop(GameResources *pRes)
         // IP-anslutning, inmatning av ID
         else if (mode == MULTIPLAYER)
         {
-
             if (menuMode == CLASSIC)
             {
                 // === Classic Multiplayer menu ===
