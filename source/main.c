@@ -36,9 +36,13 @@ int main(int argc, char **argv)
     for (int i = 1; i < argc; i++)
     {
         if (strcasecmp(argv[i], "--test") == 0)
+        {
             testMode = true;
+        }
         else if (strcasecmp(argv[i], "--debug") == 0)
+        {
             debugMode = true;
+        }
         else if (strcasecmp(argv[i], "--ip") == 0 && i + 1 < argc)
         {
             strncpy(serverIP, argv[++i], sizeof(serverIP) - 1);
@@ -55,7 +59,6 @@ int main(int argc, char **argv)
             PlayerID--; // Justera till 1-4
         }
     }
-
     // Initiera SDL och nätverk
     if (!initSDL(&res))
     {
@@ -97,7 +100,6 @@ int main(int argc, char **argv)
     {
         gameLoop(&res); // Starta spelet direkt
     }
-
     // Avsluta
     cleanup(&res);
     return false;
