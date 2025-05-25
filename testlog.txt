@@ -18,7 +18,6 @@ SDL_net is working.
 Tests are done
 ===============================
 TEST RESULTAT: PASSED.
-Please fill IP address and Player ID!
 Cleanup completed!
 libpng warning: iCCP: known incorrect sRGB profile
 libpng warning: iCCP: known incorrect sRGB profile
