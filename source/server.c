@@ -22,7 +22,7 @@ bool initServer(int port)
         return false;
     }
 
-    pPacket = SDLNet_AllocPacket(512);
+    pPacket = SDLNet_AllocPacket(sizeof(PlayerData));
     if (!pPacket)
     {
         printf("SDLNet_AllocPacket error: %s\n", SDLNet_GetError());

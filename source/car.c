@@ -38,9 +38,8 @@ Car *createCar(SDL_Renderer *pRenderer, const char *pImagepath, int x, int y, in
     // Allokera minne för en bil
     Car *pCar = malloc(sizeof(Car));
     if (!pCar)
-    {
         return NULL;
-    }
+
     if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG))
     {
         SDL_Log("Failed to initialize SDL_image: %s\n", IMG_GetError());
@@ -90,18 +89,14 @@ void updateCar(Car *pCar, const Uint8 *pKeys, SDL_Scancode up, SDL_Scancode down
     {
         pCar->speed += accel;
         if (pCar->speed > maxSpeed)
-        {
             pCar->speed = maxSpeed;
-        }
     }
 
     if (pKeys[down])
     {
         pCar->speed -= accel;
         if (pCar->speed < -maxSpeed / 2)
-        {
             pCar->speed = -maxSpeed / 2;
-        }
     }
 
     if (pKeys[left])
@@ -202,10 +197,9 @@ void updateCar(Car *pCar, const Uint8 *pKeys, SDL_Scancode up, SDL_Scancode down
             }
         }
         if (blockedByObstacle)
-        {
             break;
-        }
     }
+
     if (isTileAllowed(checkX, checkY) && !blockedByObstacle)
     {
         pCar->x = nextX;
@@ -264,38 +258,31 @@ float getCarX(const Car *pCar) { return pCar->x; }
 float getCarY(const Car *pCar) { return pCar->y; }
 float getCarAngle(const Car *pCar) { return pCar->angle; }
 SDL_Rect getCarRect(const Car *pCar) { return pCar->carRect; }
+float getCarSpeed(const Car *pCar) { return pCar->speed; }
 int getTrailMarkX(const Car *car, int index)
 {
     if (!car || index < 0 || index >= MAX_TRAIL)
-    {
         return -1;
-    }
     return (int)car->trail[index].x;
 }
 
 int getTrailMarkY(const Car *car, int index)
 {
     if (!car || index < 0 || index >= MAX_TRAIL)
-    {
         return -1;
-    }
     return (int)car->trail[index].y;
 }
 
 int getTrailCount(const Car *car)
 {
     if (!car)
-    {
         return 0;
-    }
     return car->trailCount;
 }
 float getTrailMarkAngle(const Car *car, int index)
 {
     if (!car || index < 0 || index >= MAX_TRAIL)
-    {
         return 0.0f;
-    }
     return car->trail[index].angle;
 }
 int getCarWidth(Car *car)
@@ -307,7 +294,12 @@ int getCarHeight(Car *car)
 {
     return car->carRect.h;
 }
-
+bool isCarDrifting(const Car *pCar)
+{
+    if (!pCar)
+        return false;
+    return pCar->isDrifting;
+}
 // Setters
 void setCarPosition(Car *car, float x, float y, float angle)
 {
@@ -320,17 +312,19 @@ void setCarPosition(Car *car, float x, float y, float angle)
 void setCarAngle(Car *pCar, float angle)
 {
     if (pCar)
-    {
         pCar->angle = angle;
-    }
 }
 void setCarSpeed(Car *pCar, float speed)
 {
     if (pCar)
-    {
         pCar->speed = speed;
-    }
 }
+void setCarDrifting(Car *pCar, bool drifting)
+{
+    if (pCar)
+        pCar->isDrifting = drifting;
+}
+
 // Kollision mellan två bilar
 void resolveCollision(Car *pA, Car *pB)
 {
@@ -346,15 +340,11 @@ void resolveCollision(Car *pA, Car *pB)
     float minDistance = 29.0f;
 
     if (distance >= minDistance)
-    {
         return;
-    }
 
     float overlap = minDistance - distance;
     if (distance == 0.0f)
-    {
         distance = 1.0f;
-    }
 
     dx /= distance;
     dy /= distance;
@@ -382,4 +372,25 @@ void resolveCollision(Car *pA, Car *pB)
         pA->speed *= 0.7f;
         pB->speed *= 0.7f;
     }
+}
+void addTrailIfDrifting(Car *pCar)
+{
+    if (!pCar || !pCar->isDrifting || fabs(pCar->speed) <= 1.0f)
+        return;
+
+    float radians = pCar->angle * (M_PI / 180.0f);
+    float trailX = pCar->x + pCar->carRect.w / 2 - cos(radians) * 20;
+    float trailY = pCar->y + pCar->carRect.h / 2 - sin(radians) * 20;
+
+    if (pCar->trailCount < MAX_TRAIL)
+    {
+        pCar->trail[pCar->trailCount++] = (TrailMark){trailX, trailY, pCar->angle};
+    }
+    else
+    {
+        for (int i = 1; i < MAX_TRAIL; i++)
+            pCar->trail[i - 1] = pCar->trail[i];
+        pCar->trail[MAX_TRAIL - 1] = (TrailMark){trailX, trailY, pCar->angle};
+    }
+    printf("Trail check: drifting=%d speed=%.2f\n", isCarDrifting(pCar), getCarSpeed(pCar));
 }

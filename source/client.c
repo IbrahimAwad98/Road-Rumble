@@ -22,7 +22,7 @@ bool initClient(const char *pIpaddress, int port)
         return false;
     }
 
-    pPacket = SDLNet_AllocPacket(512); // Allokera paket (512 byte)
+    pPacket = SDLNet_AllocPacket(sizeof(PlayerData)); // Allokera paket (512 byte)
     if (!pPacket)
     {
         printf("SDL_AllocPacket error: %s\n", SDLNet_GetError());

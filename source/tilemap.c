@@ -34,7 +34,7 @@ int tilemap[MAP_HEIGHT][MAP_WIDTH] = {
     {109, 2, 1, 6, 104, -1, 104, 5, 1, 4, 105},
     {-1, 0, -1, 0, -1, -1, -1, 0, 107, 0, -1},
     {115, 0, -1, 10, 104, 112, 104, 0, -1, 0, -1},
-    {115, 0, 111, 23, 1, 1, 1, 24, 114, 0, -1},
+    {115, 0, 119, 23, 1, 1, 1, 24, 114, 0, -1},
     {-1, 8, -1, -1, -1, -1, -1, -1, 106, 0, -1},
     {110, 38, 7, 1, 1, 1, 11, 1, 9, 40, 110}};
 
@@ -62,7 +62,7 @@ void renderGrassBackground(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int gr
 }
 
 // Rendera vägbana och objekt från tilemap
-void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int tilemap[MAP_HEIGHT][MAP_WIDTH], int currentLap)
+void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int tilemap[MAP_HEIGHT][MAP_WIDTH], int currentLap, GameResources *pRes)
 {
     for (int row = 0; row < MAP_HEIGHT; row++)
     {
@@ -122,6 +122,34 @@ void renderTrackAndObjects(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int ti
                 {
                     SDL_Rect small = getObstacleRect(col, row, tileID);
                     SDL_RenderCopy(pRenderer, pTiles[CRATE_TILE_ID], NULL, &small);
+                }
+                if (tileID == 119 && pRes->countdownStarted)
+                {
+                    Uint32 elapsed = SDL_GetTicks() - pRes->countdownStartTime;
+                    int frame = elapsed / 1000; // 0–3
+                    if (frame >= LIGHTS_FRAME_COUNT)
+                        frame = LIGHTS_FRAME_COUNT - 1;
+
+                    // Static to keep track of last played sound
+                    static int previousFrame = -1;
+
+                    if (frame != previousFrame)
+                    {
+                        previousFrame = frame;
+
+                        // Play sounds only for frames 1, 2, 3 (skip frame 0 – all lights off)
+                        if (frame >= 1 && frame <= 3 && pRes->lightSounds[frame - 1])
+                        {
+                            Mix_PlayChannel(-1, pRes->lightSounds[frame - 1], 0);
+                        }
+                    }
+
+                    // Render light sprite
+                    SDL_Rect small = {
+                        dest.x,
+                        dest.y - (128 - TILE_SIZE) / 2,
+                        128, 128};
+                    SDL_RenderCopy(pRenderer, pTiles[120 + frame], NULL, &small);
                 }
             }
         }

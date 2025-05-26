@@ -25,14 +25,17 @@ SDL_Rect getCarRect(const Car *pCar); // Hämtar renderingsrektangel
 int getTrailMarkX(const Car *car, int index);       // Hämtar trail X-koordinat
 int getTrailMarkY(const Car *car, int index);       // Hämtar trail Y-koordinat
 float getTrailMarkAngle(const Car *car, int index); // Hämtar trail vinkel
-int getTrailCount(const Car *car);                  // Antal trail-märken
+float getCarSpeed(const Car *pCar);
+int getTrailCount(const Car *car); // Antal trail-märken
+bool isCarDrifting(const Car *pCar);
 
 // Setters
 void setCarPosition(Car *car, float x, float y, float angle); // Sätter position och vinkel
 void setCarAngle(Car *pCar, float angle);                     // Sätter enbart vinkel
 void setCarSpeed(Car *pCar, float speed);                     // Sätter fart
-
+void setCarDrifting(Car *pCar, bool drifting);
 // Kollision
 void resolveCollision(Car *pA, Car *pB); // Löser krock mellan två bilar
+void addTrailIfDrifting(Car *pCar);
 
 #endif
