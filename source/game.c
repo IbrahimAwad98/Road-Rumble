@@ -14,6 +14,35 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+void renderOpponentBoostFlame(GameResources *pRes, Car *car, int frame)
+{
+    float angle = getCarAngle(car);
+    float radians = angle * (M_PI / 180.0f);
+
+    float centerX = getCarX(car) + getCarWidth(car) / 2;
+    float centerY = getCarY(car) + getCarHeight(car) / 2;
+
+    float offset = getCarHeight(car) / 2 + 10;
+    float flameX = centerX - cos(radians) * offset;
+    float flameY = centerY - sin(radians) * offset;
+
+    int spriteWidth = 50;
+    int spriteHeight = 50;
+
+    SDL_Rect flameRect = {
+        (int)(flameX - spriteWidth / 2),
+        (int)(flameY - spriteHeight / 2),
+        spriteWidth,
+        spriteHeight};
+
+    SDL_Point flameCenter = {spriteWidth / 2, spriteHeight / 2};
+
+    SDL_Texture *currentFlame = pRes->pBoostFlameFrames[frame];
+    SDL_SetTextureAlphaMod(currentFlame, 200);
+    SDL_RenderCopyEx(pRes->pRenderer, currentFlame, NULL, &flameRect, angle, &flameCenter, SDL_FLIP_NONE);
+    SDL_SetTextureAlphaMod(currentFlame, 255);
+}
+
 void gameLoop(GameResources *pRes)
 {
     // Allmänna tillståndsvariabler
@@ -65,6 +94,11 @@ void gameLoop(GameResources *pRes)
     static int boostFrame = 0;
     static Uint32 lastBoostFrameTime = 0;
     const Uint32 BOOST_ANIM_SPEED = 60;
+    pRes->raceStarted = false;
+    pRes->countdownStarted = false;
+    pRes->countdownStartTime = 0;
+    pRes->COUNTDOWN_TOTAL_DURATION = 4000;
+    bool raceHasBegun;
 
     // Fönsterstorlek
     SDL_RenderSetLogicalSize(pRes->pRenderer, WIDTH, HEIGHT);
@@ -169,6 +203,7 @@ void gameLoop(GameResources *pRes)
                 {
                     hoveredButton = 1;
                 }
+
                 else if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->optionsRect))
                 {
                     hoveredButton = 2;
@@ -205,6 +240,7 @@ void gameLoop(GameResources *pRes)
                 {
                     menuMode = CLASSIC;
                 }
+
                 if (menuMode == CLASSIC && SDL_PointInRect(&(SDL_Point){x, y}, &pRes->WASDRect))
                 {
                     cMode = (cMode == WASD) ? ARROWS : WASD;
@@ -213,6 +249,7 @@ void gameLoop(GameResources *pRes)
                 {
                     cMode = (cMode == WASD) ? ARROWS : WASD;
                 }
+
                 if (menuMode == CLASSIC)
                 {
                     if (SDL_PointInRect(&(SDL_Point){x, y}, &pRes->musicVolumeRect))
@@ -461,18 +498,26 @@ void gameLoop(GameResources *pRes)
                 client_sendPlayerData(&pingRequest);
                 lastPingRequest = now;
             }
+            if (pRes->countdownStarted &&
+                SDL_GetTicks() - pRes->countdownStartTime >= pRes->COUNTDOWN_TOTAL_DURATION)
+            {
+                raceHasBegun = true;
+            }
 
             // Uppdatera min egen bil
             if (PlayerID >= 0 && PlayerID < 4)
             {
-                float boostFactor = boostActive[PlayerID] ? 2.0f : 1.0f;
-                if (cMode == WASD)
+                if (raceHasBegun)
                 {
-                    updateCar(cars[PlayerID], keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D, boostFactor);
-                }
-                else if (cMode == ARROWS)
-                {
-                    updateCar(cars[PlayerID], keys, SDL_SCANCODE_UP, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT, SDL_SCANCODE_RIGHT, boostFactor);
+                    float boostFactor = boostActive[PlayerID] ? 2.0f : 1.0f;
+                    if (cMode == WASD)
+                    {
+                        updateCar(cars[PlayerID], keys, SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D, boostFactor);
+                    }
+                    else if (cMode == ARROWS)
+                    {
+                        updateCar(cars[PlayerID], keys, SDL_SCANCODE_UP, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT, SDL_SCANCODE_RIGHT, boostFactor);
+                    }
                 }
                 if (boostActive[PlayerID] && SDL_GetTicks() - boostStart[PlayerID] > boostDuration)
                 {
@@ -496,6 +541,14 @@ void gameLoop(GameResources *pRes)
                 myData.x = getCarX(cars[PlayerID]);
                 myData.y = getCarY(cars[PlayerID]);
                 myData.angle = getCarAngle(cars[PlayerID]);
+                myData.speed = getCarSpeed(cars[PlayerID]);
+                myData.isBoosting = boostActive[PlayerID];
+                const Uint8 *keys = SDL_GetKeyboardState(NULL);
+                bool left = (cMode == WASD) ? keys[SDL_SCANCODE_A] : keys[SDL_SCANCODE_LEFT];
+                bool right = (cMode == WASD) ? keys[SDL_SCANCODE_D] : keys[SDL_SCANCODE_RIGHT];
+
+                float speed = getCarSpeed(cars[PlayerID]);
+                myData.isDrifting = ((left || right) && fabs(speed) > 1.2f);
             }
 
             client_sendPlayerData(&myData);
@@ -505,27 +558,50 @@ void gameLoop(GameResources *pRes)
 
             while (client_receiveServerData(&opponentData))
             {
-                // Om det är ett ping-svar till mig
+                if (opponentData.isStartSignal)
+                {
+                    if (!pRes->countdownStarted)
+                    {
+                        pRes->countdownStarted = true;
+                        pRes->countdownStartTime = SDL_GetTicks();
+                        printf("Received START signal. Countdown begins.\n");
+                    }
+                    continue; // skip normal position updates
+                }
                 if (opponentData.isPing == 1 && opponentData.playerID == PlayerID)
                 {
                     ping = SDL_GetTicks() - opponentData.timestamp;
                     continue;
                 }
 
-                // Vanlig spelardata
-                if (opponentData.playerID == PlayerID)
-                {
+                if (opponentData.playerID == PlayerID || opponentData.playerID < 0 || opponentData.playerID > 3)
                     continue;
-                }
 
-                if (opponentData.playerID >= 0 && opponentData.playerID < 4)
+                Car *remoteCar = cars[opponentData.playerID];
+                setCarPosition(remoteCar, opponentData.x, opponentData.y, opponentData.angle);
+                setCarSpeed(remoteCar, opponentData.speed);
+                setCarDrifting(remoteCar, opponentData.isDrifting);
+                boostActive[opponentData.playerID] = opponentData.isBoosting;
+
+                // Drift trail and boost flame directly from received data
+                addTrailIfDrifting(remoteCar);
+
+                if (boostActive[opponentData.playerID])
                 {
-                    setCarPosition(cars[opponentData.playerID], opponentData.x, opponentData.y, opponentData.angle);
+                    Uint32 now = SDL_GetTicks();
+                    if (now - lastBoostFrameTime >= BOOST_ANIM_SPEED)
+                    {
+                        boostFrame = (boostFrame + 1) % BOOST_FRAME_COUNT;
+                        lastBoostFrameTime = now;
+                    }
+                    printf("Rendering boost flame for player %d\n", opponentData.playerID);
+                    renderOpponentBoostFlame(pRes, remoteCar, boostFrame);
                 }
             }
+
             // Rendera spelvärlden
             renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93);
-            renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap, laps[PlayerID]);
+            renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap, laps[PlayerID], pRes);
 
             for (int i = 0; i < 4; i++)
             {
@@ -580,24 +656,17 @@ void gameLoop(GameResources *pRes)
                 printf("BOOST activated by SHIFT!\n");
             }
 
-            if (boostActive[PlayerID])
+            for (int i = 0; i < 4; i++)
             {
-                Uint32 now = SDL_GetTicks();
-                Uint32 boostDuration = 10000; // 10 sekunder
-
-                if (now - boostStart[PlayerID] > boostDuration)
+                if (boostActive[i])
                 {
-                    boostActive[PlayerID] = false;
-                }
-                else
-                {
-                    float angle = getCarAngle(cars[PlayerID]);
+                    float angle = getCarAngle(cars[i]);
                     float radians = angle * (M_PI / 180.0f);
 
-                    float centerX = getCarX(cars[PlayerID]) + getCarWidth(cars[PlayerID]) / 2;
-                    float centerY = getCarY(cars[PlayerID]) + getCarHeight(cars[PlayerID]) / 2;
+                    float centerX = getCarX(cars[i]) + getCarWidth(cars[i]) / 2;
+                    float centerY = getCarY(cars[i]) + getCarHeight(cars[i]) / 2;
 
-                    float offset = getCarHeight(cars[PlayerID]) / 2 + 10;
+                    float offset = getCarHeight(cars[i]) / 2 + 10;
                     float flameX = centerX - cos(radians) * offset;
                     float flameY = centerY - sin(radians) * offset;
 
@@ -612,24 +681,24 @@ void gameLoop(GameResources *pRes)
 
                     SDL_Point flameCenter = {spriteWidth / 2, spriteHeight / 2};
 
-                    // Animation flame
                     Uint32 now = SDL_GetTicks();
                     if (now - lastBoostFrameTime >= BOOST_ANIM_SPEED)
                     {
                         boostFrame = (boostFrame + 1) % BOOST_FRAME_COUNT;
                         lastBoostFrameTime = now;
                     }
-                    // Render the current flame frame
-                    SDL_Texture *currentFlame = pRes->pBoostFlameFrames[boostFrame];
 
+                    SDL_Texture *currentFlame = pRes->pBoostFlameFrames[boostFrame];
                     SDL_SetTextureAlphaMod(currentFlame, 200);
                     SDL_RenderCopyEx(pRes->pRenderer, currentFlame, NULL, &flameRect, angle, &flameCenter, SDL_FLIP_NONE);
                     SDL_SetTextureAlphaMod(currentFlame, 255);
                 }
             }
+
             // Uppdatera lap-count
             if (winnerID < 0)
             {
+
                 for (int i = 0; i < 4; i++)
                 {
                     float x = getCarX(cars[i]);
@@ -638,9 +707,7 @@ void gameLoop(GameResources *pRes)
                     int row = (int)(y / TILE_SIZE);
 
                     if (row < 0 || row >= MAP_HEIGHT || col < 0 || col >= MAP_WIDTH)
-                    {
                         continue;
-                    }
 
                     bool currentlyOnFinish = (tilemap[row][col] == 7);
 
@@ -656,6 +723,7 @@ void gameLoop(GameResources *pRes)
                     wasOnFinish[i] = currentlyOnFinish;
                 }
             }
+
             if (winnerID >= 0)
             {
                 // vinnare
@@ -665,7 +733,7 @@ void gameLoop(GameResources *pRes)
                 // Rita banan + bilar
                 SDL_RenderClear(pRes->pRenderer);
                 renderGrassBackground(pRes->pRenderer, pRes->pTiles, 93);
-                renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap, laps[PlayerID]);
+                renderTrackAndObjects(pRes->pRenderer, pRes->pTiles, tilemap, laps[PlayerID], pRes);
 
                 for (int i = 0; i < 4; i++)
                 {
@@ -736,6 +804,7 @@ void gameLoop(GameResources *pRes)
             SDL_RenderCopy(pRes->pRenderer, pingTex, NULL, &pingRect);
             SDL_FreeSurface(pingSurface);
             SDL_DestroyTexture(pingTex);
+
             // Visa egen spelares varv i HUD med laps[PlayerID]
             {
                 char lapText[32];
@@ -765,9 +834,8 @@ void gameLoop(GameResources *pRes)
                     SDL_RenderCopy(pRes->pRenderer, pRes->pWASDTexture, NULL, &pRes->WASDRect);
                 }
                 else
-                {
                     SDL_RenderCopy(pRes->pRenderer, pRes->pArrowTexture, NULL, &pRes->arrowRect);
-                }
+
                 for (int i = 0; i < 5; i++)
                 {
                     SDL_Rect block = {
@@ -778,6 +846,7 @@ void gameLoop(GameResources *pRes)
                     SDL_SetRenderDrawColor(pRes->pRenderer, (i <= musicVolumeLevel) ? 255 : 30, 128, 0, 255);
                     SDL_RenderFillRect(pRes->pRenderer, &block);
                 }
+
                 for (int i = 0; i < 5; i++)
                 {
                     SDL_Rect block = {
@@ -811,6 +880,7 @@ void gameLoop(GameResources *pRes)
                     SDL_SetRenderDrawColor(pRes->pRenderer, (i <= musicVolumeLevel) ? 80 : 20, 160, 220, 255);
                     SDL_RenderFillRect(pRes->pRenderer, &block);
                 }
+
                 for (int i = 0; i < 5; i++)
                 {
                     SDL_Rect block = {
@@ -826,9 +896,10 @@ void gameLoop(GameResources *pRes)
         // IP-anslutning, inmatning av ID
         else if (mode == MULTIPLAYER)
         {
+
             if (menuMode == CLASSIC)
             {
-                // === Classic Multiplayer menu ===
+                // Classic Multiplayer menu
                 SDL_RenderCopy(pRes->pRenderer, pRes->pMultiplayerMenuTex, NULL, NULL);
                 SDL_RenderCopy(pRes->pRenderer, pRes->pBackToMultiTexture, NULL, &pRes->backMRect);
                 SDL_SetRenderDrawColor(pRes->pRenderer, 0, 0, 0, 180);

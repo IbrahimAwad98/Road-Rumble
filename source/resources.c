@@ -22,7 +22,6 @@ bool createSurfaceAndTexture(SDL_Texture **pTexture, SDL_Renderer *pRenderer, co
         printf("Failed to create texture: %s\n", SDL_GetError());
         return false;
     }
-
     return true;
 }
 
@@ -120,6 +119,40 @@ bool loadResources(GameResources *pRes)
         SDL_SetTextureBlendMode(pRes->pBoostFlameFrames[i], SDL_BLENDMODE_BLEND);
     }
 
+    char path2[128];
+    for (int i = 0; i < LIGHTS_FRAME_COUNT; ++i)
+    {
+        snprintf(path2, sizeof(path2), "resources/tile/effects/lights_0%d.png", i + 1);
+        if (!createSurfaceAndTexture(&pRes->pTiles[120 + i], pRes->pRenderer, path2))
+            return false;
+    }
+
+    char soundPath[128];
+    for (int i = 0; i < LIGHTS_SOUND_COUNT; ++i)
+    {
+        snprintf(soundPath, sizeof(soundPath), "resources/Music/race_light_part_%d.wav", i + 1);
+        pRes->lightSounds[i] = Mix_LoadWAV(soundPath);
+        if (!pRes->lightSounds[i])
+        {
+            printf("Failed to load light sound %d: %s\n", i + 1, Mix_GetError());
+            return false;
+        }
+    }
+
+    SDL_Surface *grassSurface = IMG_Load("resources/tile/grass/land_grass15.png");
+    if (!grassSurface)
+    {
+        printf("Failed to load lights tile: %s\n", IMG_GetError());
+        return false;
+    }
+
+    pRes->pTiles[119] = SDL_CreateTextureFromSurface(pRes->pRenderer, grassSurface);
+    SDL_FreeSurface(grassSurface);
+    if (!pRes->pTiles[119])
+    {
+        printf("Failed to create texture for lights tile: %s\n", SDL_GetError());
+        return false;
+    }
     // Musik
     pRes->pBgMusic = Mix_LoadMUS("resources/music/intro_Opening.mp3");
     if (!pRes->pBgMusic)

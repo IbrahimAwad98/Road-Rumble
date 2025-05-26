@@ -121,6 +121,28 @@ int main(int argc, char **argv)
                 players[i].active = false;
             }
         }
+        bool allConnected = true;
+        for (int i = 0; i < NROFPLAYERS; i++)
+        {
+            if (!players[i].active)
+            {
+                allConnected = false;
+                break;
+            }
+        }
+
+        static bool startSignalSent = false;
+        if (allConnected && !startSignalSent)
+        {
+            PlayerData startSignal = {0};
+            startSignal.isStartSignal = 1;
+            for (int i = 0; i < NROFPLAYERS; i++)
+            {
+                server_sendPlayerData(&startSignal, &players[i].address);
+            }
+            startSignalSent = true;
+            printf(" All players connected — Start signal sent.\n");
+        }
 
         SDL_Delay(1); // Minska CPU-belastning
     }
