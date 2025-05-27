@@ -392,5 +392,4 @@ void addTrailIfDrifting(Car *pCar)
             pCar->trail[i - 1] = pCar->trail[i];
         pCar->trail[MAX_TRAIL - 1] = (TrailMark){trailX, trailY, pCar->angle};
     }
-    printf("Trail check: drifting=%d speed=%.2f\n", isCarDrifting(pCar), getCarSpeed(pCar));
 }
