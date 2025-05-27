@@ -503,6 +503,10 @@ void gameLoop(GameResources *pRes)
             {
                 raceHasBegun = true;
             }
+            else
+            {
+                raceHasBegun = false;
+            }
 
             // Uppdatera min egen bil
             if (PlayerID >= 0 && PlayerID < 4)
