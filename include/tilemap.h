@@ -7,13 +7,13 @@
 
 typedef struct GameResources GameResources;
 
+// Storlek på tilemapen (i tiles)
 #define MAP_WIDTH 11
 #define MAP_HEIGHT 6
 
-// Tilemap-data
+// Global tilemap: varje ruta innehåller ett tileID (-1 = tom)
 extern int tilemap[MAP_HEIGHT][MAP_WIDTH];
 
-// Funktioner
 SDL_Rect getTileSrcByID(int tileID);                                                                                                                // Källa i tileset för en tile
 SDL_Rect getObstacleRect(int col, int row, int tileID);                                                                                             // Rektangel för objekt
 void renderGrassBackground(SDL_Renderer *pRenderer, SDL_Texture **pTiles, int grassTileID);                                                         // Fyller bakgrunden med gräs

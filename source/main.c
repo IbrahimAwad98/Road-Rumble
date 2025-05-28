@@ -12,7 +12,6 @@
 #include "sdl_init.h"
 #include "resources.h"
 #include "test_debug.h"
-#include "camera.h"
 #include "server.h"
 #include "network.h"
 #include "client.h"
@@ -76,7 +75,7 @@ int main(int argc, char **argv)
         return true;
     }
 
-    // Testläge
+    // Om testläge är aktivt, kör tester först
     if (testMode)
     {
         bool testPassed = true;
@@ -85,7 +84,7 @@ int main(int argc, char **argv)
         if (testPassed)
         {
             printf("TEST RESULTAT: PASSED.\n");
-            gameLoop(&res);
+            gameLoop(&res); // Starta spelet
         }
         else
         {
@@ -98,7 +97,7 @@ int main(int argc, char **argv)
         gameLoop(&res); // Starta spelet direkt
     }
 
-    // Avsluta
+    // Rensa resurser innan avslut
     cleanup(&res);
     return false;
 }
