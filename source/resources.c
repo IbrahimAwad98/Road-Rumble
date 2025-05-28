@@ -28,7 +28,7 @@ bool createSurfaceAndTexture(SDL_Texture **pTexture, SDL_Renderer *pRenderer, co
 // Laddar alla resurser för spelet
 bool loadResources(GameResources *pRes)
 {
-    // --- Classic UI ---
+    // Classic mode UI
     if (!createSurfaceAndTexture(&pRes->pBackgroundTexture, pRes->pRenderer, "resources/images/Background.png"))
         return false;
     if (!createSurfaceAndTexture(&pRes->pStartTexture, pRes->pRenderer, "resources/images/start.png"))
@@ -78,7 +78,7 @@ bool loadResources(GameResources *pRes)
     pRes->WASDRect = (SDL_Rect){750, 490, 170, 60};
     pRes->arrowRect = (SDL_Rect){750, 490, 170, 60};
 
-    // Dark mode
+    // Dark mode UI
     if (!createSurfaceAndTexture(&pRes->pBackgroundDarkTexture, pRes->pRenderer, "resources/images/BackgroundDark.png"))
         return false;
     if (!createSurfaceAndTexture(&pRes->pDarkTexture, pRes->pRenderer, "resources/images/dark.png"))
@@ -92,7 +92,7 @@ bool loadResources(GameResources *pRes)
     if (!createSurfaceAndTexture(&pRes->pArrowDarkTexture, pRes->pRenderer, "resources/images/arrows-dark.png"))
         return false;
 
-    // Dark mode rektanglar
+    // Dark mode UI rektanglar
     pRes->darkRect = (SDL_Rect){670, 398, 250, 70};
     pRes->SfxDarkRect = (SDL_Rect){650, 310, 220, 30};
     pRes->backDarkRect = (SDL_Rect){340, 550, 570, 80};
@@ -173,18 +173,9 @@ bool loadResources(GameResources *pRes)
     for (int i = 0; i < NUM_ASPHALT_TILES; i++)
     {
         snprintf(path, sizeof(path), "resources/tile/asphalt/road_asphalt%02d.png", i + 1);
-        SDL_Surface *surface = IMG_Load(path);
-        if (!surface)
+        if (!createSurfaceAndTexture(&pRes->pTiles[i], pRes->pRenderer, path))
         {
-            printf("Failed to load tile %d: %s\n", i + 1, IMG_GetError());
-            return false;
-        }
-
-        pRes->pTiles[i] = SDL_CreateTextureFromSurface(pRes->pRenderer, surface);
-        SDL_FreeSurface(surface);
-        if (!pRes->pTiles[i])
-        {
-            printf("Failed to create texture for tile %d: %s\n", i + 1, SDL_GetError());
+            printf("Failed to load asphalt tile %d\n", i + 1);
             return false;
         }
     }
@@ -193,18 +184,9 @@ bool loadResources(GameResources *pRes)
     for (int i = 0; i < 14; i++)
     {
         snprintf(path, sizeof(path), "resources/tile/grass/land_grass%02d.png", i + 1);
-        SDL_Surface *surface = IMG_Load(path);
-        if (!surface)
+        if (!createSurfaceAndTexture(&pRes->pTiles[90 + i], pRes->pRenderer, path))
         {
-            printf("Failed to load grass tile %d: %s\n", i + 1, IMG_GetError());
-            return false;
-        }
-
-        pRes->pTiles[90 + i] = SDL_CreateTextureFromSurface(pRes->pRenderer, surface);
-        SDL_FreeSurface(surface);
-        if (!pRes->pTiles[90 + i])
-        {
-            printf("Failed to create texture for grass tile %d: %s\n", i + 1, SDL_GetError());
+            printf("Failed to load grass tile %d\n", i + 1);
             return false;
         }
     }
@@ -216,21 +198,13 @@ bool loadResources(GameResources *pRes)
         "Water_Tile.png", "Tree_01.png", "Tree_02.png", "Tribune_full.png",
         "Boost.png", "barrel.png", "Crate.png"};
 
+    char path3[100];
     for (int i = 0; i < NUM_DECOR_TILES; i++)
     {
-        snprintf(path, sizeof(path), "resources/tile/decor/%s", decorFilenames[i]);
-        SDL_Surface *surface = IMG_Load(path);
-        if (!surface)
+        snprintf(path3, sizeof(path3), "resources/tile/decor/%s", decorFilenames[i]);
+        if (!createSurfaceAndTexture(&pRes->pTiles[TILE_OFFSET_DECOR + i], pRes->pRenderer, path3))
         {
-            printf("Failed to load decor tile %s: %s\n", decorFilenames[i], IMG_GetError());
-            return false;
-        }
-
-        pRes->pTiles[TILE_OFFSET_DECOR + i] = SDL_CreateTextureFromSurface(pRes->pRenderer, surface);
-        SDL_FreeSurface(surface);
-        if (!pRes->pTiles[TILE_OFFSET_DECOR + i])
-        {
-            printf("Failed to create texture for decor tile %s: %s\n", decorFilenames[i], SDL_GetError());
+            printf("Failed to load decor tile %s\n", decorFilenames[i]);
             return false;
         }
     }
