@@ -27,7 +27,6 @@ OBJS_CLIENT = \
     resources.o \
     cleanup.o \
     car.o \
-    camera.o \
     test_debug.o \
     client.o \
     server.o \
@@ -68,9 +67,6 @@ cleanup.o: $(SRCDIR)/cleanup.c
 
 car.o: $(SRCDIR)/car.c
 	$(CC) $(CFLAGS) $(SRCDIR)/car.c
-
-camera.o: $(SRCDIR)/camera.c
-	$(CC) $(CFLAGS) $(SRCDIR)/camera.c
 
 test_debug.o: $(SRCDIR)/test_debug.c
 	$(CC) $(CFLAGS) $(SRCDIR)/test_debug.c

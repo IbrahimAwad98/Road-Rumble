@@ -47,7 +47,7 @@ bool client_receiveServerData(PlayerData *pData)
 {
     if (SDLNet_UDP_Recv(sock, pPacket))
     {
-        memcpy(pData, pPacket->data, sizeof(PlayerData)); // Kopiera in
+        memcpy(pData, pPacket->data, sizeof(PlayerData)); // Kopiera in oavsett data storlek
         return true;
     }
     return false;
@@ -56,6 +56,6 @@ bool client_receiveServerData(PlayerData *pData)
 // Stänger klient och frigör resurser
 void closeClient()
 {
-    SDLNet_FreePacket(pPacket);
-    SDLNet_UDP_Close(sock);
+    if (pPacket) SDLNet_FreePacket(pPacket);
+    if (sock) SDLNet_UDP_Close(sock);
 }

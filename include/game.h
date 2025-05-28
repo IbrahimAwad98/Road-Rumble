@@ -6,7 +6,6 @@
 #include <SDL2/SDL_mixer.h>
 #include "tilemap.h"
 #include "car.h"
-#include "camera.h"
 
 // Konstanter
 #define WIDTH 1366
@@ -115,7 +114,6 @@ typedef struct GameResources
 
     // Spelobjekt
     Car *pCar1, *pCar2, *pCar3, *pCar4;
-    Camera camera1, camera2;
 
     // Nätverksstatus
     bool isHosting;

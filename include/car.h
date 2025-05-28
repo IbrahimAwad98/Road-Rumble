@@ -36,6 +36,6 @@ void setCarSpeed(Car *pCar, float speed);                     // Sätter fart
 void setCarDrifting(Car *pCar, bool drifting);
 // Kollision
 void resolveCollision(Car *pA, Car *pB); // Löser krock mellan två bilar
-void addTrailIfDrifting(Car *pCar);
+void addTrailIfDrifting(Car *pCar);      // Lägger till en trail-markering om bilen driftar
 
 #endif
