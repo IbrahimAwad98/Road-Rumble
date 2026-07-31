@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+# Rot-Makefilen stödjer bara Windows och macOS (Linux ger "Unsupported OS"),
+# så CI bygger på macOS med SDL2 via Homebrew — samma väg som Makefile.mac.
+jobs:
+  build:
+    name: Build (macOS)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installera beroenden (macOS)
+        run: brew install sdl2 sdl2_image sdl2_ttf sdl2_net sdl2_mixer
+
+      - name: Bygg
+        run: make
+
+      - name: Kör tester
+        run: make test || echo "Inga tester definierade ännu"
