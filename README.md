@@ -1,5 +1,7 @@
 # Road Rumble – Multiplayer SDL2 Racing Game
 
+[![CI](https://github.com/IbrahimAwad98/Road-Rumble/actions/workflows/ci.yml/badge.svg)](https://github.com/IbrahimAwad98/Road-Rumble/actions/workflows/ci.yml)
+
 **Road Rumble** är ett nätverksbaserat 2D-racingspel utvecklat i C med SDL2-biblioteket. Spelet är byggt enligt klient-server-modellen och stödjer upp till fyra spelare samtidigt via UDP.
 
 ## Funktioner
