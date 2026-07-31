@@ -1,0 +1,91 @@
+# Makefile.linux — för Linux med gcc och SDL2 via pakethanteraren
+# (sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-net-dev libsdl2-mixer-dev)
+
+# ============================
+# Kompilator & mappar
+# ============================
+CC = gcc
+SRCDIR = source
+MYINCLUDES = -Iinclude
+
+# ============================
+# Flaggar
+# ============================
+CFLAGS = $(MYINCLUDES) -c -g
+LDFLAGS_CLIENT = -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_net -lSDL2_mixer
+LDFLAGS_SERVER = -lSDL2main -lSDL2 -lSDL2_net
+
+# ============================
+# Mål & objektfiler
+# ============================
+TARGET_CLIENT = Game
+TARGET_SERVER = server
+
+OBJS_CLIENT = \
+    main.o \
+    sdl_init.o \
+    game.o \
+    resources.o \
+    cleanup.o \
+    car.o \
+    test_debug.o \
+    client.o \
+    server.o \
+    tilemap.o
+
+OBJS_SERVER = \
+    server_main.o \
+    server.o
+
+# ============================
+# Byggprogram
+# ============================
+all: $(TARGET_CLIENT) $(TARGET_SERVER)
+
+$(TARGET_CLIENT): $(OBJS_CLIENT)
+	$(CC) $(OBJS_CLIENT) -o $(TARGET_CLIENT) $(LDFLAGS_CLIENT)
+
+$(TARGET_SERVER): $(OBJS_SERVER)
+	$(CC) $(OBJS_SERVER) -o $(TARGET_SERVER) $(LDFLAGS_SERVER)
+
+# ============================
+# Objektfiler
+# ============================
+main.o: $(SRCDIR)/main.c
+	$(CC) $(CFLAGS) $(SRCDIR)/main.c
+
+sdl_init.o: $(SRCDIR)/sdl_init.c
+	$(CC) $(CFLAGS) $(SRCDIR)/sdl_init.c
+
+game.o: $(SRCDIR)/game.c
+	$(CC) $(CFLAGS) $(SRCDIR)/game.c
+
+resources.o: $(SRCDIR)/resources.c
+	$(CC) $(CFLAGS) $(SRCDIR)/resources.c
+
+cleanup.o: $(SRCDIR)/cleanup.c
+	$(CC) $(CFLAGS) $(SRCDIR)/cleanup.c
+
+car.o: $(SRCDIR)/car.c
+	$(CC) $(CFLAGS) $(SRCDIR)/car.c
+
+test_debug.o: $(SRCDIR)/test_debug.c
+	$(CC) $(CFLAGS) $(SRCDIR)/test_debug.c
+
+client.o: $(SRCDIR)/client.c
+	$(CC) $(CFLAGS) $(SRCDIR)/client.c
+
+server.o: $(SRCDIR)/server.c
+	$(CC) $(CFLAGS) $(SRCDIR)/server.c
+
+tilemap.o: $(SRCDIR)/tilemap.c
+	$(CC) $(CFLAGS) $(SRCDIR)/tilemap.c
+
+server_main.o: $(SRCDIR)/server_main.c
+	$(CC) $(CFLAGS) $(SRCDIR)/server_main.c
+
+# ============================
+# Rensa objekt och binär
+# ============================
+clean:
+	@rm -f *.o $(TARGET_CLIENT) $(TARGET_SERVER)

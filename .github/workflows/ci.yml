@@ -5,16 +5,22 @@ on:
     branches: [main, master]
   pull_request:
 
-# Rot-Makefilen stödjer bara Windows och macOS (Linux ger "Unsupported OS"),
-# så CI bygger på macOS med SDL2 via Homebrew — samma väg som Makefile.mac.
 jobs:
   build:
-    name: Build (macOS)
-    runs-on: macos-latest
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
 
+      - name: Installera beroenden (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-net-dev libsdl2-mixer-dev
+
       - name: Installera beroenden (macOS)
+        if: runner.os == 'macOS'
         run: brew install sdl2 sdl2_image sdl2_ttf sdl2_net sdl2_mixer
 
       - name: Bygg
