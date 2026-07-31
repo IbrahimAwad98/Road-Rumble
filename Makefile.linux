@@ -12,8 +12,8 @@ MYINCLUDES = -Iinclude
 # Flaggar
 # ============================
 CFLAGS = $(MYINCLUDES) -c -g
-LDFLAGS_CLIENT = -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_net -lSDL2_mixer
-LDFLAGS_SERVER = -lSDL2main -lSDL2 -lSDL2_net
+LDFLAGS_CLIENT = -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_net -lSDL2_mixer -lm
+LDFLAGS_SERVER = -lSDL2main -lSDL2 -lSDL2_net -lm
 
 # ============================
 # Mål & objektfiler
