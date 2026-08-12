@@ -1,8 +1,14 @@
 # Road Rumble
 
+<p align="center">
+  <img src="cover.png" alt="Road Rumble — Survive the Highway!" width="480">
+</p>
+
 [![CI](https://github.com/IbrahimAwad98/Road-Rumble/actions/workflows/ci.yml/badge.svg)](https://github.com/IbrahimAwad98/Road-Rumble/actions/workflows/ci.yml)
 
 CI compiles both binaries but does not run them.
+
+**▶ [Watch the trailer on YouTube](https://youtu.be/4sfKtYIv5hc)**
 
 A four-player top-down racing game written in C with SDL2, where a dedicated
 server relays car state between clients over UDP.
@@ -44,6 +50,13 @@ is no split-screen and no scrolling camera; the whole track fits in the window.
 - Multiplayer menu with text-entry fields for the server IP and player ID.
 - Diagnostic mode (`--test`) that checks the renderer, the font, and SDL_net
   initialisation before starting.
+
+## Download
+
+Prebuilt zips for Linux, macOS, and Windows are attached to each
+[GitHub release](https://github.com/IbrahimAwad98/Road-Rumble/releases). The
+Windows zip bundles the SDL2 DLLs; on Linux and macOS you still need the SDL2
+libraries from Requirements below.
 
 ## Requirements
 
