@@ -1,0 +1,101 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    name: Paketera (${{ matrix.suffix }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            suffix: linux
+          - os: macos-latest
+            suffix: macos
+          - os: windows-latest
+            suffix: windows
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installera beroenden (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-net-dev libsdl2-mixer-dev
+
+      - name: Installera beroenden (macOS)
+        if: runner.os == 'macOS'
+        run: brew install sdl2 sdl2_image sdl2_ttf sdl2_net sdl2_mixer
+
+      # release: false = använd förinstallerade MSYS2 på C:\msys64,
+      # samma sökväg som Makefile.win hårdkodar
+      - name: Installera beroenden (Windows)
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          release: false
+          msystem: MINGW64
+          install: >-
+            make
+            zip
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-SDL2
+            mingw-w64-x86_64-SDL2_image
+            mingw-w64-x86_64-SDL2_ttf
+            mingw-w64-x86_64-SDL2_net
+            mingw-w64-x86_64-SDL2_mixer
+
+      - name: Bygg (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: make
+
+      # Makefile.mac bygger bara klienten — bygg servern för hand
+      - name: Bygg server (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          clang -Iinclude -I/opt/homebrew/include -o server \
+            source/server_main.c source/server.c \
+            -L/opt/homebrew/lib -lSDL2main -lSDL2 -lSDL2_net -lm
+
+      - name: Bygg (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: make
+
+      - name: Paketera (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          mkdir dist
+          cp Game server start_multiplayer.sh dist/
+          cp -r resources dist/
+          cd dist && zip -r "../RoadRumble-${GITHUB_REF_NAME}-${{ matrix.suffix }}.zip" .
+
+      # ldd plockar alla DLL:er binärerna faktiskt länkar mot (SDL2 + transitiva
+      # beroenden som libpng, freetype m.fl.) — en handskriven lista missar de senare
+      - name: Paketera med SDL2-DLL:er (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: |
+          mkdir dist
+          cp Game.exe server.exe start_multiplayer.bat dist/
+          cp -r resources dist/
+          for exe in dist/*.exe; do
+            ldd "$exe" | awk '/\/mingw64\// {print $3}' | while read -r dll; do
+              cp -n "$dll" dist/
+            done
+          done
+          cd dist && zip -r "../RoadRumble-${GITHUB_REF_NAME}-windows.zip" .
+
+      # create misslyckas tyst för alla jobb utom det första — releasen finns då redan
+      - name: Ladda upp till GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes || true
+          gh release upload "$GITHUB_REF_NAME" RoadRumble-*.zip --clobber
