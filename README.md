@@ -132,11 +132,6 @@ prints to the terminal. Read that file when diagnosing a failure.
 
 These are real and currently unfixed. They are tracked as issues.
 
-- **The client does not start on Linux.** Two asset paths are written in
-  lowercase (`resources/music/`, `resources/fonts/`) while the directories are
-  capitalised. The font failure is fatal, so on a case-sensitive filesystem the
-  window opens and closes immediately. Because stdout is redirected, the reason
-  only appears in `testlog.txt`. macOS and Windows are unaffected.
 - **A race needs exactly four players, not "up to four".** The server sends the
   start signal only when all four slots are active, and nothing moves until it
   arrives. Single-player and two- or three-player sessions put you on the track
