@@ -154,14 +154,14 @@ bool loadResources(GameResources *pRes)
         return false;
     }
     // Musik
-    pRes->pBgMusic = Mix_LoadMUS("resources/music/intro_Opening.mp3");
+    pRes->pBgMusic = Mix_LoadMUS("resources/Music/intro_Opening.mp3");
     if (!pRes->pBgMusic)
         printf("Failed to load background music: %s\n", Mix_GetError());
     else
         Mix_PlayMusic(pRes->pBgMusic, -1);
 
     // Font
-    pRes->pFont = TTF_OpenFont("resources/fonts/PressStart2P-Regular.ttf", 35);
+    pRes->pFont = TTF_OpenFont("resources/Fonts/PressStart2P-Regular.ttf", 35);
     if (!pRes->pFont)
     {
         printf("Failed to load font: %s\n", TTF_GetError());
